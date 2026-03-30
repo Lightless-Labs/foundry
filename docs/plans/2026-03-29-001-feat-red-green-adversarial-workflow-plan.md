@@ -1,7 +1,7 @@
 ---
 title: "feat: Red/Green Adversarial Development Workflow"
 type: feat
-status: active
+status: completed
 date: 2026-03-29
 deepened: 2026-03-29
 origin: docs/brainstorms/2026-03-29-red-green-adversarial-workflow.md
