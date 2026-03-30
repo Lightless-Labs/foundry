@@ -124,6 +124,23 @@ The red/green workflow extends Foundry's existing model:
 - **Retry limits**: Map to deadlock detection — max cycles before escalation.
 - **Split execution**: Red/green is a split with information barrier constraints on artifact visibility.
 
+## Addendum: 2026-03-30 — NLSpec as Shared Spec Format
+
+StrongDM's NLSpec (Natural Language Specification) is a strong candidate for the shared spec/contract format. NLSpecs use a "Why, What, How, Done" structure that combines pseudo-code with prose to eliminate ambiguity — designed specifically for AI agent consumption.
+
+Key fit with the red/green model:
+- The **"Done" section** contains pseudo-code integration tests that the red team can formalize into Gherkin step definitions
+- The **"How" section** gives the green team implementation guidance without exposing test assertions
+- The **recursive mirroring** (What → How → Done) ensures both teams derive their work from the same precise source
+- StrongDM's Attractor project proved NLSpecs can drive full system implementation (6-7K lines of spec, zero human-written code)
+
+References:
+- https://jhugman.com/posts/on-nlspecs/
+- https://github.com/strongdm/attractor/blob/main/coding-agent-loop-spec.md
+- https://github.com/jhugman/nlspec
+
+The engine is format-agnostic (spec/contract are files passed to agents). NLSpec adoption is a prompt engineering and workflow design decision, not an engine change.
+
 ## Next Steps
 
 1. Create a TODO for the arbiter agent pattern as a future improvement
