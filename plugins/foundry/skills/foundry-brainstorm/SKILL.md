@@ -21,6 +21,34 @@ Either:
 
 If a research context exists, read it first and use it to inform the dialogue.
 
+## Mid-Dialogue Research
+
+Research is not a phase — it's a reflex. After every user reply, evaluate whether new unknowns have surfaced that you can't answer from existing context.
+
+**Trigger research when the user's reply:**
+- Names a technology, library, pattern, or standard you don't have enough context on
+- Reveals a constraint that changes the problem shape (e.g., "this runs on embedded" or "we need FIPS compliance")
+- References existing code, files, or systems you haven't read
+- Raises a question where the answer lives in the codebase, docs, or web — not in your training data
+- Contradicts or complicates an assumption you were working with
+
+**How to research mid-dialogue:**
+1. Tell the user what you're checking and why (one line, not a speech)
+2. Spawn a background research subagent or run targeted searches directly:
+   - Codebase: grep/glob/read for the specific thing referenced
+   - Docs: check docs/, README, CLAUDE.md for relevant context
+   - Web: search for the specific technology, standard, or pattern
+   - Context7: fetch library docs if a specific framework/library was named
+3. Fold findings into your next question or response — don't dump raw research
+4. If findings change your understanding, say so: "That changes things — [specific thing] means we need to reconsider [specific aspect]."
+
+**Don't research when:**
+- The user is making a preference/design choice (no fact to verify)
+- You already have enough context to ask a good follow-up question
+- The topic is purely about product behavior, not technical feasibility
+
+The goal: never ask the user a question you could have answered yourself with a 10-second search. Never let a false assumption survive past the reply that contradicted it.
+
 ## Workflow
 
 ### Phase 1: Understand
@@ -36,13 +64,15 @@ If a research context exists, read it first and use it to inform the dialogue.
    - What are the success criteria
    - What constraints exist
 
-4. **Pressure-test assumptions** — Challenge anything that seems assumed but not stated. Surface hidden complexity. Ask "what happens when X fails?" for each critical path.
+   After each user reply, run the mid-dialogue research check. If the reply surfaces something concrete to investigate, research it before asking your next question.
+
+4. **Pressure-test assumptions** — Challenge anything that seems assumed but not stated. Surface hidden complexity. Ask "what happens when X fails?" for each critical path. Use targeted research to ground your challenges in facts (e.g., "I checked and the library doesn't support X" rather than "have you considered whether the library supports X?").
 
 ### Phase 2: Explore Approaches
 
-1. **Propose 2-3 concrete approaches** — Each with trade-offs. Don't present a "correct" answer; present genuine alternatives.
+1. **Propose 2-3 concrete approaches** — Each with trade-offs. Don't present a "correct" answer; present genuine alternatives. If an approach depends on a library or pattern you're unsure about, research it before presenting — don't propose something that turns out to be infeasible.
 
-2. **Let the user choose** — Or combine elements from multiple approaches.
+2. **Let the user choose** — Or combine elements from multiple approaches. If their choice raises new feasibility questions, research before proceeding.
 
 3. **Resolve key decisions** — For each decision point, capture:
    - The decision made
