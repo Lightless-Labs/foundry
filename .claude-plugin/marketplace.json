@@ -1,0 +1,32 @@
+{
+  "name": "foundry",
+  "owner": {
+    "name": "Lightless Labs",
+    "url": "https://github.com/Lightless-Labs"
+  },
+  "metadata": {
+    "description": "Adversarial red/green development workflow for AI-driven software engineering",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "foundry",
+      "description": "Adversarial red/green development workflow. Research, brainstorm, derive NLSpec, then implement with isolated red (test) and green (implementation) teams mediated by strict information barriers.",
+      "author": {
+        "name": "Lightless Labs",
+        "url": "https://github.com/Lightless-Labs"
+      },
+      "homepage": "https://github.com/Lightless-Labs/foundry",
+      "tags": [
+        "adversarial",
+        "red-green",
+        "nlspec",
+        "testing",
+        "code-quality",
+        "agent-orchestration",
+        "tdd"
+      ],
+      "source": "./plugins/foundry"
+    }
+  ]
+}
