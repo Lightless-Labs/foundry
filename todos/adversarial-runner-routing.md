@@ -2,7 +2,7 @@
 title: Route adversarial actions through correct engine functions in drive_concurrent
 origin: 2026-03-30 ce:review finding P0-2
 priority: p1
-status: ready
+status: completed
 ---
 
 # Adversarial Runner Routing
