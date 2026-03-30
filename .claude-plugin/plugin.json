@@ -1,0 +1,19 @@
+{
+  "name": "foundry",
+  "version": "0.1.0",
+  "description": "Adversarial red/green development workflow. Research, brainstorm, derive NLSpec, then implement with isolated red (test) and green (implementation) teams mediated by strict information barriers.",
+  "author": {
+    "name": "Lightless Labs"
+  },
+  "homepage": "https://github.com/Lightless-Labs/foundry",
+  "repository": "https://github.com/Lightless-Labs/foundry",
+  "license": "MIT",
+  "keywords": [
+    "adversarial",
+    "red-green",
+    "nlspec",
+    "testing",
+    "code-quality",
+    "agent-orchestration"
+  ]
+}
