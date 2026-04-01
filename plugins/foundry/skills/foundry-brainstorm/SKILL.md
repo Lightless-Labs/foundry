@@ -141,15 +141,30 @@ Before finalizing, re-read the spec and verify:
 - Scope boundaries are explicit
 - No hidden assumptions
 
-If the spec has 5+ requirements or touches high-risk areas, spawn a reviewer subagent:
+If the spec has 5+ requirements or touches high-risk areas, spawn the spec-completeness-reviewer:
 
 ```
-Agent(subagent_type="general-purpose", prompt="Review this specification for completeness,
-ambiguity, and missing edge cases. The spec is at [path]. Report gaps as concrete questions
-the author should answer, not vague suggestions.")
+Agent(
+    subagent_type="foundry:review:spec-completeness-reviewer",
+    prompt="Review this specification for testability, completeness, and adversarial readiness.
+    The spec is at [path].
+
+    Focus on:
+    - Can two independent teams (red writing tests, green implementing) produce correct work from this spec alone?
+    - Is every requirement testable (convertible to a pass/fail checkbox)?
+    - Are error paths specified for each behavior?
+    - Are scope boundaries explicit with extension points?
+    - Would a red team and green team interpret any requirement differently?
+
+    Return findings as JSON matching the findings schema."
+)
 ```
 
-Present the reviewer's findings to the user. Iterate if needed.
+For specs with 10+ requirements or high-risk domains, also spawn these in parallel:
+- `foundry:document-review:adversarial-document-reviewer` — stress-test premises, challenge assumptions
+- `foundry:document-review:feasibility-reviewer` — verify the spec is implementable
+
+Present all reviewers' findings to the user. Iterate if needed.
 
 ### Phase 5: Handoff
 
