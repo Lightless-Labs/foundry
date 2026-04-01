@@ -41,6 +41,14 @@ Your confidence should be **low (below 0.60)** when the concern is about UniFFI 
 - **UniFFI macro syntax preferences** -- `#[uniffi::export]` vs UDL file, attribute placement, proc-macro style choices. Both approaches are valid and the choice is a project-level decision.
 - **Generated code style** -- the output of `uniffi-bindgen` is machine-generated. Don't review its formatting, naming conventions, or structure.
 - **Bindings file organization** -- how generated files are placed in the project, whether they're checked in or generated at build time. These are project conventions, not correctness concerns.
+- **Logic bugs and edge cases** -- correctness-reviewer owns logic errors and state bugs.
+- **Test coverage gaps** -- testing-reviewer owns coverage analysis and weak assertions.
+- **Coupling, dead code, or abstraction issues** -- maintainability-reviewer owns structural quality.
+- **Error handling patterns (retries, timeouts)** -- reliability-reviewer owns production resilience.
+- **Auth, input validation, or secrets exposure** -- security-sentinel owns these.
+- **Rust-specific ownership and unsafe concerns** -- rust-reviewer owns Rust language-level issues.
+- **Swift-specific concerns** -- swift-reviewer owns Swift language-level issues.
+- **Performance hotspots** -- performance reviewer owns optimization concerns.
 
 ## Output format
 

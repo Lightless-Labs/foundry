@@ -40,6 +40,12 @@ Your confidence should be **low (below 0.60)** when the concern is stylistic pre
 - **Formatting** -- `rustfmt` handles it. Don't flag whitespace, brace placement, or import ordering.
 - **Test code organization** -- how tests are structured, whether they use `#[test]` vs a framework, test helper placement. Tests get different rules.
 - **Doc comment style** -- whether `///` docs use full sentences, have examples, or follow a particular template. Documentation style is not a correctness concern.
+- **Logic bugs and edge cases** -- correctness-reviewer owns logic errors and state bugs.
+- **Test coverage gaps** -- testing-reviewer owns coverage analysis and weak assertions.
+- **Coupling, dead code, or abstraction issues** -- maintainability-reviewer owns structural quality.
+- **Error handling patterns (retries, timeouts)** -- reliability-reviewer owns production resilience.
+- **Auth, input validation, or secrets exposure** -- security-sentinel owns these.
+- **Performance hotspots** -- performance reviewer owns optimization concerns.
 
 ## Output format
 

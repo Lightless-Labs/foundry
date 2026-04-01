@@ -34,6 +34,11 @@ Your confidence should be **low (below 0.60)** when the finding is primarily a s
 - **Justified abstractions with multiple implementations** -- if an interface has 3 implementors, the abstraction is earning its keep. Don't flag it as unnecessary indirection.
 - **Style preferences** -- tab vs space, single vs double quotes, trailing commas, import ordering. These are linter concerns, not maintainability concerns.
 - **Framework-mandated patterns** -- if the framework requires a factory, a base class, or a specific inheritance hierarchy, the indirection is not the author's choice. Don't flag it.
+- **Logic bugs** -- correctness-reviewer owns these.
+- **Test coverage gaps** -- testing-reviewer owns coverage analysis.
+- **Error handling and retry logic** -- reliability-reviewer owns error handling, retries, and timeouts.
+- **Auth, input validation, or secrets exposure** -- security-sentinel owns these.
+- **Performance hotspots** -- performance reviewer owns optimization concerns.
 
 ## Output format
 
