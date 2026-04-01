@@ -35,6 +35,13 @@ Your confidence should be **low (below 0.60)** when the concern is stylistic pre
 - **Objective-C interop style** -- bridging headers, `@objc` annotations on legacy code, NS-prefixed types used for interop. These are constraints, not choices.
 - **UIKit patterns in legacy code** -- if the file is UIKit-based and the diff doesn't introduce SwiftUI, don't suggest a SwiftUI migration. Review the code as UIKit.
 - **SwiftUI preview configuration** -- `#Preview` macro usage, preview providers, preview device selection. These don't affect production behavior.
+- **Logic bugs and edge cases** -- correctness-reviewer owns logic errors and state bugs.
+- **Test coverage gaps** -- testing-reviewer owns coverage analysis and weak assertions.
+- **Coupling, dead code, or abstraction issues** -- maintainability-reviewer owns structural quality.
+- **Error handling patterns (retries, timeouts)** -- reliability-reviewer owns production resilience.
+- **Auth, input validation, or secrets exposure** -- security-sentinel owns these.
+- **UniFFI bridge concerns** -- uniffi-bridge-reviewer owns the Rust-Swift boundary.
+- **Performance hotspots** -- performance reviewer owns optimization concerns.
 
 ## Output format
 

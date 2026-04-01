@@ -46,6 +46,7 @@ Your confidence should be **low (below 0.60)** when the data impact is speculati
 - **Adding indexes on small or low-traffic tables** -- if the table is clearly small (config tables, enum-like tables), the index creation won't cause issues.
 - **Test database changes** -- migrations in test fixtures, test database setup, or seed files. These don't affect production data.
 - **Purely additive schema changes** -- new tables, new columns with defaults, new indexes on new tables. These don't interact with existing data.
+- **Application code correctness** -- logic errors in the code that uses the migrated data. The correctness-reviewer owns behavioral correctness.
 
 ## Output format
 

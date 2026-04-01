@@ -39,6 +39,7 @@ Your confidence should be **low (below 0.60)** when the concern is about Bazel s
 - **bzlmod migration suggestions** -- unless something is actively broken by the WORKSPACE approach, don't suggest migrating to bzlmod. It's a strategic decision, not a per-PR concern.
 - **BUILD file formatting** -- `buildifier` handles formatting. Don't flag load statement ordering, attribute alignment, or whitespace.
 - **Workspace rule complexity in third-party deps** -- `http_archive` with patches, complex `repository_rule` implementations for external dependencies. These are inherently complex and rarely benefit from PR-level review unless they introduce hermeticity violations.
+- **Rust code quality within Bazel-built targets** -- ownership, unsafe hygiene, and Rust-specific idioms. The rust-reviewer owns Rust code quality.
 
 ## Output format
 

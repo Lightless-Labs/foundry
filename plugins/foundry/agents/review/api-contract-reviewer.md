@@ -32,7 +32,7 @@ Your confidence should be **low (below 0.60)** when the change is internal and y
 
 - **Internal refactors that don't change public interface** -- renaming private methods, restructuring internal data flow, changing implementation details behind a stable API. If the contract is unchanged, it's not your concern.
 - **Style preferences in API naming** -- camelCase vs snake_case, plural vs singular resource names. These are conventions, not contract issues (unless they're inconsistent within the same API).
-- **Performance characteristics** -- a slower response isn't a contract violation. That belongs to the performance reviewer.
+- **Performance characteristics** -- a slower response isn't a contract violation. The reliability-reviewer owns performance and resilience concerns.
 - **Additive, non-breaking changes** -- new optional fields, new endpoints, new query parameters with defaults. These extend the contract without breaking it.
 
 ## Output format

@@ -37,6 +37,12 @@ Your confidence should be **low (below 0.60)** when the concern is stylistic pre
 - **Formatting and import ordering** -- Prettier, ESLint, and auto-import tools handle this. Don't flag whitespace, semicolons, trailing commas, or import grouping.
 - **Modern TS features for their own sake** -- don't suggest `satisfies` over `as const`, template literal types over string enums, or other pattern upgrades unless the current code has a concrete correctness or readability problem.
 - **Straightforward, explicitly, adequately-typed new code** -- if a new function has clear types, clear names, and does one thing, don't manufacture concerns. Not every addition needs a comment.
+- **Logic bugs and edge cases** -- correctness-reviewer owns logic errors and state bugs.
+- **Test coverage gaps** -- testing-reviewer owns coverage analysis and weak assertions.
+- **Coupling, dead code, or abstraction issues** -- maintainability-reviewer owns structural quality.
+- **Error handling patterns (retries, timeouts)** -- reliability-reviewer owns production resilience.
+- **Auth, input validation, or secrets exposure** -- security-sentinel owns these.
+- **Performance hotspots** -- performance reviewer owns optimization concerns.
 
 ## Output format
 

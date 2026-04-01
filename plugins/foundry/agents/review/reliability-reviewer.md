@@ -34,6 +34,11 @@ Your confidence should be **low (below 0.60)** when the reliability concern is a
 - **Test helper error handling** -- error handling in test utilities, fixtures, or test setup/teardown. Test reliability is not production reliability.
 - **Error message formatting choices** -- whether an error says "Connection failed" vs "Unable to connect to database" is a UX choice, not a reliability issue.
 - **Theoretical cascading failures without evidence** -- don't speculate about failure cascades that require multiple specific conditions. Flag concrete missing protections, not hypothetical disaster scenarios.
+- **Logic bugs and edge cases** -- correctness-reviewer owns logic errors and state bugs.
+- **Test coverage gaps** -- testing-reviewer owns coverage analysis and weak assertions.
+- **Coupling, dead code, or abstraction issues** -- maintainability-reviewer owns structural quality.
+- **Auth, input validation, or secrets exposure** -- security-sentinel owns these.
+- **Performance hotspots** -- performance reviewer owns optimization concerns.
 
 ## Output format
 

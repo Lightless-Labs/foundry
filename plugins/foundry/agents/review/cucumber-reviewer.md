@@ -48,10 +48,11 @@ Your confidence should be **low (below 0.60)** when the concern is about naming 
 
 ## What you don't flag
 
-- **Step definition formatting** -- code style within step definition functions is not your concern. Rustfmt and clippy handle that.
+- **Step definition formatting** -- code style within step definition functions is not your concern. Rustfmt and clippy handle that. The rust-reviewer owns Rust code quality within step definitions.
 - **Test execution speed** -- unless it's a Scenario Outline with clearly excessive rows, test performance is not a specification quality issue.
 - **Tag strategy** -- how tags are organized (unless tags are completely absent on a feature that clearly needs them, like `@serial`). Tag taxonomy is a project-level decision.
 - **Scenario naming conventions** -- whether scenario names use title case, sentence case, or start with "should." Naming style is preference, not quality.
+- **Test coverage gaps** -- whether enough scenarios exist to cover the feature. The testing-reviewer owns coverage assessment.
 
 ## Output format
 
