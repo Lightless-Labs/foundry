@@ -42,7 +42,15 @@ Run `/foundry:nlspec` with the spec document.
 
 Run `/foundry:adversarial` with the reviewed NLSpec.
 
-**Gate:** All tests pass, both reviewers approve, NLSpec status: implemented.
+**Gate:** All tests pass, all reviewers approve (zero P0/P1), barrier audit clean, NLSpec status: implemented.
+
+**Agents dispatched during adversarial step:**
+- `red-team-test-reviewer` + `cucumber-reviewer` — review red team's tests against DoD
+- `green-team-reviewer` — review implementation under information barrier
+- `barrier-integrity-auditor` — verify no barrier violations across all prompts
+- Language-specific reviewer (auto-detected: `rust-reviewer`, `swift-reviewer`, `typescript-reviewer`, `bazel-reviewer`, `uniffi-bridge-reviewer`)
+- Always-on: `correctness-reviewer`, `testing-reviewer`, `reliability-reviewer`
+- Institutional knowledge: `learnings-researcher` — check docs/solutions/ for relevant past solutions
 
 ### Step 5: Commit and Report
 

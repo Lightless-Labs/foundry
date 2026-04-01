@@ -38,7 +38,17 @@ This is the core invariant. Violating it defeats the purpose.
 
 2. Detect the project language (inspect manifests) and determine Cucumber/Gherkin bindings.
 
-3. Create the workspace structure (or use git worktrees for real filesystem isolation):
+3. **Search institutional knowledge** — spawn the learnings-researcher to check `docs/solutions/` for past solutions relevant to this feature. If relevant learnings exist, factor them into the red team's test design and the green team's implementation guidance.
+
+```
+Agent(
+    subagent_type="foundry:research:learnings-researcher",
+    prompt="Search docs/solutions/ for learnings relevant to: [feature topic from NLSpec].
+    Return any past bugs, patterns, or best practices that should inform the implementation."
+)
+```
+
+4. Create the workspace structure (or use git worktrees for real filesystem isolation):
    - `shared/` — NLSpec data model, types, interfaces
    - `red/` — test workspace (features/, step_definitions/)
    - `green/` — implementation workspace (src/)
@@ -81,31 +91,44 @@ Agent(
 
 ### Phase 1b: Review Red Team Tests Against NLSpec
 
-Spawn a reviewer subagent:
+Spawn two reviewers in parallel:
 
 ```
 Agent(
-    subagent_type="general-purpose",
+    subagent_type="foundry:review:red-team-test-reviewer",
     prompt="Review these test files against the NLSpec Definition of Done.
 
     NLSpec DoD: [paste DoD section]
     Test files: [paths to .feature files and step definitions]
 
-    For each DoD item:
-    - Is it covered by at least one test scenario?
-    - Does the scenario actually test the requirement (not just touch it)?
-    - Are the assertions specific enough to catch a wrong implementation?
+    Return findings as JSON matching the findings schema."
+)
 
-    For each test:
-    - Does it test something NOT in the DoD? (scope creep — flag it)
-    - Is the assertion meaningful or trivially satisfiable?
+Agent(
+    subagent_type="foundry:review:cucumber-reviewer",
+    prompt="Review these Gherkin feature files and step definitions for quality.
 
-    Return: COVERED items, UNCOVERED items, WEAK items (covered but poorly),
-    EXTRA items (not in DoD)."
+    Test files: [paths to .feature files and step definitions]
+
+    Return findings as JSON matching the findings schema."
 )
 ```
 
-If there are UNCOVERED or WEAK items, send feedback to the red team (as a new message to the same agent) with the specific gaps. Iterate until the reviewer passes.
+The red-team-test-reviewer checks DoD coverage, assertion specificity, trivially satisfiable tests, and scope creep. The cucumber-reviewer checks Gherkin quality (declarative style, scenario independence, step discipline).
+
+Also spawn the barrier-integrity-auditor to verify no implementation code leaked into the red team's context:
+
+```
+Agent(
+    subagent_type="foundry:review:barrier-integrity-auditor",
+    prompt="Audit the red team's prompt and workspace for barrier violations.
+    Red team should see: NLSpec, spec. Red team must NOT see: implementation code, green workspace paths.
+    Red team prompt: [paste the prompt that was sent to the red team]
+    Red workspace contents: [list files in red workspace]"
+)
+```
+
+If there are UNCOVERED or WEAK items, send feedback to the red team (as a new message to the same agent) with the specific gaps. Iterate until reviewers pass.
 
 ### Phase 2: Green Team — Implement
 
@@ -174,52 +197,88 @@ Test results:
 
 When all tests pass, spawn two reviewers in parallel:
 
-**Green reviewer** (sees implementation, not tests):
+Spawn these reviewers in parallel:
+
+**Green team reviewer** (sees implementation, not tests):
 ```
 Agent(
-    subagent_type="general-purpose",
-    prompt="Review this implementation for code quality.
+    subagent_type="foundry:review:green-team-reviewer",
+    prompt="Review this implementation for code quality under information barrier constraints.
 
     NLSpec How section: [paste How section]
     Implementation: [read green workspace files]
     Test outcomes: [all passing]
 
-    You do NOT see the test code. Evaluate:
-    - Does the implementation follow the NLSpec How section guidance?
-    - Is the code well-structured and maintainable?
-    - Are there hardcoded values or shortcuts that would break on edge cases?
-    - Is error handling robust?
+    CRITICAL: You must NOT see test code, .feature files, step definitions, or the NLSpec Done section.
 
-    Return: APPROVE or REJECT with specific feedback."
+    Return findings as JSON matching the findings schema."
 )
 ```
 
-**Red reviewer** (sees tests, not implementation):
+**Red team test reviewer** (sees tests, not implementation):
 ```
 Agent(
-    subagent_type="general-purpose",
-    prompt="Review these tests for thoroughness.
+    subagent_type="foundry:review:red-team-test-reviewer",
+    prompt="Final review of test suite thoroughness.
 
     NLSpec Definition of Done: [paste DoD]
     Test files: [read red workspace files]
 
-    You do NOT see the implementation. Evaluate:
-    - Do the tests cover all DoD items?
-    - Are assertions specific enough?
-    - Could a trivially wrong implementation pass these tests?
-    - Are edge cases tested?
+    You do NOT see the implementation.
 
-    Return: APPROVE or REJECT with specific feedback."
+    Return findings as JSON matching the findings schema."
 )
 ```
 
-If either reviewer rejects:
-- Green rejection → send feedback to green team, re-enter test-fix loop
-- Red rejection → send feedback to red team, red rewrites tests, green re-tests against new suite
+**Language-specific reviewer** (conditional — dispatch based on detected language):
+```
+# Dispatch the appropriate language reviewer based on the project:
+# Rust  → foundry:review:rust-reviewer
+# Swift → foundry:review:swift-reviewer
+# TS    → foundry:review:typescript-reviewer
+# Also dispatch foundry:review:bazel-reviewer if BUILD files exist
+# Also dispatch foundry:review:uniffi-bridge-reviewer if .udl files exist
+
+Agent(
+    subagent_type="foundry:review:[language]-reviewer",
+    prompt="Review the implementation for [language]-specific issues.
+    Implementation: [read green workspace files]
+    Return findings as JSON matching the findings schema."
+)
+```
+
+**Barrier integrity auditor** (always — final barrier check):
+```
+Agent(
+    subagent_type="foundry:review:barrier-integrity-auditor",
+    prompt="Final barrier audit. Check ALL prompts sent during this workflow.
+
+    Green team prompt: [paste]
+    Green reviewer prompt: [paste]
+    Red team prompt: [paste]
+    Red reviewer prompt: [paste]
+    Test outcome labels sent to green: [paste]
+
+    Verify no barrier violations occurred at any point."
+)
+```
+
+**Always-on reviewers** (dispatch in parallel with the above):
+- `foundry:review:correctness-reviewer` — logic errors, edge cases, state bugs in the implementation
+- `foundry:review:testing-reviewer` — coverage gaps, weak assertions in the test suite
+- `foundry:review:reliability-reviewer` — error handling, timeouts, retry logic (if the implementation touches I/O)
+
+Merge all reviewer findings. Deduplicate across reviewers (same file + line + issue = one finding, keep highest severity).
+
+If any reviewer rejects:
+- Green-team-reviewer rejects → send feedback to green team, re-enter test-fix loop
+- Red-team-test-reviewer rejects → send feedback to red team, red rewrites tests, green re-tests against new suite
+- Barrier-integrity-auditor finds violations → **STOP** — fix the barrier leak before continuing
+- Language/correctness/reliability reviewers find P0/P1 → send to appropriate team for fixing
 
 ### Phase 4: Finalize
 
-When both reviewers approve:
+When all reviewers approve (zero P0/P1 findings, barrier audit clean):
 1. Commit the implementation and tests
 2. Update the NLSpec frontmatter: `status: implemented`
 3. Report summary: which DoD items are covered, test count, iteration count

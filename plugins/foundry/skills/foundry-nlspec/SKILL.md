@@ -169,42 +169,25 @@ FUNCTION integration_smoke_test():
 
 ### Phase 3: Review NLSpec Against Source Spec
 
-This is the critical fidelity check. Spawn a reviewer subagent:
+This is the critical fidelity check. Spawn the nlspec-fidelity-reviewer:
 
 ```
 Agent(
-    subagent_type="general-purpose",
-    prompt="You are reviewing an NLSpec for completeness and fidelity against its source specification.
+    subagent_type="foundry:review:nlspec-fidelity-reviewer",
+    prompt="Review this NLSpec for completeness and fidelity against its source specification.
 
     Source spec: [path to spec]
     NLSpec: [path to nlspec]
 
-    Read BOTH documents thoroughly. For each item, report:
-
-    1. COVERAGE CHECK — For every requirement (R1, R2, etc.) in the source spec:
-       - Is it represented in the NLSpec body (What/How sections)?
-       - Is it represented in the Definition of Done?
-       - If missing from either, flag it.
-
-    2. FIDELITY CHECK — For every behavior in the source spec:
-       - Does the NLSpec's pseudocode accurately represent it?
-       - Are edge cases and error paths covered?
-       - Are any behaviors added that weren't in the source spec? (scope creep)
-
-    3. STRUCTURAL CHECK — Does the NLSpec follow the format:
-       - DoD subsections mirror body sections 1:1?
-       - Tables have mandatory columns?
-       - Pseudocode uses correct conventions?
-       - Out of Scope items include extension points?
-       - Design decisions name rejected alternatives?
-
-    4. AMBIGUITY CHECK — Flag any NLSpec text that a coding agent would
-       interpret differently from the source spec's intent.
-
-    Return a structured report: PASS items, FAIL items with specific fix needed,
-    and WARN items that are judgment calls."
+    Read BOTH documents. Return findings as JSON matching the findings schema."
 )
 ```
+
+The nlspec-fidelity-reviewer checks coverage (every R in body AND DoD), fidelity (pseudocode matches spec behaviors), structure (DoD mirrors body 1:1), scope creep, and ambiguity. See the agent definition for the full hunting list.
+
+For NLSpecs with 10+ DoD items or complex multi-component designs, also spawn in parallel:
+- `foundry:document-review:adversarial-document-reviewer` — challenge premises and unstated assumptions in the NLSpec
+- `foundry:review:spec-completeness-reviewer` — verify the source spec itself is still complete (the NLSpec derivation may have surfaced gaps)
 
 Present findings to the user. Fix any FAIL items. Iterate until the reviewer passes.
 
