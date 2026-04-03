@@ -1,0 +1,12 @@
+[package]
+name = "rubiks-solver"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "rubiks-solver"
+path = "green/src/main.rs"
+
+[[test]]
+name = "solver_tests"
+path = "red/tests/solver_tests.rs"
