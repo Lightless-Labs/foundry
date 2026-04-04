@@ -162,5 +162,6 @@ During Foundry's implementation, the red/green pattern was applied to the CliRun
 - [Compile-time information barriers](../best-practices/compile-time-information-barriers-via-role-scoped-types.md)
 - [Adversarial self-application](../best-practices/adversarial-self-application-for-validation.md)
 - [Integration gaps from parallel implementation](../workflow-issues/parallel-subagent-waves-require-integration-tests.md)
+- [Orchestrator reconciliation breaks provenance](../workflow-issues/orchestrator-reconciliation-breaks-provenance-20260401.md) — field report from first real application (middens Phase 3)
 - NLSpec format: https://jhugman.com/posts/on-nlspecs/
 - StrongDM Attractor: https://github.com/strongdm/attractor
