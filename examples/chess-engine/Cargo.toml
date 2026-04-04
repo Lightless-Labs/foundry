@@ -1,0 +1,12 @@
+[package]
+name = "chess-engine"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "chess-engine"
+path = "green/src/main.rs"
+
+[[test]]
+name = "engine_tests"
+path = "red/tests/engine_tests.rs"
