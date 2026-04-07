@@ -2,7 +2,7 @@
 name: foundry:review:divergence-evaluator
 description: "Ephemeral divergence evaluator for the adversarial workflow. Judges whether a team divergence (red test referencing absent behavior, or green failing repeatedly) represents a genuine spec gap warranting NLSpec re-derivation. Stateless, one divergence at a time."
 model: inherit
-tools: Read Grep Glob Bash
+tools: Read, Grep, Glob, Bash
 color: cyan
 ---
 
@@ -51,7 +51,7 @@ Return your judgment as JSON matching this schema. No prose outside the JSON.
     {
       "outcome": "VALUABLE|NOT_VALUABLE|INCONCLUSIVE",
       "rationale": "string explaining your reasoning from first principles",
-      "gap_description": "string describing the spec gap (present only when outcome is VALUABLE, null otherwise)"
+      "gap_description": "string describing the spec gap — non-null iff outcome is VALUABLE; omit or set null otherwise"
     }
   ],
   "residual_risks": [],
@@ -59,13 +59,13 @@ Return your judgment as JSON matching this schema. No prose outside the JSON.
 }
 ```
 
-**Invariant:** `gap_description` MUST be present when `outcome == VALUABLE`, and MUST be `null` when `outcome` is `NOT_VALUABLE` or `INCONCLUSIVE`.
+**Invariant:** `gap_description` MUST be a non-null string when `outcome == VALUABLE`. It MUST be absent or `null` when `outcome` is `NOT_VALUABLE` or `INCONCLUSIVE`. The `findings` array contains exactly one element per invocation.
 
 ### Input you receive
 
 Your prompt contains an `EvaluatorInput`:
 
-```
+```yaml
 EvaluatorInput:
   nlspec_content: <full NLSpec document text>
   diverging_artifact: <raw test scenario (Phase 1b) or raw implementation snippet (Phase 2b)>
@@ -76,11 +76,11 @@ EvaluatorInput:
 
 A `DivergenceJudgment`:
 
-```
+```yaml
 DivergenceJudgment:
-  outcome: DivergenceOutcome  -- VALUABLE|NOT_VALUABLE|INCONCLUSIVE
-  rationale: String (mandatory, must explain reasoning)
-  gap_description: String|None (present iff outcome == VALUABLE)
+  outcome: DivergenceOutcome  # VALUABLE|NOT_VALUABLE|INCONCLUSIVE
+  rationale: String           # mandatory, must explain reasoning from first principles
+  gap_description: String|None  # present (non-null) iff outcome == VALUABLE; absent or null otherwise
 ```
 
 `divergence_phase` is a `DivergencePhase` value: `PHASE_1B` (red test references absent behavior) or `PHASE_2B` (green fails same test repeatedly).

@@ -141,9 +141,9 @@ Agent(
     prompt="EvaluatorInput: [nlspec_content: <full NLSpec text>, diverging_artifact: <raw test scenario>, divergence_phase: PHASE_1B]"
 )
 ```
-3. Route on `DivergenceJudgment.outcome`:
+3. Route on `findings[0].outcome`:
    - `VALUABLE` → invoke `spec_update_and_restart` (see Spec Update section below), passing `red_test_paths`; then restart Phase 1
-   - `NOT_VALUABLE` → send red team back with `judgment.rationale`
+   - `NOT_VALUABLE` → send red team back with `findings[0].rationale`
    - `INCONCLUSIVE` → escalate to user (UserEscalation); pause for manual judgment
 
 Only one evaluator invocation may be in flight at a time (sequential processing).
@@ -205,12 +205,13 @@ This is where you mediate. Loop:
 3. **Filter outcomes** — Extract ONLY `test_name: PASS/FAIL`. Discard assertions, errors, stack traces.
 4. **Update trackers** — PASS: reset `consecutive_fails=0`. FAIL: if test content hash changed, reset to 1; else increment `consecutive_fails`.
 5. **Check divergence threshold** — For any test where `consecutive_fails >= threshold` (default 3):
-   - Assemble `EvaluatorInput`: raw impl snippet most recently written by green + full NLSpec + `divergence_phase=PHASE_2B`
+   - When multiple tests cross the threshold simultaneously, process one at a time in ascending `test_id` order. Resolve (or escalate) the current divergence before evaluating the next.
+   - Assemble `EvaluatorInput`: `test_id` of the failing test + raw impl snippet most recently written by green + full NLSpec + `divergence_phase=PHASE_2B`
    - Spawn ephemeral divergence evaluator (foundry:review:divergence-evaluator)
-   - Route on outcome:
-     - Phase 2b: `VALUABLE` → invoke `spec_update_and_restart`, then restart Phase 1
-     - `NOT_VALUABLE` → send green back with rationale; reset this test's tracker (`consecutive_fails=0`)
-     - Phase 2b: `INCONCLUSIVE` → escalate to user (UserEscalation); pause for manual judgment
+   - Route on `findings[0].outcome`:
+     - Phase 2b `VALUABLE` → invoke `spec_update_and_restart`, then restart Phase 1
+     - Phase 2b `NOT_VALUABLE` → send green back with `findings[0].rationale`; reset this test's tracker (`consecutive_fails=0`)
+     - Phase 2b `INCONCLUSIVE` → escalate to user (UserEscalation); pause for manual judgment
 6. **Check termination** — All pass → Phase 3. Any fail → send filtered outcomes to green.
 7. **Check bounds** — If green has iterated more than the configured limit (default 20), pause and ask the user.
 
@@ -220,29 +221,36 @@ Test results:
   test_name: PASS/FAIL
 N tests total, X passed, Y failed.
 ```
-Never include: assertions, expected vs actual, stack traces, line numbers from test code.
+
+Never include:
+- Assertion text or expected vs actual values
+- Stack traces
+- Line numbers from test code
+- Any content from .feature files or step definitions
 
 ### Spec Update and Pipeline Restart (`spec_update_and_restart`)
 
 Triggered when a divergence check returns `VALUABLE`. **You MUST NOT write NLSpec content directly. The NLSpec agent is the sole author.**
 
 1. **Check revision cap** — Read `PipelineRevisionState.revision_count`. If `revision_count >= revision_cap` (default 10), pause and present full `revision_history` to user before continuing.
-2. **Commit current NLSpec (pre-overwrite)** — attributed to nlspec-agent:
-   ```bash
-   git add <nlspec_path> && git commit --author="nlspec-agent <nlspec-agent@foundry>" -m "nlspec: preserve pre-revision NLSpec before divergence update"
-   ```
-3. **Re-run NLSpec agent** with `NLSpecRerunInput`:
+2. **Re-run NLSpec agent** with `NLSpecRerunInput`:
    - `original_spec_path`: path to original spec document
    - `existing_nlspec_path`: path to current NLSpec
-   - `evaluator_feedback`: `judgment.gap_description` verbatim (not paraphrased)
-4. **If NLSpec agent fails**: pause; present `judgment.gap_description` to user; do NOT commit; NLSpec unchanged.
-5. **Commit new NLSpec (post-update)** — `commit_after` SHA attributed to nlspec-agent.
-6. **Generate `ChangeSummary`** — Read before/after NLSpec files and produce:
+   - `evaluator_feedback`: `findings[0].gap_description` verbatim (not paraphrased)
+3. **If NLSpec agent fails**: pause; present `findings[0].gap_description` to user; do NOT commit; NLSpec unchanged.
+4. **Commit current NLSpec (pre-overwrite, `commit_before`)** — attributed to nlspec-agent. Guard: skip if nothing staged.
+   ```bash
+   git add <nlspec_path>
+   git diff --staged --quiet || git commit --author="nlspec-agent <nlspec-agent@foundry>" -m "nlspec: preserve pre-revision NLSpec before divergence update"
+   ```
+5. **Write new NLSpec** — overwrite `<nlspec_path>` with the NLSpec agent's output.
+6. **Commit new NLSpec (`commit_after`)** — attributed to nlspec-agent.
+7. **Generate `ChangeSummary`** — Read before/after NLSpec files and produce:
    - `sections_added`: list of new section headings
    - `sections_modified`: list of changed section headings
    - `requirements_delta`: list of added/removed requirements
-7. **Update revision state** — Increment `revision_count`; append `RevisionRecord(commit_before, commit_after)` to `revision_history`.
-8. **Restart Phase 1** — Pass `Phase1RestartPackage` to red team:
+8. **Update revision state** — Increment `revision_count`; append `RevisionRecord(commit_before, commit_after)` to `revision_history`.
+9. **Restart Phase 1** — Pass `Phase1RestartPackage` to red team:
    - `existing_tests`: current red team test files, unmodified (red team receives existing tests unchanged)
    - `new_nlspec_path`: path to new NLSpec (red team receives new_nlspec_path)
    - `change_summary`: `ChangeSummary` from step 6 (red team receives change_summary)

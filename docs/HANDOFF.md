@@ -2,7 +2,7 @@
 
 Read this at the start of every session. Update it before context compaction or at natural milestones.
 
-**Last updated:** 2026-04-04
+**Last updated:** 2026-04-07
 
 ## What This Repo Is
 
@@ -18,7 +18,7 @@ This repo is the **skills + agents + examples** side. The Rust engine (state mac
 
 ## Current State
 
-### Validation: 207/207 checks passing
+### Validation: 215/215 checks passing
 
 `tests/validate-agents.sh` covers structural (YAML frontmatter, required sections, model: inherit, tools), attribution (12 adopted agents), language-specific coverage, adversarial process coverage, and territory boundaries.
 
@@ -34,9 +34,9 @@ This repo is the **skills + agents + examples** side. The Rust engine (state mac
 
 Each skill can be invoked independently. Forge composes them with gates between phases and skip logic (existing artifacts skip their phase).
 
-### 23 Agents
+### 24 Agents
 
-**Adversarial process (5):** barrier-integrity-auditor, green-team-reviewer, red-team-test-reviewer, nlspec-fidelity-reviewer, spec-completeness-reviewer
+**Adversarial process (6):** barrier-integrity-auditor, divergence-evaluator, green-team-reviewer, red-team-test-reviewer, nlspec-fidelity-reviewer, spec-completeness-reviewer
 
 **Language-specific (6):** rust, swift, typescript, bazel, cucumber, uniffi-bridge
 
