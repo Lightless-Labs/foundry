@@ -2,7 +2,7 @@
 
 Read this at the start of every session. Update it before context compaction or at natural milestones.
 
-**Last updated:** 2026-04-07
+**Last updated:** 2026-04-08
 
 ## What This Repo Is
 
@@ -58,7 +58,7 @@ Each example preserves all artifacts: research doc, spec, NLSpec, red team tests
 
 | File | Priority | Status |
 |------|----------|--------|
-| `todos/spec-divergence-feedback-loop.md` | P2 | **IMPLEMENTED** — `divergence-evaluator` agent + adversarial skill Phase 1b/2b/restart extensions. 93/93 red team tests pass. Branch: `feedback/third-thoughts-batch4-20260406`. |
+| `todos/spec-divergence-feedback-loop.md` | P2 | **MERGED** — `divergence-evaluator` agent + adversarial skill Phase 1b/2b/restart extensions. 93/93 red team tests pass. Merged via PR #1 on 2026-04-08. |
 | `todos/phase2-trigger-strategy.md` | Future | Re-assess Phase 2 divergence trigger strategy (N=3 fixed vs pattern-based) |
 | `todos/adversarial-ui-investigation.md` | Future | Three-level adversarial testing via design systems |
 
@@ -91,14 +91,17 @@ Green receives ONLY `test_name: PASS/FAIL` — no assertions, no expected values
 - **NLSpec derivation errors** — agents mix inputs from one source with outputs from another (e.g., FEN from position A with perft numbers from position B). Cross-check vectors against research docs.
 - **Multi-provider strengthens the adversarial property** — different model families have different blind spots. Red on Gemini, green on Codex, orchestrator on Claude. Infrastructure ready, not yet systematically exercised.
 - **Research as reflex** — fire research after every user reply during brainstorm when unknowns surface, not as a one-shot phase before brainstorm.
+- **Deferred commit pattern** — in a two-commit before/after sequence, the pre-operation commit must come AFTER the operation succeeds, not before. If the operation can fail, committing before ties your hands. Also guard with `git diff --staged --quiet` to handle nothing-staged edge case. See `docs/solutions/workflow-issues/deferred-commit-pattern-20260408.md`.
+- **Grep anchors in skill docs** — test scripts that grep for "Phase 2b" near "VALUABLE" require both terms on the same line. Context labels in routing sections (e.g., "Phase 2b \`VALUABLE\`") serve double duty as documentation and grep anchors. Remove them and tests silently regress.
+- **Ephemeral evaluator output shape** — evaluators that follow the reviewer schema return `findings[0].outcome`, not a top-level `outcome` field. Routing logic and all prose references must use `findings[0].*`, not `DivergenceJudgment.*`. The two names diverge unless explicitly kept in sync.
 
 ## What's Next
 
-1. **Merge spec-divergence branch** — PR `feedback/third-thoughts-batch4-20260406` → main; review `divergence-evaluator.md` + SKILL.md changes
-2. **Multi-provider delegation** — systematically exercise red-on-Gemini, green-on-Codex across examples
-3. **Adversarial UI** — brainstorm at `docs/brainstorms/2026-04-04-adversarial-ui-design-system.md`; three-level testing via design systems
-4. **Rubik's cube fix** — add golden vectors from Kociemba's Python reference (31/46 -> ~44/46)
-5. **Phase 2 trigger strategy** — re-assess N=3 vs pattern-based (`todos/phase2-trigger-strategy.md`)
+1. **Multi-provider delegation** — systematically exercise red-on-Gemini, green-on-Codex across examples
+2. **Adversarial UI** — brainstorm at `docs/brainstorms/2026-04-04-adversarial-ui-design-system.md`; three-level testing via design systems
+3. **Rubik's cube fix** — add golden vectors from Kociemba's Python reference (31/46 -> ~44/46)
+4. **Phase 2 trigger strategy** — re-assess N=3 vs pattern-based (`todos/phase2-trigger-strategy.md`)
+5. **Exercise spec-divergence loop** — run the updated adversarial skill end-to-end on a new example to smoke-test the divergence evaluator in practice
 
 ## Repo Layout
 
@@ -110,7 +113,7 @@ public/foundry/
 │   ├── agents/
 │   │   ├── document-review/     (2 agents)
 │   │   ├── research/            (1 agent)
-│   │   └── review/              (20 agents)
+│   │   └── review/              (21 agents)
 │   └── skills/
 │       ├── foundry-adversarial/SKILL.md
 │       ├── foundry-brainstorm/SKILL.md
