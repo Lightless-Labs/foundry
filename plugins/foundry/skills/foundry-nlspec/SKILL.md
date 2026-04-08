@@ -18,6 +18,19 @@ The key structural property: the Definition of Done mirrors the body sections. T
 
 A path to a spec document (from `foundry:brainstorm`). If not provided, search `docs/specs/` for the most recent spec matching the topic.
 
+### Rerun Input (`NLSpecRerunInput`)
+
+When invoked by the `spec_update_and_restart` procedure in `foundry:adversarial`, you receive an enriched input instead of a plain spec path:
+
+```yaml
+NLSpecRerunInput:
+  original_spec_path: <path to the original spec document>
+  existing_nlspec_path: <path to the current NLSpec being revised>
+  evaluator_feedback: <verbatim gap_description string from DivergenceJudgment — not paraphrased>
+```
+
+Use `existing_nlspec_path` as your starting point. Incorporate `evaluator_feedback` as a gap that must be addressed in the revised NLSpec — do not paraphrase it. The original spec (`original_spec_path`) remains the authoritative source of truth for anything not covered by the feedback.
+
 ## Workflow
 
 ### Phase 1: Analyze the Spec
