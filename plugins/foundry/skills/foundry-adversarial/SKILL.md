@@ -372,3 +372,13 @@ These can be set via the conversation or a config file:
 **Both teams are iterating without convergence:**
 - Pause after the configured limit
 - Ask the user to inspect both sides and arbitrate
+
+**Green team output file is missing or 0 bytes (OpenCode dispatch):**
+- If using OpenCode, check that the dispatch command puts the message BEFORE any `-f` flags: `opencode run -m MODEL 'prompt' -f file.md`. If `-f` comes first, OpenCode consumes the message as a file path and exits 0 with no output.
+- Run one invocation foreground first to validate the command shape before parallel dispatch.
+- **Kimi K2.5 specifically:** add explicit tool discipline to the green prompt: `You MUST write files via a bash tool call. The write and edit tools are DISABLED. If bash is unavailable, emit the file body as plain text — the orchestrator will salvage it. After writing, print OK and stop.` A softer instruction ("use bash heredoc") is not sufficient — Kimi will prefer the structured write tool and fail silently on external_directory permission rejection.
+
+**Green team output is garbled / tokenizer leakage (Kimi via OpenCode):**
+- Kimi K2.5 can emit control tokens (`<|tool_call_end|>`) into tool-call JSON, corrupting the envelope. OpenCode rejects the call; Kimi then falls back to emitting the file body as a plain text part in the NDJSON output.
+- Salvage procedure: scan the NDJSON log for `"type": "text"` parts containing the heredoc sentinel (`EOF` / `PYEOF`), extract the body, write it to the expected path, then syntax-check before use.
+- Salvaged files must be syntax-checked before use — Kimi can truncate mid-function with no indicator.
