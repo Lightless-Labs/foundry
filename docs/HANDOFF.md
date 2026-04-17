@@ -2,7 +2,7 @@
 
 Read this at the start of every session. Update it before context compaction or at natural milestones.
 
-**Last updated:** 2026-04-08
+**Last updated:** 2026-04-17
 
 ## What This Repo Is
 
@@ -59,6 +59,10 @@ Each example preserves all artifacts: research doc, spec, NLSpec, red team tests
 | File | Priority | Status |
 |------|----------|--------|
 | `todos/spec-divergence-feedback-loop.md` | P2 | **MERGED** — `divergence-evaluator` agent + adversarial skill Phase 1b/2b/restart extensions. 93/93 red team tests pass. Merged via PR #1 on 2026-04-08. |
+| `todos/repo-identity-public-plugin.md` | High | Root `AGENTS.md`/`CLAUDE.md` still read as Rust+Bazel product; rewrite to identify this as the public plugin/skills/agents repo (ilia feedback item 1) |
+| `todos/mechanical-barrier-enforcement.md` | High | Move barrier enforcement from prompt discipline to mechanical checks + replayable dispatch envelopes (ilia feedback item 2) |
+| `todos/behavioral-smoke-tests.md` | High | End-to-end adversarial run + barrier invariant + divergence restart assertions — complement `validate-agents.sh` (ilia feedback item 3) |
+| `todos/modularize-heaviest-skills.md` | Medium | Break `foundry-adversarial` into tighter sub-skills / executable checks; profile obedience first (ilia feedback item 4) |
 | `todos/phase2-trigger-strategy.md` | Future | Re-assess Phase 2 divergence trigger strategy (N=3 fixed vs pattern-based) |
 | `todos/adversarial-ui-investigation.md` | Future | Three-level adversarial testing via design systems |
 
@@ -97,11 +101,20 @@ Green receives ONLY `test_name: PASS/FAIL` — no assertions, no expected values
 
 ## What's Next
 
-1. **Multi-provider delegation** — systematically exercise red-on-Gemini, green-on-Codex across examples
-2. **Adversarial UI** — brainstorm at `docs/brainstorms/2026-04-04-adversarial-ui-design-system.md`; three-level testing via design systems
-3. **Rubik's cube fix** — add golden vectors from Kociemba's Python reference (31/46 -> ~44/46)
-4. **Phase 2 trigger strategy** — re-assess N=3 vs pattern-based (`todos/phase2-trigger-strategy.md`)
-5. **Exercise spec-divergence loop** — run the updated adversarial skill end-to-end on a new example to smoke-test the divergence evaluator in practice
+Ilia feedback (2026-04-17, `docs/solutions/workflow-issues/ilia-feedback-foundry-plugin-20260417.md`) raised four structural items. All four filed as todos. Suggested order:
+
+1. **Repo identity** (`todos/repo-identity-public-plugin.md`) — fastest win, unblocks correct mental model for everyone else
+2. **Mechanical barrier enforcement** (`todos/mechanical-barrier-enforcement.md`) — prerequisite for item 3
+3. **Behavioral smoke tests** (`todos/behavioral-smoke-tests.md`) — consumes the dispatch envelopes from item 2
+4. **Modularize heaviest skills** (`todos/modularize-heaviest-skills.md`) — profile obedience before extracting
+
+Also still open from before:
+
+5. **Multi-provider delegation** — systematically exercise red-on-Gemini, green-on-Codex across examples
+6. **Adversarial UI** — brainstorm at `docs/brainstorms/2026-04-04-adversarial-ui-design-system.md`; three-level testing via design systems
+7. **Rubik's cube fix** — add golden vectors from Kociemba's Python reference (31/46 -> ~44/46)
+8. **Phase 2 trigger strategy** — re-assess N=3 vs pattern-based (`todos/phase2-trigger-strategy.md`)
+9. **Exercise spec-divergence loop** — run the updated adversarial skill end-to-end on a new example to smoke-test the divergence evaluator in practice
 
 ## Repo Layout
 
