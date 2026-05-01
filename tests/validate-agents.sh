@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # validate-agents.sh — Red team validation script for Foundry review agents
-# Checks all 23 agents against structural, attribution, coverage, and territory specs.
+# Checks all 24 agents against structural, attribution, coverage, and territory specs.
 # Compatible with Bash 3 (macOS default).
 set -euo pipefail
 
@@ -40,7 +40,7 @@ while IFS= read -r f; do
   ALL_AGENT_NAMES+=("$(basename "$f" .md)")
 done < <(find "$AGENTS_ROOT" -name '*.md' -type f | sort)
 
-EXPECTED_COUNT=23
+EXPECTED_COUNT=24
 ACTUAL_COUNT="${#ALL_AGENT_FILES[@]}"
 if [ "$ACTUAL_COUNT" -ne "$EXPECTED_COUNT" ]; then
   echo "WARNING: Expected $EXPECTED_COUNT agents, found $ACTUAL_COUNT"

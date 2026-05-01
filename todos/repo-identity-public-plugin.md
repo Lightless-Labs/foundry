@@ -2,12 +2,15 @@
 title: Fix repo identity — public plugin/skills/agents, not Rust+Bazel product
 origin: 2026-04-17 ilia-feedback-foundry-plugin (item 1)
 priority: high
-status: ready
+status: completed
+completed: 2026-05-01
 ---
 
 # Repo Identity: Public Plugin, Not Product
 
-Root `AGENTS.md` and `CLAUDE.md` still read as a Rust + Bazel product repo. But this checkout IS the public Claude plugin / skills / agents layer — the Rust engine lives in the private engine repo at `lightless-labs/lightless-labs/foundry/`.
+**Completed:** 2026-05-01 — root `AGENTS.md` and `CLAUDE.md` now identify this checkout as the public plugin/skills/agents repo, with the Rust engine split called out explicitly.
+
+Root `AGENTS.md` and `CLAUDE.md` used to read as a Rust + Bazel product repo. But this checkout IS the public Claude plugin / skills / agents layer — the Rust engine lives in the private engine repo at `lightless-labs/lightless-labs/foundry/`.
 
 ## What to fix
 
