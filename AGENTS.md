@@ -58,6 +58,9 @@ Engine/state-machine changes belong in the private engine repo, not here. Public
 # Structural validation for plugin agents
 tests/validate-agents.sh
 
+# Replayable PromptEnvelope barrier validation
+tests/validate-barrier-envelopes.sh
+
 # Inspect current repo state
 git status --short --branch
 

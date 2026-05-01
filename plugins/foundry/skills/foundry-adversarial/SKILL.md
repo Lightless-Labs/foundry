@@ -24,7 +24,7 @@ This is the core invariant. Violating it defeats the purpose.
 | Green reviewer | NLSpec How section, implementation, test outcomes | Test code, NLSpec Done section |
 | You (orchestrator) | Everything | — |
 
-**You are the only entity that crosses the barrier. You enforce it by controlling what each subagent receives in its prompt.**
+**You are the only entity that crosses the barrier. You enforce it by controlling what each subagent receives in its prompt. Every dispatch MUST pass through the PromptEnvelope gate below before `Agent(...)` is invoked.**
 
 ## Workflow
 
@@ -38,20 +38,76 @@ This is the core invariant. Violating it defeats the purpose.
 
 2. Detect the project language (inspect manifests) and determine Cucumber/Gherkin bindings.
 
-3. **Search institutional knowledge** — spawn the learnings-researcher to check `docs/solutions/` for past solutions relevant to this feature. If relevant learnings exist, factor them into the red team's test design and the green team's implementation guidance.
+3. Initialize replayable dispatch auditing:
+   - Create `runs/<run_id>/dispatch/`
+   - Treat `<run_id>` as stable for this adversarial run
+   - No subagent dispatch may happen until its prompt has a serialized `PromptEnvelope`
+
+4. **Search institutional knowledge** — spawn the learnings-researcher to check `docs/solutions/` for past solutions relevant to this feature. If relevant learnings exist, factor them into the red team's test design and the green team's implementation guidance.
 
 ```
 Agent(
     subagent_type="foundry:research:learnings-researcher",
     prompt="Search docs/solutions/ for learnings relevant to: [feature topic from NLSpec].
+    PromptEnvelope: runs/<run_id>/dispatch/phase0/learnings-researcher.json
     Return any past bugs, patterns, or best practices that should inform the implementation."
 )
 ```
 
-4. Create the workspace structure (or use git worktrees for real filesystem isolation):
+5. Create the workspace structure (or use git worktrees for real filesystem isolation):
    - `shared/` — NLSpec data model, types, interfaces
    - `red/` — test workspace (features/, step_definitions/)
    - `green/` — implementation workspace (src/)
+
+### Mechanical Barrier Gate: PromptEnvelope v1
+
+Before every `Agent(...)` call, assemble a `PromptEnvelope` and validate it. The skill consumes envelopes; it does not hand-send prompt strings.
+
+Envelope path:
+
+```text
+runs/<run_id>/dispatch/<phase>/<recipient>.json
+```
+
+Envelope shape:
+
+```json
+{
+  "schema_version": "foundry.prompt-envelope.v1",
+  "run_id": "<stable run id>",
+  "phase": "phase0|phase1|phase1b|phase2|phase2b|phase3",
+  "recipient": "red-team|red-reviewer|green-team|green-reviewer|barrier-integrity-auditor|...",
+  "prompt": "<exact prompt sent to the subagent>",
+  "visible_context": [
+    {"label": "nlspec_how", "kind": "nlspec_how", "sha256": "...", "content": "..."}
+  ],
+  "withheld_context": [
+    {"label": "red_feature_files", "kind": "red_test_code", "sha256": "...", "samples": ["<high-entropy withheld substring>"]}
+  ],
+  "redactions": [
+    {"source": "raw_test_output", "action": "pass_fail_labels_only", "removed": ["assertion_text", "stack_trace", "line_numbers"]}
+  ]
+}
+```
+
+Required gate sequence for every dispatch:
+
+1. `build_prompt_envelope(recipient, phase, visible_context, withheld_context)` — construct the prompt only from `visible_context`.
+2. `redact_and_validate_prompt(envelope)` — compare `prompt` against every `withheld_context[].samples[]`; if any withheld sample appears, STOP before dispatch.
+3. Serialize the envelope to `runs/<run_id>/dispatch/<phase>/<recipient>.json`.
+4. Dispatch the agent with exactly `envelope.prompt`; do not append extra context after validation.
+5. Include the envelope path in any barrier-integrity-auditor request.
+
+Minimum withheld samples by recipient:
+
+| Recipient | Withheld samples MUST include |
+|-----------|-------------------------------|
+| Red team / red reviewer | Green workspace paths, implementation file names, representative implementation snippets |
+| Green team / green reviewer | Red workspace paths, `.feature` scenario text, step-definition/assertion snippets, raw failure output, NLSpec Done section snippets |
+| Language/correctness/reliability reviewers | Red test files and NLSpec Done snippets unless the reviewer explicitly audits tests |
+| Barrier-integrity-auditor | Nothing withheld from the auditor; auditor receives envelope paths and may inspect all serialized artifacts |
+
+Run `tests/validate-barrier-envelopes.sh runs/<run_id>/dispatch` whenever envelopes exist. This script is the public-plugin validator for replayable barrier artifacts; the private engine should eventually enforce the same contract at prompt-construction time.
 
 ### Phase 1: Red Team — Write Tests
 
@@ -116,14 +172,17 @@ Agent(
 
 The red-team-test-reviewer checks DoD coverage, assertion specificity, trivially satisfiable tests, and scope creep. The cucumber-reviewer checks Gherkin quality (declarative style, scenario independence, step discipline).
 
-Also spawn the barrier-integrity-auditor to verify no implementation code leaked into the red team's context:
+Also spawn the barrier-integrity-auditor to verify no implementation code leaked into the red team's context. Give the auditor envelope paths, not ad-hoc pasted prompt fragments:
 
 ```
 Agent(
     subagent_type="foundry:review:barrier-integrity-auditor",
-    prompt="Audit the red team's prompt and workspace for barrier violations.
-    Red team should see: NLSpec, spec. Red team must NOT see: implementation code, green workspace paths.
-    Red team prompt: [paste the prompt that was sent to the red team]
+    prompt="Audit these PromptEnvelope artifacts for barrier violations.
+    Red team should see: NLSpec/spec test criteria and red workspace paths.
+    Red team must NOT see: implementation code, green workspace paths.
+    Envelope paths:
+    - runs/<run_id>/dispatch/phase1/red-team.json
+    - runs/<run_id>/dispatch/phase1b/red-team-test-reviewer.json
     Red workspace contents: [list files in red workspace]"
 )
 ```
@@ -151,7 +210,7 @@ Only one evaluator invocation may be in flight at a time (sequential processing)
 
 ### Phase 2: Green Team — Implement
 
-**Before spawning green:** run the red team's tests to get the initial failure list. Capture ONLY the test names and pass/fail status.
+**Before spawning green:** run the red team's tests to get the initial failure list. Capture ONLY the test names and pass/fail status. Store raw test output only in withheld context for the green envelope; never paste raw output into `prompt`.
 
 Spawn the green team subagent:
 
@@ -276,6 +335,8 @@ Agent(
 
     CRITICAL: You must NOT see test code, .feature files, step definitions, or the NLSpec Done section.
 
+    PromptEnvelope: runs/<run_id>/dispatch/phase3/green-team-reviewer.json
+
     Return findings as JSON matching the findings schema."
 )
 ```
@@ -316,15 +377,12 @@ Agent(
 ```
 Agent(
     subagent_type="foundry:review:barrier-integrity-auditor",
-    prompt="Final barrier audit. Check ALL prompts sent during this workflow.
+    prompt="Final barrier audit. Replay ALL PromptEnvelope artifacts under:
+    runs/<run_id>/dispatch/
 
-    Green team prompt: [paste]
-    Green reviewer prompt: [paste]
-    Red team prompt: [paste]
-    Red reviewer prompt: [paste]
-    Test outcome labels sent to green: [paste]
-
-    Verify no barrier violations occurred at any point."
+    For each envelope, compare prompt content against withheld_context samples and the barrier matrix.
+    Verify that green saw only NLSpec How + test outcome labels, and red saw no implementation material.
+    Report any leak as P0."
 )
 ```
 

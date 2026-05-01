@@ -2,10 +2,13 @@
 title: Strengthen mechanical barrier enforcement and replayable audits
 origin: 2026-04-17 ilia-feedback-foundry-plugin (item 2)
 priority: high
-status: ready
+status: active
+updated: 2026-05-01
 ---
 
 # Mechanical Barrier Enforcement
+
+**Addendum:** 2026-05-01 — public-plugin enforcement contract landed: `foundry-adversarial` now requires `PromptEnvelope` v1 artifacts for every dispatch, `tests/validate-barrier-envelopes.sh` mechanically checks withheld samples against prompts, and `barrier-integrity-auditor` audits replayable envelopes. The private engine still needs a first-class `PromptEnvelope` type that enforces the same contract at dispatch time.
 
 The information barrier (red sees NLSpec + tests / green sees NLSpec How + pass/fail only) is the sharpest idea in the repo. But enforcement currently leans on careful orchestration prose in `foundry-adversarial/SKILL.md`. That makes the guarantee prompt-discipline, not mechanical.
 
