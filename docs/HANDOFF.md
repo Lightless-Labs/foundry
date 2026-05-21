@@ -2,7 +2,7 @@
 
 Read this at the start of every session. Update it before context compaction or at natural milestones.
 
-**Last updated:** 2026-05-01
+**Last updated:** 2026-05-03
 
 ## What This Repo Is
 
@@ -64,6 +64,7 @@ Each example preserves all artifacts: research doc, spec, NLSpec, red team tests
 | `todos/behavioral-smoke-tests.md` | High | End-to-end adversarial run + barrier invariant + divergence restart assertions — complement `validate-agents.sh` (ilia feedback item 3) |
 | `todos/modularize-heaviest-skills.md` | Medium | Break `foundry-adversarial` into tighter sub-skills / executable checks; profile obedience first (ilia feedback item 4) |
 | `todos/pi-codex-plugin-support.md` | Medium | Add Pi extension and Codex plugin support without forking canonical Foundry prompts |
+| `todos/arbiter-agent.md` | Future | Formalize scoped arbitration for single-test disputes; arbiter can route to red fix, green fix, or spec/NLSpec divergence loop |
 | `todos/phase2-trigger-strategy.md` | Future | Re-assess Phase 2 divergence trigger strategy (N=3 fixed vs pattern-based) |
 | `todos/adversarial-ui-investigation.md` | Future | Three-level adversarial testing via design systems |
 
@@ -111,11 +112,12 @@ Ilia feedback (2026-04-17, `docs/solutions/workflow-issues/ilia-feedback-foundry
 
 Also still open from before:
 
-5. **Multi-provider delegation** — systematically exercise red-on-Gemini, green-on-Codex across examples
-6. **Adversarial UI** — brainstorm at `docs/brainstorms/2026-04-04-adversarial-ui-design-system.md`; three-level testing via design systems
-7. **Rubik's cube fix** — add golden vectors from Kociemba's Python reference (31/46 -> ~44/46)
-8. **Phase 2 trigger strategy** — re-assess N=3 vs pattern-based (`todos/phase2-trigger-strategy.md`)
-9. **Exercise spec-divergence loop** — run the updated adversarial skill end-to-end on a new example to smoke-test the divergence evaluator in practice
+5. **Arbiter agent/process** (`todos/arbiter-agent.md`) — formalize scoped single-test arbitration that can judge test vs implementation vs spec/NLSpec gap
+6. **Multi-provider delegation** — systematically exercise red-on-Gemini, green-on-Codex across examples
+7. **Adversarial UI** — brainstorm at `docs/brainstorms/2026-04-04-adversarial-ui-design-system.md`; three-level testing via design systems
+8. **Rubik's cube fix** — add golden vectors from Kociemba's Python reference (31/46 -> ~44/46)
+9. **Phase 2 trigger strategy** — re-assess N=3 vs pattern-based (`todos/phase2-trigger-strategy.md`)
+10. **Exercise spec-divergence loop** — run the updated adversarial skill end-to-end on a new example to smoke-test the divergence evaluator in practice
 
 ## Repo Layout
 

@@ -6,7 +6,7 @@ priority: future
 
 # Arbiter Agent
 
-An ephemeral agent that performs a controlled, scoped breach of the information barrier to arbitrate whether a failing test is wrong or the implementation is wrong.
+An ephemeral agent that performs a controlled, scoped breach of the information barrier to arbitrate whether a failing test is wrong, the implementation is wrong, or the spec is wrong/incomplete.
 
 ## Scope
 
