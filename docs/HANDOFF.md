@@ -2,7 +2,7 @@
 
 Read this at the start of every session. Update it before context compaction or at natural milestones.
 
-**Last updated:** 2026-05-03
+**Last updated:** 2026-05-21
 
 ## What This Repo Is
 
@@ -60,7 +60,7 @@ Each example preserves all artifacts: research doc, spec, NLSpec, red team tests
 |------|----------|--------|
 | `todos/spec-divergence-feedback-loop.md` | P2 | **MERGED** — `divergence-evaluator` agent + adversarial skill Phase 1b/2b/restart extensions. 93/93 red team tests pass. Merged via PR #1 on 2026-04-08. |
 | `todos/repo-identity-public-plugin.md` | High | **COMPLETED 2026-05-01** — root `AGENTS.md`/`CLAUDE.md` now identify this as the public plugin/skills/agents repo and call out the private Rust engine split |
-| `todos/mechanical-barrier-enforcement.md` | High | **PUBLIC PLUGIN CONTRACT LANDED 2026-05-01** — `PromptEnvelope` v1, replayable dispatch artifacts, and `tests/validate-barrier-envelopes.sh`; private engine PromptEnvelope remains pending |
+| `todos/mechanical-barrier-enforcement.md` | High | **PUBLIC + PRIVATE DISPATCH CONTRACT LANDED** — public plugin `PromptEnvelope` v1/replayable artifact contract landed 2026-05-01; private BuildKite/pi dispatch runtime mirrors it with prompt-envelope artifacts and `test-prompt-envelope.sh` as of 2026-05-03 |
 | `todos/behavioral-smoke-tests.md` | High | End-to-end adversarial run + barrier invariant + divergence restart assertions — complement `validate-agents.sh` (ilia feedback item 3) |
 | `todos/modularize-heaviest-skills.md` | Medium | Break `foundry-adversarial` into tighter sub-skills / executable checks; profile obedience first (ilia feedback item 4) |
 | `todos/pi-codex-plugin-support.md` | Medium | Add Pi extension and Codex plugin support without forking canonical Foundry prompts |
@@ -103,12 +103,11 @@ Green receives ONLY `test_name: PASS/FAIL` — no assertions, no expected values
 
 ## What's Next
 
-Ilia feedback (2026-04-17, `docs/solutions/workflow-issues/ilia-feedback-foundry-plugin-20260417.md`) raised four structural items. Repo identity is complete; the remaining suggested order is:
+Ilia feedback (2026-04-17, `docs/solutions/workflow-issues/ilia-feedback-foundry-plugin-20260417.md`) raised four structural items. Repo identity is complete, and the private dispatch runtime now mirrors the public `PromptEnvelope` v1 contract. The remaining suggested order is:
 
-1. **Engine PromptEnvelope implementation** (`todos/mechanical-barrier-enforcement.md`) — mirror the public-plugin `PromptEnvelope` v1 contract in the private engine dispatch layer
-2. **Behavioral smoke tests** (`todos/behavioral-smoke-tests.md`) — consumes the dispatch envelopes from mechanical barrier enforcement
-3. **Pi + Codex packaging support** (`todos/pi-codex-plugin-support.md`) — research/adapt Foundry to Pi extensions and Codex plugin surfaces without forking canonical prompts
-4. **Modularize heaviest skills** (`todos/modularize-heaviest-skills.md`) — profile obedience before extracting
+1. **Behavioral smoke tests** (`todos/behavioral-smoke-tests.md`) — consumes the dispatch envelopes from mechanical barrier enforcement
+2. **Pi + Codex packaging support** (`todos/pi-codex-plugin-support.md`) — research/adapt Foundry to Pi extensions and Codex plugin surfaces without forking canonical prompts
+3. **Modularize heaviest skills** (`todos/modularize-heaviest-skills.md`) — profile obedience before extracting
 
 Also still open from before:
 
