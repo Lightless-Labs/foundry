@@ -18,7 +18,7 @@ This repo is the **skills + agents + examples** side. The Rust engine (state mac
 
 ## Current State
 
-### Validation: 215/215 checks passing + replay smoke self-tests
+### Validation: 215/215 checks passing + replay/Pi extension self-tests
 
 `tests/validate-agents.sh` covers structural (YAML frontmatter, required sections, model: inherit, tools), attribution (12 adopted agents), language-specific coverage, adversarial process coverage, and territory boundaries.
 
@@ -27,6 +27,8 @@ Additional validators:
 - `tests/behavioral-smoke.sh` — replay-level run checks over PromptEnvelope artifacts plus `behavioral-smoke.toon` summaries (example pass rates, model lanes, divergence restart counts).
 - `tests/validate-behavioral-smoke-contract.sh` — ensures `foundry-adversarial` requires real runs to emit/validate `behavioral-smoke.toon`.
 - `tests/validate-pi-extension.sh` — ensures the Pi package exposes the `foundry_team` child-dispatch extension and uses the PromptEnvelope contract.
+
+Last full local validation (2026-05-21): all four validators above passed; `validate-agents.sh` remained 215/215; smoke-loaded the Pi extension with `pi -e ./extensions/pi-foundry-team/index.ts ... -p 'Reply with OK'`.
 
 ### 5 Skills (composable pipeline)
 
@@ -39,6 +41,12 @@ Additional validators:
 | `foundry:forge` | "forge", "full pipeline" | All 4 above in sequence, gated |
 
 Each skill can be invoked independently. Forge composes them with gates between phases and skip logic (existing artifacts skip their phase).
+
+### Pi package support
+
+Root `package.json` makes this repo installable as a Pi package (`pi-package` keyword) and exposes `extensions/pi-foundry-team/`.
+
+`foundry_team` is the Pi-side team/subagent primitive. Pi intentionally has no built-in subagents; this extension follows Pi's officially shipped `examples/extensions/subagent/` pattern by spawning child `pi --mode json -p --no-session` processes. It dispatches from PromptEnvelope paths, validates withheld samples first, disables child sessions/extensions/skills/prompt-templates/context-files by default, and reuses canonical agent prompts from `plugins/foundry/agents/**/*.md`.
 
 ### 24 Agents
 
@@ -67,9 +75,9 @@ Each example preserves all artifacts: research doc, spec, NLSpec, red team tests
 | `todos/spec-divergence-feedback-loop.md` | P2 | **MERGED** — `divergence-evaluator` agent + adversarial skill Phase 1b/2b/restart extensions. 93/93 red team tests pass. Merged via PR #1 on 2026-04-08. |
 | `todos/repo-identity-public-plugin.md` | High | **COMPLETED 2026-05-01** — root `AGENTS.md`/`CLAUDE.md` now identify this as the public plugin/skills/agents repo and call out the private Rust engine split |
 | `todos/mechanical-barrier-enforcement.md` | High | **PUBLIC + PRIVATE DISPATCH CONTRACT LANDED** — public plugin `PromptEnvelope` v1/replayable artifact contract landed 2026-05-01; private BuildKite/pi dispatch runtime mirrors it with prompt-envelope artifacts and `test-prompt-envelope.sh` as of 2026-05-03 |
-| `todos/behavioral-smoke-tests.md` | High | **REPLAY HARNESS + PI DISPATCH PRIMITIVE LANDED 2026-05-21** — `tests/behavioral-smoke.sh` validates PromptEnvelope artifacts + TOON run summaries; `foundry_team` Pi extension rolls our own subagent/team dispatch from PromptEnvelope paths; real public-plugin adversarial run remains pending |
+| `todos/behavioral-smoke-tests.md` | High | **PARTIAL 2026-05-21** — replay harness + Pi dispatch primitive landed. `tests/behavioral-smoke.sh` validates PromptEnvelope artifacts + TOON run summaries; `foundry_team` rolls our own Pi subagent/team dispatch from PromptEnvelope paths; real public-plugin adversarial run remains pending |
 | `todos/modularize-heaviest-skills.md` | Medium | Break `foundry-adversarial` into tighter sub-skills / executable checks; profile obedience first (ilia feedback item 4) |
-| `todos/pi-codex-plugin-support.md` | Medium | Add Pi extension and Codex plugin support without forking canonical Foundry prompts |
+| `todos/pi-codex-plugin-support.md` | Medium | **PARTIAL 2026-05-21** — Pi package manifest + `foundry_team` extension landed; canonical agent prompts are reused; Pi skill adapters/install docs and Codex support remain pending |
 | `todos/arbiter-agent.md` | Future | Formalize scoped arbitration for single-test disputes; arbiter can route to red fix, green fix, or spec/NLSpec divergence loop |
 | `todos/phase2-trigger-strategy.md` | Future | Re-assess Phase 2 divergence trigger strategy (N=3 fixed vs pattern-based) |
 | `todos/adversarial-ui-investigation.md` | Future | Three-level adversarial testing via design systems |
@@ -106,14 +114,16 @@ Green receives ONLY `test_name: PASS/FAIL` — no assertions, no expected values
 - **Deferred commit pattern** — in a two-commit before/after sequence, the pre-operation commit must come AFTER the operation succeeds, not before. If the operation can fail, committing before ties your hands. Also guard with `git diff --staged --quiet` to handle nothing-staged edge case. See `docs/solutions/workflow-issues/deferred-commit-pattern-20260408.md`.
 - **Grep anchors in skill docs** — test scripts that grep for "Phase 2b" near "VALUABLE" require both terms on the same line. Context labels in routing sections (e.g., "Phase 2b \`VALUABLE\`") serve double duty as documentation and grep anchors. Remove them and tests silently regress.
 - **Ephemeral evaluator output shape** — evaluators that follow the reviewer schema return `findings[0].outcome`, not a top-level `outcome` field. Routing logic and all prose references must use `findings[0].*`, not `DivergenceJudgment.*`. The two names diverge unless explicitly kept in sync.
+- **Pi has no native subagents** — do not write Pi instructions that assume Claude-style `Agent(...)`, teams, or swarms. Roll the primitive as an extension. The endorsed pattern is Pi's own `examples/extensions/subagent/`: spawn child `pi --mode json -p --no-session` processes, bound concurrency, stream/capture JSON events, and keep child contexts explicit.
+- **PromptEnvelope is the cross-harness dispatch boundary** — Claude can pass `envelope.prompt` to `Agent(...)`; Pi must call `foundry_team` with `envelopePath`. Never paste hidden context into normal Pi messages to simulate a subagent.
 
 ## What's Next
 
 Ilia feedback (2026-04-17, `docs/solutions/workflow-issues/ilia-feedback-foundry-plugin-20260417.md`) raised four structural items. Repo identity is complete, the private dispatch runtime mirrors the public `PromptEnvelope` v1 contract, and a replay-level behavioral smoke harness now exists. The remaining suggested order is:
 
-1. **Behavioral smoke live lane** (`todos/behavioral-smoke-tests.md`) — run a real public-plugin adversarial session under Pi/Claude and validate its emitted `runs/<run_id>/` artifacts with `tests/behavioral-smoke.sh`
-2. **Pi + Codex packaging support** (`todos/pi-codex-plugin-support.md`) — continue packaging polish: skill adapters, install docs, and Codex plugin surface without forking canonical prompts
-3. **Modularize heaviest skills** (`todos/modularize-heaviest-skills.md`) — profile obedience before extracting
+1. **Behavioral smoke live lane** (`todos/behavioral-smoke-tests.md`) — run a real public-plugin adversarial session under Pi using the landed `foundry_team` extension, then validate emitted `runs/<run_id>/` artifacts with `tests/behavioral-smoke.sh`. Keep this scoped to the public plugin/extension; do not assume private runtime or BuildKite dispatcher support.
+2. **Pi + Codex packaging support** (`todos/pi-codex-plugin-support.md`) — continue packaging polish: Pi skill adapters, install docs, and Codex plugin surface without forking canonical prompts.
+3. **Modularize heaviest skills** (`todos/modularize-heaviest-skills.md`) — profile obedience first, especially now that Pi dispatch relies on explicit PromptEnvelope artifacts and `foundry_team`.
 
 Also still open from before:
 
@@ -128,7 +138,10 @@ Also still open from before:
 
 ```
 public/foundry/
+├── package.json                         (Pi package manifest)
 ├── .claude-plugin/marketplace.json
+├── extensions/
+│   └── pi-foundry-team/                 (Pi `foundry_team` dispatch extension)
 ├── plugins/foundry/
 │   ├── .claude-plugin/plugin.json
 │   ├── agents/
@@ -146,8 +159,11 @@ public/foundry/
 │   ├── rubiks-solver/
 │   └── chess-engine/
 ├── tests/
+│   ├── behavioral-smoke.sh
 │   ├── validate-agents.sh
-│   └── validate-barrier-envelopes.sh
+│   ├── validate-barrier-envelopes.sh
+│   ├── validate-behavioral-smoke-contract.sh
+│   └── validate-pi-extension.sh
 ├── docs/
 │   ├── brainstorms/
 │   ├── plans/

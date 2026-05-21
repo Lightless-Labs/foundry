@@ -2,7 +2,7 @@
 title: Add Pi extensions and Codex plugin support
 origin: 2026-05-01 user request during repo-identity cleanup
 priority: medium
-status: active
+status: partial — Pi extension package slice landed; skill adapters/docs and Codex support pending
 updated: 2026-05-21
 ---
 
@@ -28,9 +28,20 @@ Foundry currently ships as a Claude plugin with skills, agents, examples, and va
 4. Add validation that catches drift between canonical Foundry docs and generated/adapted package artifacts.
 5. Document supported and unsupported workflows.
 
+## Progress
+
+- [x] Research Pi extension/package docs and official examples.
+- [x] Confirm Pi has no built-in subagent/team/swarm primitive; official guidance is to build/install extensions.
+- [x] Prototype a Pi extension package slice: `package.json` + `extensions/pi-foundry-team/index.ts`.
+- [x] Reuse canonical Foundry agent prompts from `plugins/foundry/agents/**/*.md` instead of forking prompt copies.
+- [x] Add validation for the Pi extension package contract (`tests/validate-pi-extension.sh`).
+- [ ] Add Pi skill adapters/install docs for the canonical Foundry skills.
+- [ ] Run a real public-plugin adversarial session under Pi using `foundry_team`.
+- [ ] Research Codex plugin conventions and document support/blockers.
+
 ## Acceptance criteria
 
-- A documented packaging strategy exists for both Pi extensions and Codex plugin support.
-- At least one Foundry skill and one Foundry agent can be exposed through each target harness, or explicit blockers are documented.
-- Existing Claude plugin behavior and validation remain unchanged.
-- Information-barrier guarantees are preserved or stricter in every target harness.
+- [ ] A documented packaging strategy exists for both Pi extensions and Codex plugin support.
+- [ ] At least one Foundry skill and one Foundry agent can be exposed through each target harness, or explicit blockers are documented.
+- [x] Existing Claude plugin behavior and validation remain unchanged.
+- [x] Information-barrier guarantees are preserved or stricter in the landed Pi child-dispatch slice.

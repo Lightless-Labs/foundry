@@ -2,7 +2,7 @@
 title: Add behavioral smoke tests — end-to-end adversarial runs, barrier invariants
 origin: 2026-04-17 ilia-feedback-foundry-plugin (item 3)
 priority: high
-status: active
+status: partial — replay harness and Pi dispatch primitive landed; real public-plugin run pending
 updated: 2026-05-21
 ---
 
@@ -23,15 +23,16 @@ The hard questions are behavioral:
 
 ## What to fix
 
-- End-to-end smoke test: one of the examples (sudoku is cheapest) runs from NLSpec through adversarial skill to green implementation with test outcomes.
-- Barrier invariant assertion: post-run, the captured dispatch envelopes (see `mechanical-barrier-enforcement.md`) are diffed against the barrier matrix — any leak fails the test.
-- Divergence restart assertion: a deliberately-ambiguous NLSpec triggers Phase 2b `VALUABLE`, the pipeline restarts, and the revision history is exactly one entry.
-- Model-lane assertion: if provider overrides are in play, each dispatch's actual model matches the planned provider.
+- [ ] End-to-end smoke test: one of the examples (sudoku is cheapest) runs from NLSpec through adversarial skill to green implementation with test outcomes.
+- [x] Barrier invariant assertion: post-run, the captured dispatch envelopes (see `mechanical-barrier-enforcement.md`) are diffed against the barrier matrix — any leak fails the test.
+- [x] Divergence restart assertion: a deliberately-ambiguous NLSpec triggers Phase 2b `VALUABLE`, the pipeline restarts, and the revision history is exactly one entry.
+- [x] Model-lane assertion: if provider overrides are in play, each dispatch's actual model matches the planned provider.
+- [x] Pi subagent/team primitive: because Pi has no built-in subagents, provide a public-extension dispatch mechanism that can produce real run artifacts from PromptEnvelope paths.
 
 ## Suggested approach
 
 Add `tests/behavioral-smoke.sh` (or a Rust harness in the engine) that sits alongside `validate-agents.sh`. Tag it "slow" so CI gates it separately from fast structural checks.
 
-The public-plugin replay harness exists as `tests/behavioral-smoke.sh`; the public Pi dispatch primitive exists as `foundry_team`. The remaining slow/live lane is to exercise a real public-plugin adversarial run and feed its emitted `runs/<run_id>/` artifacts back into the harness.
+The public-plugin replay harness exists as `tests/behavioral-smoke.sh`; the public Pi dispatch primitive exists as `foundry_team`. The remaining slow/live lane is to exercise a real public-plugin adversarial run and feed its emitted `runs/<run_id>/` artifacts back into the harness. This should be done in this public plugin/extension repo (not via private runtime assumptions).
 
 See: `docs/solutions/workflow-issues/ilia-feedback-foundry-plugin-20260417.md` (item 3).
