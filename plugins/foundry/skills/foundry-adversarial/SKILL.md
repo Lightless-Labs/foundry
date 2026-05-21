@@ -421,7 +421,7 @@ These can be set via the conversation or a config file:
 
 **Green is stuck (keeps failing the same test):**
 - Check if the test name gives enough information
-- Consider spawning a temporary arbiter: an agent that sees ONLY the spec + the one failing test + the one test result, and judges whether the test or implementation is wrong
+- Consider spawning a temporary arbiter: an agent that sees ONLY the spec + the one failing test + the one test result, and judges whether the test, implementation, or spec is wrong/incomplete
 
 **Red tests are trivially satisfiable:**
 - The red reviewer should catch this
