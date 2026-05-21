@@ -24,7 +24,7 @@ This is the core invariant. Violating it defeats the purpose.
 | Green reviewer | NLSpec How section, implementation, test outcomes | Test code, NLSpec Done section |
 | You (orchestrator) | Everything | — |
 
-**You are the only entity that crosses the barrier. You enforce it by controlling what each subagent receives in its prompt. Every dispatch MUST pass through the PromptEnvelope gate below before `Agent(...)` is invoked.**
+**You are the only entity that crosses the barrier. You enforce it by controlling what each subagent receives in its prompt. Every dispatch MUST pass through the PromptEnvelope gate below before `Agent(...)` is invoked, or before the Pi `foundry_team` tool is called.**
 
 ## Workflow
 
@@ -38,10 +38,11 @@ This is the core invariant. Violating it defeats the purpose.
 
 2. Detect the project language (inspect manifests) and determine Cucumber/Gherkin bindings.
 
-3. Initialize replayable dispatch auditing:
+3. Initialize replayable run auditing:
    - Create `runs/<run_id>/dispatch/`
    - Treat `<run_id>` as stable for this adversarial run
    - No subagent dispatch may happen until its prompt has a serialized `PromptEnvelope`
+   - Initialize `runs/<run_id>/behavioral-smoke.toon` metadata as described in the Behavioral Smoke Run Summary section; update it as the run progresses
 
 4. **Search institutional knowledge** — spawn the learnings-researcher to check `docs/solutions/` for past solutions relevant to this feature. If relevant learnings exist, factor them into the red team's test design and the green team's implementation guidance.
 
@@ -96,6 +97,8 @@ Required gate sequence for every dispatch:
 2. `redact_and_validate_prompt(envelope)` — compare `prompt` against every `withheld_context[].samples[]`; if any withheld sample appears, STOP before dispatch.
 3. Serialize the envelope to `runs/<run_id>/dispatch/<phase>/<recipient>.json`.
 4. Dispatch the agent with exactly `envelope.prompt`; do not append extra context after validation.
+   - Claude Code: use `Agent(...)` with exactly `envelope.prompt`.
+   - Pi: use the Foundry package extension tool `foundry_team` with `envelopePath`; never paste the prompt or hidden context directly into a normal message.
 5. Include the envelope path in any barrier-integrity-auditor request.
 
 Minimum withheld samples by recipient:
@@ -107,7 +110,84 @@ Minimum withheld samples by recipient:
 | Language/correctness/reliability reviewers | Red test files and NLSpec Done snippets unless the reviewer explicitly audits tests |
 | Barrier-integrity-auditor | Nothing withheld from the auditor; auditor receives envelope paths and may inspect all serialized artifacts |
 
-Run `tests/validate-barrier-envelopes.sh runs/<run_id>/dispatch` whenever envelopes exist. This script is the public-plugin validator for replayable barrier artifacts; the private engine should eventually enforce the same contract at prompt-construction time.
+Run `tests/validate-barrier-envelopes.sh runs/<run_id>/dispatch` whenever envelopes exist. This script is the public-plugin validator for replayable barrier artifacts.
+
+### Pi Team Dispatch: `foundry_team`
+
+Pi intentionally has no built-in subagent/team/swarm primitive. When this package is installed as a Pi package, it provides a `foundry_team` extension tool that rolls the missing primitive locally using the officially documented Pi extension pattern from `examples/extensions/subagent/`: spawn child `pi --mode json -p --no-session` processes with isolated context windows.
+
+Use `foundry_team` only after writing PromptEnvelope artifacts. The tool reads and validates the envelope, then sends exactly `envelope.prompt` to the child pi process.
+
+Single dispatch:
+
+```json
+{
+  "envelopePath": "runs/<run_id>/dispatch/phase1b/red-team-test-reviewer.json",
+  "agent": "foundry:review:red-team-test-reviewer",
+  "tools": ["read", "grep", "find", "ls"]
+}
+```
+
+Parallel dispatch:
+
+```json
+{
+  "dispatches": [
+    {
+      "envelopePath": "runs/<run_id>/dispatch/phase1b/red-team-test-reviewer.json",
+      "agent": "foundry:review:red-team-test-reviewer"
+    },
+    {
+      "envelopePath": "runs/<run_id>/dispatch/phase1b/cucumber-reviewer.json",
+      "agent": "foundry:review:cucumber-reviewer"
+    }
+  ]
+}
+```
+
+Notes:
+- `foundry_team` discovers Foundry agent prompts from `plugins/foundry/agents/**/*.md`.
+- It disables child extensions, skills, prompt templates, sessions, and context files by default to keep child context explicit.
+- It reports `actualModel` in tool details; copy those values into `behavioral-smoke.toon` `model_lanes` rows.
+- If the tool is unavailable, stop and tell the user to install or enable the Foundry Pi package; do not fake subagent isolation in the main Pi session.
+
+### Behavioral Smoke Run Summary: `behavioral-smoke.toon`
+
+Every real adversarial run MUST produce a replayable run summary at:
+
+```text
+runs/<run_id>/behavioral-smoke.toon
+```
+
+This is the public-plugin live lane for behavioral smoke tests: the skill emits real run artifacts, and `tests/behavioral-smoke.sh runs/<run_id>` validates them without needing private infrastructure.
+
+Use TOON (Token-Oriented Object Notation) for this summary because the data is small, row-oriented, and LLM-readable. Keep PromptEnvelope artifacts as JSON; TOON is only for the run-level summary.
+
+Required TOON subset and fields:
+
+```toon
+schema_version: foundry.behavioral-smoke.v1
+run_id: <stable run id>
+requires_divergence_restart: false
+
+test_results[1]{example,passed,total,expected_passed,expected_total}:
+  <feature-or-example-name>,<passed>,<total>,<expected_passed>,<expected_total>
+
+model_lanes[3]{recipient,planned_model,actual_model}:
+  red-team,<planned>,<actual>
+  green-team,<planned>,<actual>
+  orchestrator,<planned>,<actual>
+
+divergence_restarts[0]{phase,outcome,revision_history_count}:
+```
+
+Rules:
+- `test_results` records the final run result. For worked examples, `expected_*` MUST match the documented expected pass rate (Sudoku 30/30, Chess 44/44, Rubik's 31/46 until fixed). For new feature runs, set `expected_*` to the accepted final target for that run.
+- `model_lanes` records every distinct team lane. If a model is inherited from the current session, write the inherited model ID as both planned and actual. If provider overrides are used, planned and actual must still match.
+- `divergence_restarts` records every Phase 1b/2b evaluator outcome that restarted the pipeline. For each `VALUABLE` restart, `revision_history_count` MUST be exactly `1` for that restart event.
+- If the run is deliberately exercising the divergence loop, set `requires_divergence_restart: true`; otherwise `false`.
+- Update this file after Phase 2b restarts and finalize it in Phase 4 before reporting success.
+- Run `tests/behavioral-smoke.sh runs/<run_id>` before final user summary. A failure is a run artifact failure; fix the artifacts or the workflow before claiming completion.
 
 ### Phase 1: Red Team — Write Tests
 
@@ -404,7 +484,13 @@ If any reviewer rejects:
 When all reviewers approve (zero P0/P1 findings, barrier audit clean):
 1. Commit the implementation and tests
 2. Update the NLSpec frontmatter: `status: implemented`
-3. Report summary: which DoD items are covered, test count, iteration count
+3. Finalize `runs/<run_id>/behavioral-smoke.toon` with final test counts, model lanes, and divergence restart rows
+4. Run both replay validators:
+   ```bash
+   tests/validate-barrier-envelopes.sh runs/<run_id>/dispatch
+   tests/behavioral-smoke.sh runs/<run_id>
+   ```
+5. Report summary: which DoD items are covered, test count, iteration count, PromptEnvelope validation status, and behavioral-smoke validation status
 
 ### Configuration
 

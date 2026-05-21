@@ -25,6 +25,8 @@ This repo is the **skills + agents + examples** side. The Rust engine (state mac
 Additional validators:
 - `tests/validate-barrier-envelopes.sh` — PromptEnvelope v1 replay/audit checks.
 - `tests/behavioral-smoke.sh` — replay-level run checks over PromptEnvelope artifacts plus `behavioral-smoke.toon` summaries (example pass rates, model lanes, divergence restart counts).
+- `tests/validate-behavioral-smoke-contract.sh` — ensures `foundry-adversarial` requires real runs to emit/validate `behavioral-smoke.toon`.
+- `tests/validate-pi-extension.sh` — ensures the Pi package exposes the `foundry_team` child-dispatch extension and uses the PromptEnvelope contract.
 
 ### 5 Skills (composable pipeline)
 
@@ -65,7 +67,7 @@ Each example preserves all artifacts: research doc, spec, NLSpec, red team tests
 | `todos/spec-divergence-feedback-loop.md` | P2 | **MERGED** — `divergence-evaluator` agent + adversarial skill Phase 1b/2b/restart extensions. 93/93 red team tests pass. Merged via PR #1 on 2026-04-08. |
 | `todos/repo-identity-public-plugin.md` | High | **COMPLETED 2026-05-01** — root `AGENTS.md`/`CLAUDE.md` now identify this as the public plugin/skills/agents repo and call out the private Rust engine split |
 | `todos/mechanical-barrier-enforcement.md` | High | **PUBLIC + PRIVATE DISPATCH CONTRACT LANDED** — public plugin `PromptEnvelope` v1/replayable artifact contract landed 2026-05-01; private BuildKite/pi dispatch runtime mirrors it with prompt-envelope artifacts and `test-prompt-envelope.sh` as of 2026-05-03 |
-| `todos/behavioral-smoke-tests.md` | High | **REPLAY HARNESS LANDED 2026-05-21** — `tests/behavioral-smoke.sh` validates PromptEnvelope artifacts + TOON run summaries for barrier invariants, example pass rates, model lanes, and divergence restart counts; live end-to-end agent run remains pending |
+| `todos/behavioral-smoke-tests.md` | High | **REPLAY HARNESS + PI DISPATCH PRIMITIVE LANDED 2026-05-21** — `tests/behavioral-smoke.sh` validates PromptEnvelope artifacts + TOON run summaries; `foundry_team` Pi extension rolls our own subagent/team dispatch from PromptEnvelope paths; real public-plugin adversarial run remains pending |
 | `todos/modularize-heaviest-skills.md` | Medium | Break `foundry-adversarial` into tighter sub-skills / executable checks; profile obedience first (ilia feedback item 4) |
 | `todos/pi-codex-plugin-support.md` | Medium | Add Pi extension and Codex plugin support without forking canonical Foundry prompts |
 | `todos/arbiter-agent.md` | Future | Formalize scoped arbitration for single-test disputes; arbiter can route to red fix, green fix, or spec/NLSpec divergence loop |
@@ -109,8 +111,8 @@ Green receives ONLY `test_name: PASS/FAIL` — no assertions, no expected values
 
 Ilia feedback (2026-04-17, `docs/solutions/workflow-issues/ilia-feedback-foundry-plugin-20260417.md`) raised four structural items. Repo identity is complete, the private dispatch runtime mirrors the public `PromptEnvelope` v1 contract, and a replay-level behavioral smoke harness now exists. The remaining suggested order is:
 
-1. **Behavioral smoke live lane** (`todos/behavioral-smoke-tests.md`) — feed `tests/behavioral-smoke.sh` with real private-runtime/BuildKite run artifacts, or add a slow harness that invokes real agents
-2. **Pi + Codex packaging support** (`todos/pi-codex-plugin-support.md`) — research/adapt Foundry to Pi extensions and Codex plugin surfaces without forking canonical prompts
+1. **Behavioral smoke live lane** (`todos/behavioral-smoke-tests.md`) — run a real public-plugin adversarial session under Pi/Claude and validate its emitted `runs/<run_id>/` artifacts with `tests/behavioral-smoke.sh`
+2. **Pi + Codex packaging support** (`todos/pi-codex-plugin-support.md`) — continue packaging polish: skill adapters, install docs, and Codex plugin surface without forking canonical prompts
 3. **Modularize heaviest skills** (`todos/modularize-heaviest-skills.md`) — profile obedience before extracting
 
 Also still open from before:

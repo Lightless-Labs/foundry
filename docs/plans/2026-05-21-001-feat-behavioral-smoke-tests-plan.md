@@ -7,7 +7,9 @@ completed: 2026-05-21
 
 # feat: Behavioral Smoke Tests
 
-**Completed:** 2026-05-21 — added `tests/behavioral-smoke.sh`, a replay-level run harness that validates PromptEnvelope artifacts, TOON run summaries, example pass rates, model lanes, and divergence restart counts. Live model/engine execution remains outside this public-plugin slice.
+**Completed:** 2026-05-21 — added `tests/behavioral-smoke.sh`, a replay-level run harness that validates PromptEnvelope artifacts, TOON run summaries, example pass rates, model lanes, and divergence restart counts. Enhanced the public adversarial skill so real plugin runs emit `runs/<run_id>/behavioral-smoke.toon` and validate it before claiming completion.
+
+**Addendum:** 2026-05-21 — clarified that this repo owns the public plugin/extension live lane, not private runtime or BuildKite dispatcher changes. Added `tests/validate-behavioral-smoke-contract.sh` to lock the adversarial skill's run-summary contract.
 
 **Plan for:** adding replayable behavioral smoke coverage for Foundry's adversarial workflow, including barrier invariants, divergence restarts, model-lane assertions, worked-example pass-rate checks, and a TOON run-summary investigation.
 
@@ -15,7 +17,7 @@ completed: 2026-05-21
 
 `tests/validate-agents.sh` verifies plugin structure. `tests/validate-barrier-envelopes.sh` verifies individual PromptEnvelope artifacts. The missing layer is a run-level behavioral smoke harness that can answer: did the workflow preserve the red/green barrier across a run, did divergence routing restart when expected, did provider/model lanes match the plan, and did worked examples retain their expected outcomes?
 
-The public plugin repo cannot execute the private engine or live model dispatches directly, so the first useful slice should validate **replayable run artifacts**. That gives CI and humans a deterministic gate now, while leaving live end-to-end execution to the private runtime.
+The public plugin repo cannot own external infrastructure, so the useful slice is to make the **public skill itself** emit replayable run artifacts and validate those artifacts. That gives CI and humans a deterministic gate now, and any live Claude/Pi/Codex execution of the public plugin can produce the same `runs/<run_id>/` contract.
 
 ## TOON Research Note
 
@@ -48,11 +50,12 @@ Findings relevant to Foundry:
   - worked-example pass rates equal expected values;
   - Phase 1b/2b `VALUABLE` divergence restarts have exactly one revision-history entry;
   - planned and actual model lanes match.
-- Document the remaining gap: live end-to-end adversarial execution is not provided by this public-plugin replay harness.
+- Require `foundry-adversarial` to emit the TOON summary during real public-plugin runs.
+- Document the remaining gap: a real run still needs to be exercised manually or by a harness that invokes the public plugin, but the artifact contract is now in the public skill.
 
 ### Out of scope
 
-- Running Claude/Pi/Codex/Gemini agents from this repo.
+- Implementing Claude/Pi/Codex/Gemini provider dispatch machinery in this repo.
 - Replacing PromptEnvelope JSON with TOON.
 - Parsing the complete TOON spec; only the narrow top-level scalar + uniform tabular array subset needed for smoke manifests.
 
@@ -79,19 +82,29 @@ Findings relevant to Foundry:
 - Directory mode validates each passed run directory.
 - No-argument mode creates a temp Foundry run fixture and validates it.
 
-### Unit 2 — Documentation and todo state
+### Unit 2 — Public skill live-lane contract
+
+**Files:**
+
+- `plugins/foundry/skills/foundry-adversarial/SKILL.md`
+- `tests/validate-behavioral-smoke-contract.sh`
+
+Require real adversarial runs to create `runs/<run_id>/behavioral-smoke.toon`, document the TOON subset, and validate the skill contains the required anchors.
+
+### Unit 3 — Documentation and todo state
 
 **Files:**
 
 - `todos/behavioral-smoke-tests.md`
 - `docs/HANDOFF.md`
 
-Record that replay-level behavioral smoke coverage landed and that live end-to-end model execution remains a follow-up.
+Record that replay-level behavioral smoke coverage and the public skill live-lane artifact contract landed.
 
 ## Verification
 
 ```bash
 tests/behavioral-smoke.sh
+tests/validate-behavioral-smoke-contract.sh
 tests/validate-barrier-envelopes.sh
 tests/validate-agents.sh
 ```

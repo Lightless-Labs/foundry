@@ -2,10 +2,13 @@
 title: Add Pi extensions and Codex plugin support
 origin: 2026-05-01 user request during repo-identity cleanup
 priority: medium
-status: ready
+status: active
+updated: 2026-05-21
 ---
 
 # Pi Extensions and Codex Plugin Support
+
+**Addendum:** 2026-05-21 — first Pi extension slice landed while closing the behavioral-smoke live-lane gap. Added a root `package.json` Pi manifest and `extensions/pi-foundry-team/index.ts`. The extension follows Pi's officially shipped `examples/extensions/subagent/` pattern: it registers a `foundry_team` tool, validates PromptEnvelope JSON artifacts, then spawns child `pi --mode json -p --no-session` processes with isolated context windows. This is intentionally not a fork of the canonical prompts: Foundry agent prompts are discovered from `plugins/foundry/agents/**/*.md`. Remaining Pi packaging work: skill adapters/install docs and deeper filesystem/barrier hardening for red/green implementation workspaces. Codex support remains pending.
 
 Foundry currently ships as a Claude plugin with skills, agents, examples, and validation aimed at Claude's plugin surface. To make the workflow portable across agent harnesses, add first-class support for Pi extensions and Codex-compatible plugin packaging.
 

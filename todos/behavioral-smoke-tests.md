@@ -8,7 +8,9 @@ updated: 2026-05-21
 
 # Behavioral Smoke Tests
 
-**Addendum:** 2026-05-21 — replay-level public-plugin harness landed. `tests/behavioral-smoke.sh` validates run directories containing PromptEnvelope JSON artifacts plus a compact `behavioral-smoke.toon` summary. It delegates barrier checks to `tests/validate-barrier-envelopes.sh`, asserts worked-example pass rates, model-lane matches, and Phase 1b/2b `VALUABLE` restart revision counts. It includes self-tests for good runs, model mismatch failures, divergence-count failures, and TOON row-count failures. Remaining gap: a live end-to-end adversarial execution harness still belongs in the private runtime or a slow CI lane that can invoke real agents.
+**Addendum:** 2026-05-21 — replay-level public-plugin harness landed. `tests/behavioral-smoke.sh` validates run directories containing PromptEnvelope JSON artifacts plus a compact `behavioral-smoke.toon` summary. It delegates barrier checks to `tests/validate-barrier-envelopes.sh`, asserts worked-example pass rates, model-lane matches, and Phase 1b/2b `VALUABLE` restart revision counts. It includes self-tests for good runs, model mismatch failures, divergence-count failures, and TOON row-count failures.
+
+**Addendum:** 2026-05-21 — public Pi live-lane support started. Pi has no built-in subagent/team/swarm primitive, so the Foundry Pi package now includes `extensions/pi-foundry-team/index.ts`, inspired by Pi's bundled `examples/extensions/subagent/`. The `foundry_team` tool dispatches child `pi --mode json -p --no-session` processes from PromptEnvelope paths, validates withheld samples before dispatch, disables child sessions/extensions/skills/context-files by default, and reports actual model IDs for `behavioral-smoke.toon`. Remaining gap: run a real public-plugin adversarial session under Pi and validate its emitted `runs/<run_id>/` artifacts.
 
 `tests/validate-agents.sh` currently covers structural concerns: YAML frontmatter, required sections, `model: inherit`, tool lists, attribution, territory boundaries. That is valuable but it verifies file shape, not behavior.
 
@@ -30,6 +32,6 @@ The hard questions are behavioral:
 
 Add `tests/behavioral-smoke.sh` (or a Rust harness in the engine) that sits alongside `validate-agents.sh`. Tag it "slow" so CI gates it separately from fast structural checks.
 
-The public-plugin replay harness exists as `tests/behavioral-smoke.sh`; the remaining slow/live lane is to feed it real run artifacts from the private engine/BuildKite dispatcher.
+The public-plugin replay harness exists as `tests/behavioral-smoke.sh`; the public Pi dispatch primitive exists as `foundry_team`. The remaining slow/live lane is to exercise a real public-plugin adversarial run and feed its emitted `runs/<run_id>/` artifacts back into the harness.
 
 See: `docs/solutions/workflow-issues/ilia-feedback-foundry-plugin-20260417.md` (item 3).
