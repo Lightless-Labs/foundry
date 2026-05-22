@@ -2,13 +2,15 @@
 title: Add Pi extensions and Codex plugin support
 origin: 2026-05-01 user request during repo-identity cleanup
 priority: medium
-status: partial — Pi extension package slice landed; skill adapters/docs and Codex support pending
-updated: 2026-05-21
+status: partial — Pi extension package, skill adapters, and install docs landed; full adversarial Pi run and Codex support pending
+updated: 2026-05-22
 ---
 
 # Pi Extensions and Codex Plugin Support
 
-**Addendum:** 2026-05-21 — first Pi extension slice landed while closing the behavioral-smoke live-lane gap. Added a root `package.json` Pi manifest and `extensions/pi-foundry-team/index.ts`. The extension follows Pi's officially shipped `examples/extensions/subagent/` pattern: it registers a `foundry_team` tool, validates PromptEnvelope JSON artifacts, then spawns child `pi --mode json -p --no-session` processes with isolated context windows. This is intentionally not a fork of the canonical prompts: Foundry agent prompts are discovered from `plugins/foundry/agents/**/*.md`. Remaining Pi packaging work: skill adapters/install docs and deeper filesystem/barrier hardening for red/green implementation workspaces. Codex support remains pending.
+**Addendum:** 2026-05-21 — first Pi extension slice landed while closing the behavioral-smoke live-lane gap. Added a root `package.json` Pi manifest and `extensions/pi-foundry-team/index.ts`. The extension follows Pi's officially shipped `examples/extensions/subagent/` pattern: it registers a `foundry_team` tool, validates PromptEnvelope JSON artifacts, then spawns child `pi --mode json -p --no-session` processes with isolated context windows. This is intentionally not a fork of the canonical prompts: Foundry agent prompts are discovered from `plugins/foundry/agents/**/*.md`. Codex support remains pending.
+
+**Addendum:** 2026-05-22 — Pi skill adapters and install docs landed. Root `package.json` exposes `./skills`; `skills/foundry-{research,brainstorm,nlspec,adversarial,forge}/SKILL.md` provide Agent Skills-compatible hyphenated names and direct Pi to read canonical `plugins/foundry/skills/**/SKILL.md` sources. `docs/pi-codex-support.md` documents install and invocation. `tests/validate-pi-extension.sh` now validates the package skill manifest, all adapters, canonical links, and `foundry_team` guidance. Remaining Pi work: run the full autonomous adversarial session under Pi and harden any discovered workflow gaps. Codex support remains pending.
 
 Foundry currently ships as a Claude plugin with skills, agents, examples, and validation aimed at Claude's plugin surface. To make the workflow portable across agent harnesses, add first-class support for Pi extensions and Codex-compatible plugin packaging.
 
@@ -35,7 +37,7 @@ Foundry currently ships as a Claude plugin with skills, agents, examples, and va
 - [x] Prototype a Pi extension package slice: `package.json` + `extensions/pi-foundry-team/index.ts`.
 - [x] Reuse canonical Foundry agent prompts from `plugins/foundry/agents/**/*.md` instead of forking prompt copies.
 - [x] Add validation for the Pi extension package contract (`tests/validate-pi-extension.sh`).
-- [ ] Add Pi skill adapters/install docs for the canonical Foundry skills.
+- [x] Add Pi skill adapters/install docs for the canonical Foundry skills.
 - [ ] Run a real public-plugin adversarial session under Pi using `foundry_team`.
 - [ ] Research Codex plugin conventions and document support/blockers.
 
