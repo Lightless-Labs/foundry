@@ -173,6 +173,14 @@ function finalAssistantText(messages: any[]): string {
 	return "";
 }
 
+function modelLaneId(message: any): string | undefined {
+	const model = typeof message?.model === "string" && message.model.trim() ? message.model.trim() : undefined;
+	const provider = typeof message?.provider === "string" && message.provider.trim() ? message.provider.trim() : undefined;
+	if (!model) return undefined;
+	if (!provider || model.includes("/")) return model;
+	return `${provider}/${model}`;
+}
+
 function truncateOutput(text: string): string {
 	const bytes = Buffer.byteLength(text, "utf8");
 	if (bytes <= OUTPUT_CAP_BYTES) return text;
@@ -250,7 +258,8 @@ async function runDispatch(
 				if (event.type === "message_end" && event.message) {
 					messages.push(event.message);
 					if (event.message.role === "assistant") {
-						if (event.message.model) actualModel = event.message.model;
+						const laneId = modelLaneId(event.message);
+						if (laneId) actualModel = laneId;
 						if (event.message.stopReason) stopReason = event.message.stopReason;
 						if (event.message.errorMessage) errorMessage = event.message.errorMessage;
 					}
