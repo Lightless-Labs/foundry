@@ -18,7 +18,7 @@ This repo is the **skills + agents + examples** side. The Rust engine (state mac
 
 ## Current State
 
-### Validation: 215/215 checks passing + replay/Pi extension self-tests + Pi live dispatch smoke
+### Validation: 215/215 checks passing + replay/Pi extension self-tests + Pi adversarial smoke
 
 `tests/validate-agents.sh` covers structural (YAML frontmatter, required sections, model: inherit, tools), attribution (12 adopted agents), language-specific coverage, adversarial process coverage, and territory boundaries.
 
@@ -28,8 +28,9 @@ Additional validators:
 - `tests/validate-behavioral-smoke-contract.sh` — ensures `foundry-adversarial` requires real runs to emit/validate `behavioral-smoke.toon`.
 - `tests/validate-pi-extension.sh` — ensures the Pi package exposes the `foundry_team` child-dispatch extension and uses the PromptEnvelope contract.
 - `tests/pi-live-dispatch-smoke.sh` — slow/manual live lane that performs real Pi model calls, runs Sudoku `30/30`, dispatches red/green child Pi processes through `foundry_team`, writes `behavioral-smoke.toon`, and validates the resulting run directory.
+- `runs/pi-autonomous-sudoku-smoke/` — smoke-scoped autonomous `/skill:foundry-adversarial` Pi run artifacts (red-team, green-team, barrier-integrity-auditor PromptEnvelopes + `behavioral-smoke.toon`).
 
-Last full local validation (2026-05-22): all validators above passed; `validate-agents.sh` remained 215/215; `tests/pi-live-dispatch-smoke.sh --keep` passed with a real `foundry_team` Pi tool call, child `pi --mode json` dispatches, Sudoku `30/30`, and provider-qualified `openai-codex/gpt-5.5` model lanes.
+Last full local validation (2026-05-22): all validators above passed; `validate-agents.sh` remained 215/215; `tests/pi-live-dispatch-smoke.sh --keep` passed with a real `foundry_team` Pi tool call; `/skill:foundry-adversarial` under Pi produced `runs/pi-autonomous-sudoku-smoke/` with Sudoku `30/30` and provider-qualified `openai-codex/gpt-5.5` model lanes; `tests/behavioral-smoke.sh runs/pi-autonomous-sudoku-smoke` and `tests/validate-barrier-envelopes.sh runs/pi-autonomous-sudoku-smoke/dispatch` passed.
 
 ### 5 Skills (composable pipeline)
 
@@ -78,9 +79,9 @@ Each example preserves all artifacts: research doc, spec, NLSpec, red team tests
 | `todos/spec-divergence-feedback-loop.md` | P2 | **MERGED** — `divergence-evaluator` agent + adversarial skill Phase 1b/2b/restart extensions. 93/93 red team tests pass. Merged via PR #1 on 2026-04-08. |
 | `todos/repo-identity-public-plugin.md` | High | **COMPLETED 2026-05-01** — root `AGENTS.md`/`CLAUDE.md` now identify this as the public plugin/skills/agents repo and call out the private Rust engine split |
 | `todos/mechanical-barrier-enforcement.md` | High | **PUBLIC + PRIVATE DISPATCH CONTRACT LANDED** — public plugin `PromptEnvelope` v1/replayable artifact contract landed 2026-05-01; private BuildKite/pi dispatch runtime mirrors it with prompt-envelope artifacts and `test-prompt-envelope.sh` as of 2026-05-03 |
-| `todos/behavioral-smoke-tests.md` | High | **PARTIAL 2026-05-22** — replay harness + Pi dispatch primitive + slow/manual Pi live dispatch smoke landed. `tests/pi-live-dispatch-smoke.sh` creates real PromptEnvelope artifacts, runs Sudoku `30/30`, invokes `foundry_team` through Pi, emits `behavioral-smoke.toon`, and validates it; full autonomous public-plugin adversarial run remains pending |
+| `todos/behavioral-smoke-tests.md` | High | **COMPLETED 2026-05-22** — replay harness + Pi dispatch primitive + slow/manual Pi live dispatch smoke + smoke-scoped autonomous `/skill:foundry-adversarial` run landed. `runs/pi-autonomous-sudoku-smoke/` validates with behavioral-smoke and barrier validators |
 | `todos/modularize-heaviest-skills.md` | Medium | Break `foundry-adversarial` into tighter sub-skills / executable checks; profile obedience first (ilia feedback item 4) |
-| `todos/pi-codex-plugin-support.md` | Medium | **PARTIAL 2026-05-22** — Pi package manifest + `foundry_team` extension + Pi skill adapters/install docs landed; canonical agent and skill prompts are reused; full autonomous Pi adversarial run and Codex support remain pending |
+| `todos/pi-codex-plugin-support.md` | Medium | **PARTIAL 2026-05-22** — Pi package manifest + `foundry_team` extension + Pi skill adapters/install docs + smoke-scoped autonomous Pi adversarial run landed; canonical agent and skill prompts are reused; Codex support remains pending |
 | `todos/arbiter-agent.md` | Future | Formalize scoped arbitration for single-test disputes; arbiter can route to red fix, green fix, or spec/NLSpec divergence loop |
 | `todos/phase2-trigger-strategy.md` | Future | Re-assess Phase 2 divergence trigger strategy (N=3 fixed vs pattern-based) |
 | `todos/adversarial-ui-investigation.md` | Future | Three-level adversarial testing via design systems |
@@ -125,9 +126,9 @@ Green receives ONLY `test_name: PASS/FAIL` — no assertions, no expected values
 
 Ilia feedback (2026-04-17, `docs/solutions/workflow-issues/ilia-feedback-foundry-plugin-20260417.md`) raised four structural items. Repo identity is complete, the private dispatch runtime mirrors the public `PromptEnvelope` v1 contract, and a replay-level behavioral smoke harness now exists. The remaining suggested order is:
 
-1. **Full autonomous behavioral smoke live lane** (`todos/behavioral-smoke-tests.md`) — with Pi skill adapters now present, run a real public-plugin adversarial session under Pi and validate emitted `runs/<run_id>/` artifacts with `tests/behavioral-smoke.sh`. The current slow/manual `tests/pi-live-dispatch-smoke.sh` proves the public `foundry_team` dispatch/artifact lane.
-2. **Codex packaging support** (`todos/pi-codex-plugin-support.md`) — research/document the Codex plugin/skill surface without forking canonical prompts.
-3. **Modularize heaviest skills** (`todos/modularize-heaviest-skills.md`) — profile obedience first, especially now that Pi dispatch relies on explicit PromptEnvelope artifacts and `foundry_team`.
+1. **Codex packaging support** (`todos/pi-codex-plugin-support.md`) — research/document the Codex plugin/skill surface without forking canonical prompts.
+2. **Modularize heaviest skills** (`todos/modularize-heaviest-skills.md`) — profile obedience first, especially now that Pi dispatch relies on explicit PromptEnvelope artifacts and `foundry_team`.
+3. **From-scratch Pi adversarial feature run** — optional harder follow-up after the smoke-scoped Sudoku replay: run a non-example feature where red and green generate fresh artifacts, then feed any obedience gaps back into skill modularization.
 
 Also still open from before:
 
@@ -143,6 +144,8 @@ Also still open from before:
 ```
 public/foundry/
 ├── package.json                         (Pi package manifest)
+├── runs/
+│   └── pi-autonomous-sudoku-smoke/      (validated Pi adversarial smoke artifacts)
 ├── .claude-plugin/marketplace.json
 ├── extensions/
 │   └── pi-foundry-team/                 (Pi `foundry_team` dispatch extension)

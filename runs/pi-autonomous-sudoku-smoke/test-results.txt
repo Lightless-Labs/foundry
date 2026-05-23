@@ -1,0 +1,3 @@
+sudoku-solver: 30/30 passed (expected 30/30)
+command: cd /tmp/foundry-pi-autonomous-sudoku-smoke/sudoku-solver && cargo test -- --nocapture
+workspace: /tmp/foundry-pi-autonomous-sudoku-smoke/sudoku-solver

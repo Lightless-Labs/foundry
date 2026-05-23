@@ -82,6 +82,15 @@ Slow/manual live Pi lane with real model calls:
 tests/pi-live-dispatch-smoke.sh --keep
 ```
 
+Smoke-scoped autonomous Pi adversarial run artifacts:
+
+```bash
+tests/validate-barrier-envelopes.sh runs/pi-autonomous-sudoku-smoke/dispatch
+tests/behavioral-smoke.sh runs/pi-autonomous-sudoku-smoke
+```
+
+The `runs/pi-autonomous-sudoku-smoke/` fixture was produced by invoking `/skill:foundry-adversarial` under Pi with `foundry_team`, copying the Sudoku worked example to `/tmp`, running the red tests (`30/30`), and dispatching red-team, green-team, and barrier-integrity-auditor from PromptEnvelope artifacts.
+
 ## Codex support
 
 Codex support remains pending. Current known strategy:

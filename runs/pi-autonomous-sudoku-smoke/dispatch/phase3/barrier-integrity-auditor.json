@@ -1,0 +1,23 @@
+{
+  "schema_version": "foundry.prompt-envelope.v1",
+  "run_id": "pi-autonomous-sudoku-smoke",
+  "phase": "phase3",
+  "recipient": "barrier-integrity-auditor",
+  "prompt": "Final barrier audit for the smoke-scoped Sudoku Foundry adversarial replay.\n\nAudit these PromptEnvelope artifacts and report whether the barrier is clean:\n- runs/pi-autonomous-sudoku-smoke/dispatch/phase1/red-team.json\n- runs/pi-autonomous-sudoku-smoke/dispatch/phase2/green-team.json\n\nExpected barrier:\n- Red received full NLSpec/spec and no implementation code.\n- Green received NLSpec How plus PASS/FAIL outcome labels only; no test code, no raw test output, and no acceptance-criteria section.\n\nAlso note that tests were replayed in the temporary workspace under /tmp and passed 30/30.",
+  "visible_context": [
+    {
+      "label": "envelope_paths",
+      "kind": "dispatch_manifest",
+      "sha256": "aa0cc86866610328af4396d0b4367022e3c3763e450d649a0e6a3804d8b3ea68",
+      "content": "runs/pi-autonomous-sudoku-smoke/dispatch/phase1/red-team.json\nruns/pi-autonomous-sudoku-smoke/dispatch/phase2/green-team.json"
+    },
+    {
+      "label": "expected_barrier",
+      "kind": "barrier_policy",
+      "sha256": "6b7dd736942629d7dbfb1921f7e01768ca45757087c95c8557a0ff7bce15aaed",
+      "content": "red sees spec/NLSpec but no implementation; green sees How plus PASS/FAIL labels only"
+    }
+  ],
+  "withheld_context": [],
+  "redactions": []
+}
