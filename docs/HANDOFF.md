@@ -81,7 +81,8 @@ Each example preserves all artifacts: research doc, spec, NLSpec, red team tests
 | `todos/mechanical-barrier-enforcement.md` | High | **PUBLIC + PRIVATE DISPATCH CONTRACT LANDED** — public plugin `PromptEnvelope` v1/replayable artifact contract landed 2026-05-01; private BuildKite/pi dispatch runtime mirrors it with prompt-envelope artifacts and `test-prompt-envelope.sh` as of 2026-05-03 |
 | `todos/behavioral-smoke-tests.md` | High | **COMPLETED 2026-05-22** — replay harness + Pi dispatch primitive + slow/manual Pi live dispatch smoke + smoke-scoped autonomous `/skill:foundry-adversarial` run landed. `runs/pi-autonomous-sudoku-smoke/` validates with behavioral-smoke and barrier validators |
 | `todos/modularize-heaviest-skills.md` | Medium | Break `foundry-adversarial` into tighter sub-skills / executable checks; profile obedience first (ilia feedback item 4) |
-| `todos/pi-codex-plugin-support.md` | Medium | **PARTIAL 2026-05-22** — Pi package manifest + `foundry_team` extension + Pi skill adapters/install docs + smoke-scoped autonomous Pi adversarial run landed; canonical agent and skill prompts are reused; Codex support remains pending |
+| `todos/pi-codex-plugin-support.md` | Medium | **PARTIAL 2026-05-22** — Pi package manifest + `foundry_team` extension + Pi skill adapters/install docs + smoke-scoped autonomous Pi adversarial run landed; canonical agent and skill prompts are reused; **Codex CLI plugin** support remains pending |
+| `todos/from-scratch-pi-adversarial-run.md` | Medium | **PENDING** — harder follow-up after Sudoku replay: run a non-example feature under Pi where red and green generate fresh artifacts, then feed obedience/workflow gaps into modularization |
 | `todos/arbiter-agent.md` | Future | Formalize scoped arbitration for single-test disputes; arbiter can route to red fix, green fix, or spec/NLSpec divergence loop |
 | `todos/phase2-trigger-strategy.md` | Future | Re-assess Phase 2 divergence trigger strategy (N=3 fixed vs pattern-based) |
 | `todos/adversarial-ui-investigation.md` | Future | Three-level adversarial testing via design systems |
@@ -126,9 +127,9 @@ Green receives ONLY `test_name: PASS/FAIL` — no assertions, no expected values
 
 Ilia feedback (2026-04-17, `docs/solutions/workflow-issues/ilia-feedback-foundry-plugin-20260417.md`) raised four structural items. Repo identity is complete, the private dispatch runtime mirrors the public `PromptEnvelope` v1 contract, and a replay-level behavioral smoke harness now exists. The remaining suggested order is:
 
-1. **Codex packaging support** (`todos/pi-codex-plugin-support.md`) — research/document the Codex plugin/skill surface without forking canonical prompts.
+1. **Codex CLI plugin support** (`todos/pi-codex-plugin-support.md`) — add a Codex CLI plugin bundle (`.codex-plugin/plugin.json`) that exposes the existing `skills/foundry-*` adapters and documents/validates any `agents/` or `commands/` wrappers without forking canonical prompts.
 2. **Modularize heaviest skills** (`todos/modularize-heaviest-skills.md`) — profile obedience first, especially now that Pi dispatch relies on explicit PromptEnvelope artifacts and `foundry_team`.
-3. **From-scratch Pi adversarial feature run** — optional harder follow-up after the smoke-scoped Sudoku replay: run a non-example feature where red and green generate fresh artifacts, then feed any obedience gaps back into skill modularization.
+3. **From-scratch Pi adversarial feature run** (`todos/from-scratch-pi-adversarial-run.md`) — optional harder follow-up after the smoke-scoped Sudoku replay: run a non-example feature where red and green generate fresh artifacts, then feed any obedience gaps back into skill modularization.
 
 Also still open from before:
 
