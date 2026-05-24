@@ -1,0 +1,28 @@
+   Compiling foundry-pi-roman-numeral v0.1.0 (/private/tmp/foundry-pi-roman-numeral)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.32s
+     Running unittests src/lib.rs (target/debug/deps/foundry_pi_roman_numeral-841f12cdc1742357)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/roman_numeral.rs (target/debug/deps/roman_numeral-8a3ba406184ebc07)
+
+running 8 tests
+test from_roman_rejects_empty_input ... ok
+test from_roman_parses_all_golden_vectors_back ... ok
+test from_roman_rejects_lowercase_and_non_roman_characters ... ok
+test from_roman_rejects_required_non_canonical_inputs ... ok
+test representative_values_round_trip_in_both_directions ... ok
+test integration_smoke_test_uses_public_api ... ok
+test to_roman_matches_all_golden_vectors_exactly ... ok
+test to_roman_rejects_values_outside_supported_range ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests foundry_pi_roman_numeral
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

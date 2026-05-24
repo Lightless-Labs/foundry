@@ -1,0 +1,66 @@
+{
+  "schema_version": "foundry.prompt-envelope.v1",
+  "run_id": "pi-from-scratch-roman-numeral",
+  "phase": "phase3",
+  "recipient": "rust-reviewer",
+  "prompt": "Review the final Rust implementation after the green-team reviewer fix. You may see implementation code and NLSpec How, but you must not see red test code, assertions, raw failures, or NLSpec Done criteria.\n\nNLSpec How section: Implement to_roman by greedily subtracting from the ordered canonical Roman pair table. Return OutOfRange outside 1..=3999. Implement from_roman with a strict canonicality check: reject empty input, reject invalid characters, parse left-to-right using canonical tokens, reject non-matching canonical-token sequences, reject values outside 1..=3999, and accept only if converting the parsed value back with to_roman exactly equals the input. Do not add dependencies.\n\nImplementation path: /tmp/foundry-pi-roman-numeral/src/lib.rs\n\nImplementation excerpt:\n```rust\n#[derive(Debug, Clone, PartialEq, Eq)]\npub enum RomanError {\n    OutOfRange,\n    Empty,\n    InvalidCharacter(char),\n    NonCanonical,\n}\n\nconst PAIRS: [(&str, u16); 13] = [\n    (\"M\", 1000), (\"CM\", 900), (\"D\", 500), (\"CD\", 400), (\"C\", 100),\n    (\"XC\", 90), (\"L\", 50), (\"XL\", 40), (\"X\", 10), (\"IX\", 9),\n    (\"V\", 5), (\"IV\", 4), (\"I\", 1),\n];\n\npub fn to_roman(n: u16) -> Result<String, RomanError> {\n    if !(1..=3999).contains(&n) { return Err(RomanError::OutOfRange); }\n    let mut remaining = n;\n    let mut out = String::new();\n    for &(symbol, value) in &PAIRS {\n        while remaining >= value { out.push_str(symbol); remaining -= value; }\n    }\n    Ok(out)\n}\n\npub fn from_roman(s: &str) -> Result<u16, RomanError> {\n    let first = match s.chars().next() { Some(ch) => ch, None => return Err(RomanError::Empty) };\n    if !is_roman_char(first) { return Err(RomanError::InvalidCharacter(first)); }\n    let mut rest = s;\n    let mut value: u16 = 0;\n    while !rest.is_empty() {\n        let matched = PAIRS.iter().find(|(symbol, _)| rest.starts_with(symbol));\n        match matched {\n            Some((symbol, token_value)) => { value = value.saturating_add(*token_value).min(4000); rest = &rest[symbol.len()..]; }\n            None => {\n                let ch = match rest.chars().next() { Some(ch) => ch, None => return Err(RomanError::NonCanonical) };\n                if !is_roman_char(ch) { return Err(RomanError::InvalidCharacter(ch)); }\n                return Err(RomanError::NonCanonical);\n            }\n        }\n    }\n    if !(1..=3999).contains(&value) { return Err(RomanError::OutOfRange); }\n    let regenerated = to_roman(value)?;\n    if regenerated == s { Ok(value) } else { Err(RomanError::NonCanonical) }\n}\n\nfn is_roman_char(ch: char) -> bool { matches!(ch, 'I' | 'V' | 'X' | 'L' | 'C' | 'D' | 'M') }\n```\n\nTest outcomes: all current red tests PASS (8/8).\n\nReturn findings as JSON matching the findings schema.",
+  "visible_context": [
+    {
+      "label": "nlspec_how",
+      "kind": "nlspec_how",
+      "sha256": "after-fix",
+      "content": "Implement to_roman by greedily subtracting from the ordered canonical Roman pair table. Return OutOfRange outside 1..=3999. Implement from_roman with a strict canonicality check: reject empty input, reject invalid characters, parse left-to-right using canonical tokens, reject non-matching canonical-token sequences, reject values outside 1..=3999, and accept only if converting the parsed value back with to_roman exactly equals the input. Do not add dependencies."
+    },
+    {
+      "label": "implementation",
+      "kind": "implementation_code",
+      "sha256": "after-fix",
+      "content": "/tmp/foundry-pi-roman-numeral/src/lib.rs after green-team overflow cap fix"
+    },
+    {
+      "label": "outcome_labels",
+      "kind": "test_outcomes",
+      "sha256": "after-fix",
+      "content": "all current red tests PASS (8/8)"
+    }
+  ],
+  "withheld_context": [
+    {
+      "label": "red_test_code",
+      "kind": "red_test_code",
+      "sha256": "after-fix",
+      "samples": [
+        "assert_eq!(to_roman(number), Ok(expected.to_string()))",
+        "assert_eq!(from_roman(roman), Ok(expected))",
+        "let invalid_cases = [\"IIII\", \"VV\", \"IC\", \"IL\", \"XM\", \"MCMC\", \"VX\"]"
+      ]
+    },
+    {
+      "label": "nlspec_done",
+      "kind": "nlspec_done",
+      "sha256": "after-fix",
+      "samples": [
+        "to_roman returns exact golden vectors",
+        "from_roman parses each golden vector back to its number",
+        "from_roman rejects invalid/non-canonical strings"
+      ]
+    },
+    {
+      "label": "raw_test_output",
+      "kind": "raw_test_output",
+      "sha256": "after-fix",
+      "samples": [
+        "Running tests/roman_numeral.rs",
+        "test result: ok. 8 passed; 0 failed",
+        "assert_eq!(from_roman(\"IIII\"), Err(RomanError::NonCanonical))"
+      ]
+    }
+  ],
+  "redactions": [
+    {
+      "source": "raw_test_output",
+      "action": "pass_fail_labels_only",
+      "removed": ["assertion_text", "expected_values", "stack_traces", "line_numbers"]
+    }
+  ]
+}

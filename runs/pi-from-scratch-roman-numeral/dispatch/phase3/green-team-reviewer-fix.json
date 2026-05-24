@@ -1,0 +1,66 @@
+{
+  "schema_version": "foundry.prompt-envelope.v1",
+  "run_id": "pi-from-scratch-roman-numeral",
+  "phase": "phase3",
+  "recipient": "green-team",
+  "prompt": "You are the GREEN TEAM in a Foundry adversarial run. You cannot see red test code, assertions, raw failures, step definitions, or NLSpec Done criteria.\n\n## What you see\n\nNLSpec How section: Implement to_roman by greedily subtracting from the ordered canonical Roman pair table. Return OutOfRange outside 1..=3999. Implement from_roman with a strict canonicality check: reject empty input, reject invalid characters, parse left-to-right using canonical tokens, reject non-matching canonical-token sequences, reject values outside 1..=3999, and accept only if converting the parsed value back with to_roman exactly equals the input. Do not add dependencies.\n\nReviewer feedback: rust-reviewer found that from_roman accumulates into a u32 without overflow protection for very long valid-looking inputs such as repeated M. Fix by avoiding unbounded addition, for example by saturating or capping the accumulator once it exceeds 3999 while continuing to scan, then returning OutOfRange after parsing if the capped value is above 3999.\n\nCurrent test outcome labels only:\n  roman_numeral::integration_smoke_test_uses_public_api: PASS\n  roman_numeral::to_roman_matches_all_golden_vectors_exactly: PASS\n  roman_numeral::from_roman_parses_all_golden_vectors_back: PASS\n  roman_numeral::representative_values_round_trip_in_both_directions: PASS\n  roman_numeral::to_roman_rejects_values_outside_supported_range: PASS\n  roman_numeral::from_roman_rejects_empty_input: PASS\n  roman_numeral::from_roman_rejects_required_non_canonical_inputs: PASS\n  roman_numeral::from_roman_rejects_lowercase_and_non_roman_characters: PASS\n\n## Task\nEdit /tmp/foundry-pi-roman-numeral/src/lib.rs to address the reviewer feedback. Do not read or access the red workspace or any test files. When done, run cargo check only and summarize the implementation change.",
+  "visible_context": [
+    {
+      "label": "nlspec_how",
+      "kind": "nlspec_how",
+      "sha256": "manual-continuation",
+      "content": "Implement to_roman by greedily subtracting from the ordered canonical Roman pair table. Return OutOfRange outside 1..=3999. Implement from_roman with a strict canonicality check: reject empty input, reject invalid characters, parse left-to-right using canonical tokens, reject non-matching canonical-token sequences, reject values outside 1..=3999, and accept only if converting the parsed value back with to_roman exactly equals the input. Do not add dependencies."
+    },
+    {
+      "label": "reviewer_feedback",
+      "kind": "review_feedback",
+      "sha256": "manual-continuation",
+      "content": "from_roman accumulates into a u32 without overflow protection for very long valid-looking inputs such as repeated M. Fix by avoiding unbounded addition/capping once it exceeds 3999."
+    },
+    {
+      "label": "outcome_labels",
+      "kind": "test_outcomes",
+      "sha256": "manual-continuation",
+      "content": "all eight current roman_numeral tests: PASS"
+    }
+  ],
+  "withheld_context": [
+    {
+      "label": "red_test_code",
+      "kind": "red_test_code",
+      "sha256": "manual-continuation",
+      "samples": [
+        "assert_eq!(to_roman(number), Ok(expected.to_string()))",
+        "assert_eq!(from_roman(roman), Ok(expected))",
+        "let invalid_cases = [\"IIII\", \"VV\", \"IC\", \"IL\", \"XM\", \"MCMC\", \"VX\"]"
+      ]
+    },
+    {
+      "label": "nlspec_done",
+      "kind": "nlspec_done",
+      "sha256": "manual-continuation",
+      "samples": [
+        "to_roman returns exact golden vectors",
+        "from_roman parses each golden vector back to its number",
+        "from_roman rejects invalid/non-canonical strings"
+      ]
+    },
+    {
+      "label": "raw_test_output",
+      "kind": "raw_test_output",
+      "sha256": "manual-continuation",
+      "samples": [
+        "Running tests/roman_numeral.rs",
+        "test result: ok. 8 passed; 0 failed",
+        "assert_eq!(from_roman(\"IIII\"), Err(RomanError::NonCanonical))"
+      ]
+    }
+  ],
+  "redactions": [
+    {
+      "source": "raw_test_output",
+      "action": "pass_fail_labels_only",
+      "removed": ["assertion_text", "expected_values", "stack_traces", "line_numbers"]
+    }
+  ]
+}

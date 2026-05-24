@@ -1,0 +1,82 @@
+{
+  "schema_version": "foundry.prompt-envelope.v1",
+  "run_id": "pi-from-scratch-roman-numeral",
+  "phase": "phase2",
+  "recipient": "green-team",
+  "prompt": "You are the GREEN TEAM. Your job is to implement a feature that passes hidden tests you cannot see.\n\n## What you see\n- NLSpec How section:\nImplement `to_roman` by greedily subtracting from the ordered canonical pair table:\nM=1000, CM=900, D=500, CD=400, C=100, XC=90, L=50, XL=40, X=10, IX=9, V=5, IV=4, I=1. Return `RomanError::OutOfRange` for values outside `1..=3999`.\n\nImplement `from_roman` with a strict canonicality check:\n1. Reject an empty string with `RomanError::Empty`.\n2. Reject the first character outside `I`, `V`, `X`, `L`, `C`, `D`, `M` with `RomanError::InvalidCharacter(ch)`.\n3. Parse the string left to right using the same ordered canonical pair table, accumulating the matched values.\n4. Reject strings that cannot be fully matched with canonical tokens.\n5. Reject values outside `1..=3999`.\n6. Convert the parsed value back with `to_roman`; accept only if the regenerated string exactly equals the input. Otherwise return `RomanError::NonCanonical`.\n\nDo not add dependencies.\n\n- NLSpec Data Model:\nImplement this public Rust API:\n\n#[derive(Debug, Clone, PartialEq, Eq)]\npub enum RomanError {\n    OutOfRange,\n    Empty,\n    InvalidCharacter(char),\n    NonCanonical,\n}\n\npub fn to_roman(n: u16) -> Result<String, RomanError>;\npub fn from_roman(s: &str) -> Result<u16, RomanError>;\n\n- Project language: Rust 2024 Cargo library crate.\n\nTest results:\n  integration_smoke_test_uses_public_api: FAIL\n  to_roman_matches_all_golden_vectors_exactly: FAIL\n  from_roman_parses_all_golden_vectors_back: FAIL\n  representative_values_round_trip_in_both_directions: FAIL\n  to_roman_rejects_values_outside_supported_range: FAIL\n  from_roman_rejects_empty_input: FAIL\n  from_roman_rejects_required_non_canonical_inputs: FAIL\n  from_roman_rejects_lowercase_and_non_roman_characters: FAIL\n\n## Task\nImplement the feature following only the How section guidance and Data Model.\nWrite the fresh implementation to this exact file path:\n/tmp/foundry-pi-roman-numeral/src/lib.rs\n\nYou know hidden tests only by name and PASS/FAIL labels. Do not try to find, read, infer from, or access hidden test files. Do not add dependencies. When done, tell me you are ready for a test run.",
+  "visible_context": [
+    {
+      "label": "nlspec_how",
+      "kind": "nlspec_how",
+      "content": "Implement `to_roman` by greedily subtracting from the ordered canonical pair table:\nM=1000, CM=900, D=500, CD=400, C=100, XC=90, L=50, XL=40, X=10, IX=9, V=5, IV=4, I=1. Return `RomanError::OutOfRange` for values outside `1..=3999`.\n\nImplement `from_roman` with a strict canonicality check:\n1. Reject an empty string with `RomanError::Empty`.\n2. Reject the first character outside `I`, `V`, `X`, `L`, `C`, `D`, `M` with `RomanError::InvalidCharacter(ch)`.\n3. Parse the string left to right using the same ordered canonical pair table, accumulating the matched values.\n4. Reject strings that cannot be fully matched with canonical tokens.\n5. Reject values outside `1..=3999`.\n6. Convert the parsed value back with `to_roman`; accept only if the regenerated string exactly equals the input. Otherwise return `RomanError::NonCanonical`.\n\nDo not add dependencies.",
+      "sha256": "524b1ed5660702fcc37a98f26bf1071101a78875aa962086e20bcfb93ad1887d"
+    },
+    {
+      "label": "nlspec_data_model",
+      "kind": "nlspec_data_model",
+      "content": "Implement this public Rust API:\n\n#[derive(Debug, Clone, PartialEq, Eq)]\npub enum RomanError {\n    OutOfRange,\n    Empty,\n    InvalidCharacter(char),\n    NonCanonical,\n}\n\npub fn to_roman(n: u16) -> Result<String, RomanError>;\npub fn from_roman(s: &str) -> Result<u16, RomanError>;",
+      "sha256": "3e1e102ad9668ee24317c9aa5d1f9968e21358ce7b08ca53a3cc76c8f114bc08"
+    },
+    {
+      "label": "outcome_labels",
+      "kind": "test_outcomes",
+      "content": "integration_smoke_test_uses_public_api: FAIL\nto_roman_matches_all_golden_vectors_exactly: FAIL\nfrom_roman_parses_all_golden_vectors_back: FAIL\nrepresentative_values_round_trip_in_both_directions: FAIL\nto_roman_rejects_values_outside_supported_range: FAIL\nfrom_roman_rejects_empty_input: FAIL\nfrom_roman_rejects_required_non_canonical_inputs: FAIL\nfrom_roman_rejects_lowercase_and_non_roman_characters: FAIL",
+      "sha256": "d81c429e5e3378275c21a64c25e72e50521070c1d823ab58b423d3dddacae9f8"
+    }
+  ],
+  "withheld_context": [
+    {
+      "label": "test_file_content",
+      "kind": "red_test_code",
+      "content": "use foundry_pi_roman_numeral::{from_roman, to_roman, RomanError};\n\nconst GOLDEN_VECTORS: &[(u16, &str)] = &[\n    (1, \"I\"),\n    (4, \"IV\"),\n    (9, \"IX\"),\n    (14, \"XIV\"),\n    (40, \"XL\"),\n    (44, \"XLIV\"),\n    (49, \"XLIX\"),\n    (58, \"LVIII\"),\n    (90, \"XC\"),\n    (99, \"XCIX\"),\n    (400, \"CD\"),\n    (944, \"CMXLIV\"),\n    (1987, \"MCMLXXXVII\"),\n    (2024, \"MMXXIV\"),\n    (3999, \"MMMCMXCIX\"),\n];\n\n#[test]\nfn integration_smoke_test_uses_public_api() {\n    assert_eq!(to_roman(2024), Ok(\"MMXXIV\".to_string()));\n    assert_eq!(from_roman(\"MMXXIV\"), Ok(2024));\n    assert_eq!(from_roman(\"IIII\"), Err(RomanError::NonCanonical));\n}\n\n#[test]\nfn to_roman_matches_all_golden_vectors_exactly() {\n    for &(number, expected) in GOLDEN_VECTORS {\n        assert_eq!(\n            to_roman(number),\n            Ok(expected.to_string()),\n            \"to_roman({number}) should be exactly {expected}\"\n        );\n    }\n}\n\n#[test]\nfn from_roman_parses_all_golden_vectors_back() {\n    for &(expected, roman) in GOLDEN_VECTORS {\n        assert_eq!(\n            from_roman(roman),\n            Ok(expected),\n            \"from_roman({roman:?}) should be {expected}\"\n        );\n    }\n}\n\n#[test]\nfn representative_values_round_trip_in_both_directions() {\n    let values = [\n        1_u16, 2, 3, 4, 5, 8, 9, 10, 39, 44, 99, 400, 944, 1666, 2024, 3999,\n    ];\n\n    for value in values {\n        let roman = to_roman(value).expect(\"representative value should format\");\n        assert_eq!(from_roman(&roman), Ok(value), \"{value} -> {roman} -> {value}\");\n\n        let reparsed = from_roman(&roman).expect(\"formatted numeral should parse\");\n        assert_eq!(to_roman(reparsed), Ok(roman.clone()), \"{roman} should stay canonical\");\n    }\n}\n\n#[test]\nfn to_roman_rejects_values_outside_supported_range() {\n    assert_eq!(to_roman(0), Err(RomanError::OutOfRange));\n    assert_eq!(to_roman(4000), Err(RomanError::OutOfRange));\n}\n\n#[test]\nfn from_roman_rejects_empty_input() {\n    assert_eq!(from_roman(\"\"), Err(RomanError::Empty));\n}\n\n#[test]\nfn from_roman_rejects_required_non_canonical_inputs() {\n    let invalid_cases = [\"IIII\", \"VV\", \"IC\", \"IL\", \"XM\", \"MCMC\", \"VX\"];\n\n    for roman in invalid_cases {\n        assert_eq!(\n            from_roman(roman),\n            Err(RomanError::NonCanonical),\n            \"{roman:?} uses Roman symbols but is not canonical\"\n        );\n    }\n}\n\n#[test]\nfn from_roman_rejects_lowercase_and_non_roman_characters() {\n    assert_eq!(from_roman(\"ix\"), Err(RomanError::InvalidCharacter('i')));\n    assert_eq!(from_roman(\"ABC\"), Err(RomanError::InvalidCharacter('A')));\n}\n",
+      "sha256": "28ed2180661090ecd6d68a339dee9287b0ab3dcdf6fb32e14d405e733b2063e8",
+      "samples": [
+        "assert_eq!(from_roman(\"MMXXIV\"), Ok(2024));",
+        "Ok(expected.to_string()),",
+        "let invalid_cases = [\"IIII\", \"VV\", \"IC\", \"IL\", \"XM\", \"MCMC\", \"VX\"];"
+      ]
+    },
+    {
+      "label": "test_file_path",
+      "kind": "red_test_code",
+      "content": "/Users/thomas/Projects/lightless-labs/public/foundry/runs/pi-from-scratch-roman-numeral/red/tests/roman_numeral.rs",
+      "sha256": "306aa242cd61a06795b28e6ff7255cb65bbc7cab974625bebf83a6abb9cf60d1",
+      "samples": [
+        "/Users/thomas/Projects/lightless-labs/public/foundry/runs/pi-from-scratch-roman-numeral/red/tests/roman_numeral.rs"
+      ]
+    },
+    {
+      "label": "raw_test_output",
+      "kind": "raw_test_output",
+      "content": "   Compiling foundry-pi-roman-numeral v0.1.0 (/Users/thomas/Projects/lightless-labs/public/foundry/runs/pi-from-scratch-roman-numeral/runner/initial)\nerror[E0432]: unresolved imports `foundry_pi_roman_numeral::from_roman`, `foundry_pi_roman_numeral::to_roman`, `foundry_pi_roman_numeral::RomanError`\n --> tests/roman_numeral.rs:1:32\n  |\n1 | use foundry_pi_roman_numeral::{from_roman, to_roman, RomanError};\n  |                                ^^^^^^^^^^  ^^^^^^^^  ^^^^^^^^^^ no `RomanError` in the root\n  |                                |           |\n  |                                |           no `to_roman` in the root\n  |                                no `from_roman` in the root\n\nFor more information about this error, try `rustc --explain E0432`.\nerror: could not compile `foundry-pi-roman-numeral` (test \"roman_numeral\") due to 1 previous error\n",
+      "sha256": "f3b3b1ef1d909be246074e7ff17c05207d92f137bc62b19ba107dcc361f9031c",
+      "samples": [
+        "unresolved imports `foundry_pi_roman_numeral::from_roman`",
+        "error[E0432]: unresolved imports"
+      ]
+    },
+    {
+      "label": "nlspec_done",
+      "kind": "nlspec_done",
+      "content": "Done includes exact golden vectors, golden parsing, representative round-trip values, out-of-range errors, empty input, and invalid/non-canonical examples.",
+      "sha256": "231b22e1686c9322e9fc75059a266fad42d41abf1d0a26cec8bdf47a0cb725e5",
+      "samples": [
+        "1987 -> MCMLXXXVII",
+        "Round-trip holds for representative values `1, 2, 3, 4, 5, 8, 9, 10, 39, 44, 99, 400, 944, 1666, 2024, 3999`"
+      ]
+    }
+  ],
+  "redactions": [
+    {
+      "source": "raw_test_output",
+      "action": "pass_fail_labels_only",
+      "removed": [
+        "assertion_text",
+        "expected_values",
+        "stack_traces",
+        "compiler_errors",
+        "line_numbers"
+      ]
+    }
+  ]
+}

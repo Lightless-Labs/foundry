@@ -10,6 +10,8 @@ updated: 2026-05-24
 
 **Addendum:** 2026-05-24 — first modularization slice landed. Extracted Phase 1b/2b divergence routing, `spec_update_and_restart`, and provider troubleshooting into `docs/playbooks/foundry-adversarial-{divergence-routing,spec-update-and-restart,provider-troubleshooting}.md`. The main adversarial skill now keeps short mandatory summaries and links to the playbooks. Added `tests/validate-adversarial-modules.sh` to preserve critical executable anchors (`findings[0].outcome`, Phase 2b `VALUABLE`, revision-history count, green PASS/FAIL-only barrier language). Existing behavioral smoke and Pi extension validators still pass.
 
+**Addendum:** 2026-05-24 — from-scratch Pi Roman numeral run produced two concrete obedience/workflow observations. First, the full Pi `/skill:foundry-adversarial` orchestration completed red/green generation and reached Phase 3, but the outer shell timed out during reviewer fan-out; future live runs should either use a longer timeout/resumable Pi session or narrower phase-level invocations. Second, a manual continuation envelope mistakenly put an allowed test outcome label in `withheld_context.samples`; `foundry_team` correctly rejected it before dispatch. This suggests a future executable helper should derive withheld samples from bodies/assertions/raw output only and explicitly exclude allowed PASS/FAIL test-name labels.
+
 `foundry-adversarial/SKILL.md` was the heaviest skill in the plugin. It carries a lot of nuance — information barrier, Phase 1b/2b divergence handling, spec-update-and-restart, test-fix inner loop, troubleshooting. That nuance is why the skill works, but it's also a reliability risk: long instruction blocks are easier for models to partially obey.
 
 ## What to fix

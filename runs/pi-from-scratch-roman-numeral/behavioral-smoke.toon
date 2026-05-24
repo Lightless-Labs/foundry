@@ -1,0 +1,13 @@
+schema_version: foundry.behavioral-smoke.v1
+run_id: pi-from-scratch-roman-numeral
+requires_divergence_restart: false
+
+test_results[1]{example,passed,total,expected_passed,expected_total}:
+  roman-numeral,8,8,8,8
+
+model_lanes[3]{recipient,planned_model,actual_model}:
+  red-team,openai-codex/gpt-5.5,openai-codex/gpt-5.5
+  green-team,openai-codex/gpt-5.5,openai-codex/gpt-5.5
+  orchestrator,openai-codex/gpt-5.5,openai-codex/gpt-5.5
+
+divergence_restarts[0]{phase,outcome,revision_history_count}:

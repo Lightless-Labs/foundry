@@ -1,0 +1,12 @@
+   Compiling foundry-pi-roman-numeral v0.1.0 (/Users/thomas/Projects/lightless-labs/public/foundry/runs/pi-from-scratch-roman-numeral/runner/initial)
+error[E0432]: unresolved imports `foundry_pi_roman_numeral::from_roman`, `foundry_pi_roman_numeral::to_roman`, `foundry_pi_roman_numeral::RomanError`
+ --> tests/roman_numeral.rs:1:32
+  |
+1 | use foundry_pi_roman_numeral::{from_roman, to_roman, RomanError};
+  |                                ^^^^^^^^^^  ^^^^^^^^  ^^^^^^^^^^ no `RomanError` in the root
+  |                                |           |
+  |                                |           no `to_roman` in the root
+  |                                no `from_roman` in the root
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `foundry-pi-roman-numeral` (test "roman_numeral") due to 1 previous error

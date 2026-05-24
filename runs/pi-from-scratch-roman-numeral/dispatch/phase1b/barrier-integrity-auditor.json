@@ -1,0 +1,23 @@
+{
+  "schema_version": "foundry.prompt-envelope.v1",
+  "run_id": "pi-from-scratch-roman-numeral",
+  "phase": "phase1b",
+  "recipient": "barrier-integrity-auditor",
+  "prompt": "Audit these PromptEnvelope artifacts for barrier violations in Phase 1/1b.\n\nExpected barrier:\n- Red team and red reviewers may see NLSpec test criteria, data model, integration smoke, project language, red test file content, and red output paths.\n- Red team and red reviewers must not see implementation code or implementation workspace material.\n\nEnvelope paths:\n- /Users/thomas/Projects/lightless-labs/public/foundry/runs/pi-from-scratch-roman-numeral/dispatch/phase1/red-team.json\n- /Users/thomas/Projects/lightless-labs/public/foundry/runs/pi-from-scratch-roman-numeral/dispatch/phase1b/red-team-test-reviewer.json\n- /Users/thomas/Projects/lightless-labs/public/foundry/runs/pi-from-scratch-roman-numeral/dispatch/phase1b/cucumber-reviewer.json\n\nRed workspace contents:\n- /Users/thomas/Projects/lightless-labs/public/foundry/runs/pi-from-scratch-roman-numeral/red/tests/roman_numeral.rs\n\nReturn JSON with fields: status (APPROVE or REJECT), findings (array with severity, category, description, envelope_path). Report any leak as P0.",
+  "visible_context": [
+    {
+      "label": "envelope_paths",
+      "kind": "prompt_envelope_paths",
+      "content": "/Users/thomas/Projects/lightless-labs/public/foundry/runs/pi-from-scratch-roman-numeral/dispatch/phase1/red-team.json\n/Users/thomas/Projects/lightless-labs/public/foundry/runs/pi-from-scratch-roman-numeral/dispatch/phase1b/red-team-test-reviewer.json\n/Users/thomas/Projects/lightless-labs/public/foundry/runs/pi-from-scratch-roman-numeral/dispatch/phase1b/cucumber-reviewer.json",
+      "sha256": "3fff3cf80ec7e7fd4027a09d892d5c17b206c6f453974950890a0a0847d33135"
+    },
+    {
+      "label": "barrier_expectation",
+      "kind": "barrier_policy",
+      "content": "Red sees NLSpec test criteria and tests; red must not see implementation code.",
+      "sha256": "7442a688f26c758027bb25af420ea35248096e658107c9f1c5292059274edfb4"
+    }
+  ],
+  "withheld_context": [],
+  "redactions": []
+}

@@ -1,0 +1,8 @@
+integration_smoke_test_uses_public_api: PASS
+to_roman_matches_all_golden_vectors_exactly: PASS
+from_roman_parses_all_golden_vectors_back: PASS
+representative_values_round_trip_in_both_directions: PASS
+to_roman_rejects_values_outside_supported_range: PASS
+from_roman_rejects_empty_input: PASS
+from_roman_rejects_required_non_canonical_inputs: PASS
+from_roman_rejects_lowercase_and_non_roman_characters: PASS

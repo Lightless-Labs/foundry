@@ -1,0 +1,17 @@
+{
+  "schema_version": "foundry.prompt-envelope.v1",
+  "run_id": "pi-from-scratch-roman-numeral",
+  "phase": "phase0",
+  "recipient": "learnings-researcher",
+  "prompt": "Search docs/solutions/ for learnings relevant to a deterministic Rust Roman numeral converter/parser with canonical subtractive notation and strict parsing.\n\nReturn concise bullets of any past bugs, patterns, or best practices that should inform black-box test design and implementation. Do not inspect /tmp/foundry-pi-roman-numeral implementation files.",
+  "visible_context": [
+    {
+      "label": "feature_topic",
+      "kind": "feature_topic",
+      "content": "Rust Roman numeral converter/parser: to_roman(u16), from_roman(&str), canonical subtractive notation, strict invalid/non-canonical handling.",
+      "sha256": "fad737726512b69393ec1ad1adaeff05fdf975a3a553a8fc3f8f3e0592dca8db"
+    }
+  ],
+  "withheld_context": [],
+  "redactions": []
+}

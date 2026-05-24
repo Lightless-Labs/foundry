@@ -2,11 +2,13 @@
 title: Run a from-scratch Pi adversarial feature after the Sudoku replay
 origin: 2026-05-22 follow-up after smoke-scoped Pi adversarial run
 priority: medium
-status: pending
-updated: 2026-05-22
+status: completed
+updated: 2026-05-24
 ---
 
 # From-Scratch Pi Adversarial Feature Run
+
+**Addendum:** 2026-05-24 — completed with a fresh Rust `roman-numeral` feature under Pi. The run lives at `runs/pi-from-scratch-roman-numeral/` and preserves minimal spec/NLSpec inputs, generated red tests, generated green implementation, PromptEnvelope artifacts, logs, and `behavioral-smoke.toon`. Final result: 8/8 red tests pass; `tests/validate-barrier-envelopes.sh runs/pi-from-scratch-roman-numeral/dispatch` and `tests/behavioral-smoke.sh runs/pi-from-scratch-roman-numeral` pass. The initial Pi orchestration timed out at the shell limit during Phase 3 reviewer fan-out after rust-reviewer found an overflow-risk issue; the fix was routed back to green through a new PromptEnvelope and `foundry_team`, then rust-reviewer-after-fix approved. A manual continuation attempt also proved the mechanical barrier by rejecting a PromptEnvelope whose withheld samples overlapped with allowed test outcome labels.
 
 The current Pi behavioral proof is a **smoke-scoped replay** over the Sudoku worked example:
 
@@ -51,7 +53,7 @@ Prefer golden vectors to avoid convention mismatch.
 
 ## Acceptance criteria
 
-- [ ] New `runs/<run_id>/` artifact directory validates with both replay validators.
-- [ ] Red and green artifacts are freshly generated, not copied from an existing worked example.
-- [ ] Green PromptEnvelopes expose only NLSpec How + PASS/FAIL labels.
-- [ ] Any obedience or workflow gaps are fed back into `todos/modularize-heaviest-skills.md` or a dedicated plan.
+- [x] New `runs/<run_id>/` artifact directory validates with both replay validators.
+- [x] Red and green artifacts are freshly generated, not copied from an existing worked example.
+- [x] Green PromptEnvelopes expose only NLSpec How + PASS/FAIL labels.
+- [x] Any obedience or workflow gaps are fed back into `todos/modularize-heaviest-skills.md` or a dedicated plan.

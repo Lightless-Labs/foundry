@@ -1,0 +1,23 @@
+{
+  "schema_version": "foundry.prompt-envelope.v1",
+  "run_id": "pi-from-scratch-roman-numeral",
+  "phase": "phase1b",
+  "recipient": "barrier-integrity-auditor",
+  "prompt": "Audit these PromptEnvelope artifacts for barrier violations in Phase 1/1b.\n\nImportant audit rule: `withheld_context` is part of the serialized audit artifact for validation and is visible to you, the auditor. Do NOT treat the mere presence of withheld samples inside `withheld_context` as a leak. A leak exists only if withheld implementation samples appear in `prompt` or in inappropriate visible context, or if the prompt instructs the red side to inspect implementation material.\n\nExpected barrier:\n- Red team and red reviewers may see NLSpec test criteria, data model, integration smoke, project language, red test file content, red review feedback, and red output paths.\n- Red team and red reviewers must not see implementation code in their prompt or visible context.\n\nEnvelope paths to replay:\n- /Users/thomas/Projects/lightless-labs/public/foundry/runs/pi-from-scratch-roman-numeral/dispatch/phase1/red-team.json\n- /Users/thomas/Projects/lightless-labs/public/foundry/runs/pi-from-scratch-roman-numeral/dispatch/phase1/red-team-iteration2.json\n- /Users/thomas/Projects/lightless-labs/public/foundry/runs/pi-from-scratch-roman-numeral/dispatch/phase1/red-team-iteration3.json\n- /Users/thomas/Projects/lightless-labs/public/foundry/runs/pi-from-scratch-roman-numeral/dispatch/phase1b/red-team-test-reviewer-r2.json\n- /Users/thomas/Projects/lightless-labs/public/foundry/runs/pi-from-scratch-roman-numeral/dispatch/phase1b/cucumber-reviewer-r2.json\n\nReturn JSON with fields: status (APPROVE or REJECT), findings (array with severity, category, description, envelope_path). Report any actual leak as P0.",
+  "visible_context": [
+    {
+      "label": "envelope_paths",
+      "kind": "prompt_envelope_paths",
+      "content": "/Users/thomas/Projects/lightless-labs/public/foundry/runs/pi-from-scratch-roman-numeral/dispatch/phase1/red-team.json\n/Users/thomas/Projects/lightless-labs/public/foundry/runs/pi-from-scratch-roman-numeral/dispatch/phase1/red-team-iteration2.json\n/Users/thomas/Projects/lightless-labs/public/foundry/runs/pi-from-scratch-roman-numeral/dispatch/phase1/red-team-iteration3.json\n/Users/thomas/Projects/lightless-labs/public/foundry/runs/pi-from-scratch-roman-numeral/dispatch/phase1b/red-team-test-reviewer-r2.json\n/Users/thomas/Projects/lightless-labs/public/foundry/runs/pi-from-scratch-roman-numeral/dispatch/phase1b/cucumber-reviewer-r2.json",
+      "sha256": "0c0472e4ffa0758d016826973573333c00a82330c089979851225cc9bb626e61"
+    },
+    {
+      "label": "barrier_expectation",
+      "kind": "barrier_policy",
+      "content": "Red prompts/visible context must not contain implementation code; withheld_context samples are audit poison values, not recipient-visible prompt content.",
+      "sha256": "5b3bb202df2b0f351474a1fc1fff9c878272adb60007ab13ae40c5aaa11b2119"
+    }
+  ],
+  "withheld_context": [],
+  "redactions": []
+}

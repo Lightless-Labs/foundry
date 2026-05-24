@@ -1,0 +1,95 @@
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum RomanError {
+    OutOfRange,
+    Empty,
+    InvalidCharacter(char),
+    NonCanonical,
+}
+
+const PAIRS: [(&str, u16); 13] = [
+    ("M", 1000),
+    ("CM", 900),
+    ("D", 500),
+    ("CD", 400),
+    ("C", 100),
+    ("XC", 90),
+    ("L", 50),
+    ("XL", 40),
+    ("X", 10),
+    ("IX", 9),
+    ("V", 5),
+    ("IV", 4),
+    ("I", 1),
+];
+
+pub fn to_roman(n: u16) -> Result<String, RomanError> {
+    if !(1..=3999).contains(&n) {
+        return Err(RomanError::OutOfRange);
+    }
+
+    let mut remaining = n;
+    let mut out = String::new();
+
+    for &(symbol, value) in &PAIRS {
+        while remaining >= value {
+            out.push_str(symbol);
+            remaining -= value;
+        }
+    }
+
+    Ok(out)
+}
+
+pub fn from_roman(s: &str) -> Result<u16, RomanError> {
+    let first = match s.chars().next() {
+        Some(ch) => ch,
+        None => return Err(RomanError::Empty),
+    };
+
+    if !is_roman_char(first) {
+        return Err(RomanError::InvalidCharacter(first));
+    }
+
+    let mut rest = s;
+    let mut value: u16 = 0;
+
+    while !rest.is_empty() {
+        let matched = PAIRS
+            .iter()
+            .find(|(symbol, _)| rest.starts_with(symbol));
+
+        match matched {
+            Some((symbol, token_value)) => {
+                value = value.saturating_add(*token_value).min(4000);
+                rest = &rest[symbol.len()..];
+            }
+            None => {
+                let ch = match rest.chars().next() {
+                    Some(ch) => ch,
+                    None => return Err(RomanError::NonCanonical),
+                };
+
+                if !is_roman_char(ch) {
+                    return Err(RomanError::InvalidCharacter(ch));
+                }
+
+                return Err(RomanError::NonCanonical);
+            }
+        }
+    }
+
+    if !(1..=3999).contains(&value) {
+        return Err(RomanError::OutOfRange);
+    }
+
+    let regenerated = to_roman(value)?;
+    if regenerated == s {
+        Ok(value)
+    } else {
+        Err(RomanError::NonCanonical)
+    }
+}
+
+fn is_roman_char(ch: char) -> bool {
+    matches!(ch, 'I' | 'V' | 'X' | 'L' | 'C' | 'D' | 'M')
+}

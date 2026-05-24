@@ -1,0 +1,62 @@
+{
+  "schema_version": "foundry.prompt-envelope.v1",
+  "run_id": "pi-from-scratch-roman-numeral",
+  "phase": "phase1",
+  "recipient": "red-team",
+  "prompt": "You are the RED TEAM. Your job is to write fresh black-box Rust integration tests for an implementation you cannot see.\n\n## What you see\n- Project language: Rust, Cargo crate `foundry-pi-roman-numeral` imported as `foundry_pi_roman_numeral` in integration tests.\n- Test framework: standard Rust `#[test]` integration tests; no external dependencies; do not use Cucumber because this crate has no Cucumber/Gherkin bindings.\n- NLSpec Definition of Done:\n- `to_roman` returns exact golden vectors:\n  - `1 -> I`\n  - `4 -> IV`\n  - `9 -> IX`\n  - `14 -> XIV`\n  - `40 -> XL`\n  - `44 -> XLIV`\n  - `49 -> XLIX`\n  - `58 -> LVIII`\n  - `90 -> XC`\n  - `99 -> XCIX`\n  - `400 -> CD`\n  - `944 -> CMXLIV`\n  - `1987 -> MCMLXXXVII`\n  - `2024 -> MMXXIV`\n  - `3999 -> MMMCMXCIX`\n- `from_roman` parses each golden vector back to its number.\n- Round-trip holds for representative values `1, 2, 3, 4, 5, 8, 9, 10, 39, 44, 99, 400, 944, 1666, 2024, 3999`.\n- `to_roman(0)` and `to_roman(4000)` return `RomanError::OutOfRange`.\n- `from_roman(\"\")` returns `RomanError::Empty`.\n- `from_roman` rejects invalid/non-canonical strings: `IIII`, `VV`, `IC`, `IL`, `XM`, `MCMC`, `VX`, `ix`, `ABC`.\n\n- NLSpec Data Model:\nPublic Rust API to test:\n\n#[derive(Debug, Clone, PartialEq, Eq)]\npub enum RomanError {\n    OutOfRange,\n    Empty,\n    InvalidCharacter(char),\n    NonCanonical,\n}\n\npub fn to_roman(n: u16) -> Result<String, RomanError>;\npub fn from_roman(s: &str) -> Result<u16, RomanError>;\n\n- NLSpec Integration Smoke Test:\nA Rust test imports `to_roman`, `from_roman`, and `RomanError`, checks `to_roman(2024) == \"MMXXIV\"`, checks `from_roman(\"MMXXIV\") == 2024`, and checks `from_roman(\"IIII\") == RomanError::NonCanonical`.\n\n- Institutional learnings:\nRelevant learnings: use golden vectors as convention anchors; use fixed examples plus broad round-trip coverage; enforce canonical parse by checking parse(format(n)) and format(parse(s)) equality; include invalid plausible strings and boundary errors.\n\n## What you CANNOT see\n- Any implementation code or implementation workspace.\n- The green team's implementation guidance.\n\n## Your task\nWrite a fresh comprehensive Rust integration test file to this exact path:\n/Users/thomas/Projects/lightless-labs/public/foundry/runs/pi-from-scratch-roman-numeral/red/tests/roman_numeral.rs\n\nRules:\n- Cover every Definition of Done item with specific assertions.\n- Include the integration smoke test behavior.\n- Include enough independent tests to catch hardcoded or non-canonical behavior.\n- Use only the public API shown above.\n- Do not inspect implementation files or any implementation workspace.\n- Do not add dependencies.\n\nWhen done, reply with a concise list of test functions and which Done items they cover.",
+  "visible_context": [
+    {
+      "label": "nlspec_done",
+      "kind": "nlspec_done",
+      "content": "- `to_roman` returns exact golden vectors:\n  - `1 -> I`\n  - `4 -> IV`\n  - `9 -> IX`\n  - `14 -> XIV`\n  - `40 -> XL`\n  - `44 -> XLIV`\n  - `49 -> XLIX`\n  - `58 -> LVIII`\n  - `90 -> XC`\n  - `99 -> XCIX`\n  - `400 -> CD`\n  - `944 -> CMXLIV`\n  - `1987 -> MCMLXXXVII`\n  - `2024 -> MMXXIV`\n  - `3999 -> MMMCMXCIX`\n- `from_roman` parses each golden vector back to its number.\n- Round-trip holds for representative values `1, 2, 3, 4, 5, 8, 9, 10, 39, 44, 99, 400, 944, 1666, 2024, 3999`.\n- `to_roman(0)` and `to_roman(4000)` return `RomanError::OutOfRange`.\n- `from_roman(\"\")` returns `RomanError::Empty`.\n- `from_roman` rejects invalid/non-canonical strings: `IIII`, `VV`, `IC`, `IL`, `XM`, `MCMC`, `VX`, `ix`, `ABC`.",
+      "sha256": "597905b1c98afad8aef2f1323b6c2f24264f6d44173f0716a8f114938403ccaf"
+    },
+    {
+      "label": "nlspec_data_model",
+      "kind": "nlspec_data_model",
+      "content": "Public Rust API to test:\n\n#[derive(Debug, Clone, PartialEq, Eq)]\npub enum RomanError {\n    OutOfRange,\n    Empty,\n    InvalidCharacter(char),\n    NonCanonical,\n}\n\npub fn to_roman(n: u16) -> Result<String, RomanError>;\npub fn from_roman(s: &str) -> Result<u16, RomanError>;",
+      "sha256": "98fa463ccc9d8610596f6235a27f1125b27b8ed5e3d11818648c5f1db9992947"
+    },
+    {
+      "label": "integration_smoke",
+      "kind": "integration_smoke",
+      "content": "A Rust test imports `to_roman`, `from_roman`, and `RomanError`, checks `to_roman(2024) == \"MMXXIV\"`, checks `from_roman(\"MMXXIV\") == 2024`, and checks `from_roman(\"IIII\") == RomanError::NonCanonical`.",
+      "sha256": "22102a4b2cd599d34558decf16c484683397c8983f66ba465c99079bf5e0c109"
+    },
+    {
+      "label": "test_framework",
+      "kind": "project_language",
+      "content": "Rust Cargo crate foundry-pi-roman-numeral; use standard integration tests with #[test]; crate import name foundry_pi_roman_numeral.",
+      "sha256": "5905638aaf8914bf8b3478b2b575c94efb2c1e0390235963690039bfb66a8042"
+    },
+    {
+      "label": "learnings_summary",
+      "kind": "learnings",
+      "content": "Relevant learnings: use golden vectors as convention anchors; use fixed examples plus broad round-trip coverage; enforce canonical parse by checking parse(format(n)) and format(parse(s)) equality; include invalid plausible strings and boundary errors.",
+      "sha256": "8dfb29e859e9027f757cb490a92a3e1e0d165e0501e869d44221730dd9cfdb67"
+    }
+  ],
+  "withheld_context": [
+    {
+      "label": "implementation_file_path",
+      "kind": "implementation_code",
+      "content": "/tmp/foundry-pi-roman-numeral/src/lib.rs",
+      "samples": [
+        "/tmp/foundry-pi-roman-numeral/src/lib.rs",
+        "src/lib.rs"
+      ],
+      "sha256": "64a344c602a38fad8c4583723f7813078e37cc4649b3f08d460f63a3b22810f6"
+    },
+    {
+      "label": "implementation_stub_snippet",
+      "kind": "implementation_code",
+      "content": "pub fn add(left: u64, right: u64) -> u64 { left + right }",
+      "samples": [
+        "pub fn add(left: u64, right: u64)",
+        "left + right"
+      ],
+      "sha256": "6af2b700157379722b7c5dbe6cb920a2ac9f4ab4717c4ca47ab23cdcc7715e5d"
+    }
+  ],
+  "redactions": []
+}
