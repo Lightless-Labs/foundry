@@ -1,11 +1,11 @@
 ---
 name: foundry-forge
-description: "Run the full Foundry pipeline under Pi: research, brainstorm, NLSpec, then adversarial red/green implementation. Use when starting a feature from scratch."
+description: "Run the full Foundry pipeline as an Agent Skills adapter: research, brainstorm, NLSpec, then adversarial red/green implementation. Use when starting a feature from scratch."
 ---
 
-# Foundry Forge — Pi Adapter
+# Foundry Forge — Agent Skills Adapter
 
-This is a thin Pi-compatible adapter for the canonical Foundry skill.
+This is a thin Agent Skills-compatible adapter for the canonical Foundry skill.
 
 Canonical source of truth:
 
@@ -26,7 +26,7 @@ When the canonical skill calls for subagents, teams, `Agent(...)`, or parallel r
 
 ## Invocation Notes
 
-Pi exposes this adapter as:
+Pi and Codex expose this adapter as:
 
 ```text
 /skill:foundry-forge <arguments>

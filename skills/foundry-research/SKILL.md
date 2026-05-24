@@ -3,9 +3,9 @@ name: foundry-research
 description: "Investigate a codebase, documentation, and external resources before specifying work. Use when starting a new feature or preparing context for Foundry brainstorm/spec work."
 ---
 
-# Foundry Research — Pi Adapter
+# Foundry Research — Agent Skills Adapter
 
-This is a thin Pi-compatible adapter for the canonical Foundry skill.
+This is a thin Agent Skills-compatible adapter for the canonical Foundry skill.
 
 Canonical source of truth:
 
@@ -22,7 +22,7 @@ Canonical source of truth:
 
 ## Invocation Notes
 
-Pi exposes this adapter as:
+Pi and Codex expose this adapter as:
 
 ```text
 /skill:foundry-research <arguments>

@@ -2,12 +2,15 @@
 title: Modularize heaviest skills — smaller contracts, more executable checks
 origin: 2026-04-17 ilia-feedback-foundry-plugin (item 4)
 priority: medium
-status: ready
+status: completed — first modularization slice landed
+updated: 2026-05-24
 ---
 
 # Modularize Heaviest Skills
 
-`foundry-adversarial/SKILL.md` is the heaviest skill in the plugin (~375 lines). It carries a lot of nuance — information barrier, Phase 1b/2b divergence handling, spec-update-and-restart, test-fix inner loop, troubleshooting. That nuance is why the skill works, but it's also a reliability risk: long instruction blocks are easier for models to partially obey.
+**Addendum:** 2026-05-24 — first modularization slice landed. Extracted Phase 1b/2b divergence routing, `spec_update_and_restart`, and provider troubleshooting into `docs/playbooks/foundry-adversarial-{divergence-routing,spec-update-and-restart,provider-troubleshooting}.md`. The main adversarial skill now keeps short mandatory summaries and links to the playbooks. Added `tests/validate-adversarial-modules.sh` to preserve critical executable anchors (`findings[0].outcome`, Phase 2b `VALUABLE`, revision-history count, green PASS/FAIL-only barrier language). Existing behavioral smoke and Pi extension validators still pass.
+
+`foundry-adversarial/SKILL.md` was the heaviest skill in the plugin. It carries a lot of nuance — information barrier, Phase 1b/2b divergence handling, spec-update-and-restart, test-fix inner loop, troubleshooting. That nuance is why the skill works, but it's also a reliability risk: long instruction blocks are easier for models to partially obey.
 
 ## What to fix
 
@@ -24,5 +27,13 @@ status: ready
 ## Suggested approach
 
 Profile obedience first: instrument a few runs to see where the skill is being partially obeyed (e.g., a step skipped, an envelope field omitted). Extract those hot spots first. Don't modularize speculatively.
+
+## Progress
+
+- [x] Extract Phase 1b / 2b divergence evaluator dispatch + outcome routing.
+- [x] Extract `spec_update_and_restart`.
+- [x] Extract provider-specific troubleshooting entries.
+- [x] Add executable structural checks for extracted contracts.
+- [ ] Continue profiling obedience on future real runs; extract additional modules only when runs show a concrete obedience gap.
 
 See: `docs/solutions/workflow-issues/ilia-feedback-foundry-plugin-20260417.md` (item 4).

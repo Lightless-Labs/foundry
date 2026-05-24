@@ -2,7 +2,7 @@
 
 Read this at the start of every session. Update it before context compaction or at natural milestones.
 
-**Last updated:** 2026-05-22
+**Last updated:** 2026-05-24
 
 ## What This Repo Is
 
@@ -18,7 +18,7 @@ This repo is the **skills + agents + examples** side. The Rust engine (state mac
 
 ## Current State
 
-### Validation: 215/215 checks passing + replay/Pi extension self-tests + Pi adversarial smoke
+### Validation: 215/215 checks passing + replay/Pi/Codex/module self-tests + Pi adversarial smoke
 
 `tests/validate-agents.sh` covers structural (YAML frontmatter, required sections, model: inherit, tools), attribution (12 adopted agents), language-specific coverage, adversarial process coverage, and territory boundaries.
 
@@ -27,10 +27,12 @@ Additional validators:
 - `tests/behavioral-smoke.sh` — replay-level run checks over PromptEnvelope artifacts plus `behavioral-smoke.toon` summaries (example pass rates, model lanes, divergence restart counts).
 - `tests/validate-behavioral-smoke-contract.sh` — ensures `foundry-adversarial` requires real runs to emit/validate `behavioral-smoke.toon`.
 - `tests/validate-pi-extension.sh` — ensures the Pi package exposes the `foundry_team` child-dispatch extension and uses the PromptEnvelope contract.
+- `tests/validate-codex-plugin.sh` — ensures the Codex CLI plugin manifest exposes the root Agent Skills adapters, canonical-source links, command wrappers, agent-card blocker notes, and barrier-language anchors.
+- `tests/validate-adversarial-modules.sh` — ensures extracted adversarial playbooks preserve divergence routing, `spec_update_and_restart`, provider troubleshooting, and critical grep anchors.
 - `tests/pi-live-dispatch-smoke.sh` — slow/manual live lane that performs real Pi model calls, runs Sudoku `30/30`, dispatches red/green child Pi processes through `foundry_team`, writes `behavioral-smoke.toon`, and validates the resulting run directory.
 - `runs/pi-autonomous-sudoku-smoke/` — smoke-scoped autonomous `/skill:foundry-adversarial` Pi run artifacts (red-team, green-team, barrier-integrity-auditor PromptEnvelopes + `behavioral-smoke.toon`).
 
-Last full local validation (2026-05-22): all validators above passed; `validate-agents.sh` remained 215/215; `tests/pi-live-dispatch-smoke.sh --keep` passed with a real `foundry_team` Pi tool call; `/skill:foundry-adversarial` under Pi produced `runs/pi-autonomous-sudoku-smoke/` with Sudoku `30/30` and provider-qualified `openai-codex/gpt-5.5` model lanes; `tests/behavioral-smoke.sh runs/pi-autonomous-sudoku-smoke` and `tests/validate-barrier-envelopes.sh runs/pi-autonomous-sudoku-smoke/dispatch` passed.
+Last local validation (2026-05-24): `tests/validate-agents.sh` remained 215/215; `tests/validate-codex-plugin.sh` passed 44/44; `tests/validate-adversarial-modules.sh` passed 27/27; `tests/validate-pi-extension.sh` passed 40/40; `tests/validate-behavioral-smoke-contract.sh` passed 7/7; `tests/validate-barrier-envelopes.sh runs/pi-autonomous-sudoku-smoke/dispatch` passed; `tests/behavioral-smoke.sh runs/pi-autonomous-sudoku-smoke` passed. Last slow live lane remains 2026-05-22: `tests/pi-live-dispatch-smoke.sh --keep` passed with a real `foundry_team` Pi tool call; `/skill:foundry-adversarial` under Pi produced `runs/pi-autonomous-sudoku-smoke/` with Sudoku `30/30` and provider-qualified `openai-codex/gpt-5.5` model lanes.
 
 ### 5 Skills (composable pipeline)
 
@@ -44,13 +46,15 @@ Last full local validation (2026-05-22): all validators above passed; `validate-
 
 Each skill can be invoked independently. Forge composes them with gates between phases and skip logic (existing artifacts skip their phase).
 
-### Pi package support
+### Pi and Codex package support
 
-Root `package.json` makes this repo installable as a Pi package (`pi-package` keyword) and exposes `extensions/pi-foundry-team/` plus Pi-compatible skill adapters under `skills/`.
+Root `package.json` makes this repo installable as a Pi package (`pi-package` keyword) and exposes `extensions/pi-foundry-team/` plus Agent Skills-compatible adapters under `skills/`.
 
 `foundry_team` is the Pi-side team/subagent primitive. Pi intentionally has no built-in subagents; this extension follows Pi's officially shipped `examples/extensions/subagent/` pattern by spawning child `pi --mode json -p --no-session` processes. It dispatches from PromptEnvelope paths, validates withheld samples first, disables child sessions/extensions/skills/prompt-templates/context-files by default, reports provider-qualified actual model lane IDs when Pi exposes provider+model, and reuses canonical agent prompts from `plugins/foundry/agents/**/*.md`.
 
-Pi skill adapters expose `/skill:foundry-research`, `/skill:foundry-brainstorm`, `/skill:foundry-nlspec`, `/skill:foundry-adversarial`, and `/skill:foundry-forge`. They are thin Agent Skills-compatible wrappers that instruct Pi to read the canonical Claude plugin skill files under `plugins/foundry/skills/**/SKILL.md`; do not fork workflow prompts into the adapters.
+Agent Skills adapters expose `/skill:foundry-research`, `/skill:foundry-brainstorm`, `/skill:foundry-nlspec`, `/skill:foundry-adversarial`, and `/skill:foundry-forge`. They are thin wrappers that instruct Pi/Codex to read the canonical Claude plugin skill files under `plugins/foundry/skills/**/SKILL.md`; do not fork workflow prompts into the adapters.
+
+Codex CLI packaging lives at `.codex-plugin/plugin.json` and exposes `"skills": "./skills/"`, `commands/foundry-{adversarial,forge}.md`, `agents/openai.yaml`, and `assets/foundry-codex.svg`. Local smoke-load with a temporary HOME succeeded via `codex plugin marketplace add "$PWD"` on 2026-05-24. Current Codex blocker: examples expose `agents/openai.yaml` as an agent card, but the installed CLI does not document a Claude-style dispatchable subagent API; canonical Foundry reviewers remain under `plugins/foundry/agents/**/*.md` until a PromptEnvelope-safe Codex dispatch primitive is confirmed.
 
 ### 24 Agents
 
@@ -80,8 +84,8 @@ Each example preserves all artifacts: research doc, spec, NLSpec, red team tests
 | `todos/repo-identity-public-plugin.md` | High | **COMPLETED 2026-05-01** — root `AGENTS.md`/`CLAUDE.md` now identify this as the public plugin/skills/agents repo and call out the private Rust engine split |
 | `todos/mechanical-barrier-enforcement.md` | High | **PUBLIC + PRIVATE DISPATCH CONTRACT LANDED** — public plugin `PromptEnvelope` v1/replayable artifact contract landed 2026-05-01; private BuildKite/pi dispatch runtime mirrors it with prompt-envelope artifacts and `test-prompt-envelope.sh` as of 2026-05-03 |
 | `todos/behavioral-smoke-tests.md` | High | **COMPLETED 2026-05-22** — replay harness + Pi dispatch primitive + slow/manual Pi live dispatch smoke + smoke-scoped autonomous `/skill:foundry-adversarial` run landed. `runs/pi-autonomous-sudoku-smoke/` validates with behavioral-smoke and barrier validators |
-| `todos/modularize-heaviest-skills.md` | Medium | Break `foundry-adversarial` into tighter sub-skills / executable checks; profile obedience first (ilia feedback item 4) |
-| `todos/pi-codex-plugin-support.md` | Medium | **PARTIAL 2026-05-22** — Pi package manifest + `foundry_team` extension + Pi skill adapters/install docs + smoke-scoped autonomous Pi adversarial run landed; canonical agent and skill prompts are reused; **Codex CLI plugin** support remains pending |
+| `todos/modularize-heaviest-skills.md` | Medium | **COMPLETED FIRST SLICE 2026-05-24** — extracted divergence routing, `spec_update_and_restart`, and provider troubleshooting playbooks; added `tests/validate-adversarial-modules.sh`; continue profiling future runs before further extraction |
+| `todos/pi-codex-plugin-support.md` | Medium | **COMPLETED 2026-05-24** — Pi package manifest + `foundry_team` extension + Agent Skills adapters + Codex CLI `.codex-plugin/plugin.json`, command wrappers, agent card, validation, docs, and local smoke-load landed |
 | `todos/from-scratch-pi-adversarial-run.md` | Medium | **PENDING** — harder follow-up after Sudoku replay: run a non-example feature under Pi where red and green generate fresh artifacts, then feed obedience/workflow gaps into modularization |
 | `todos/arbiter-agent.md` | Future | Formalize scoped arbitration for single-test disputes; arbiter can route to red fix, green fix, or spec/NLSpec divergence loop |
 | `todos/phase2-trigger-strategy.md` | Future | Re-assess Phase 2 divergence trigger strategy (N=3 fixed vs pattern-based) |
@@ -122,35 +126,41 @@ Green receives ONLY `test_name: PASS/FAIL` — no assertions, no expected values
 - **Pi has no native subagents** — do not write Pi instructions that assume Claude-style `Agent(...)`, teams, or swarms. Roll the primitive as an extension. The endorsed pattern is Pi's own `examples/extensions/subagent/`: spawn child `pi --mode json -p --no-session` processes, bound concurrency, stream/capture JSON events, and keep child contexts explicit.
 - **PromptEnvelope is the cross-harness dispatch boundary** — Claude can pass `envelope.prompt` to `Agent(...)`; Pi must call `foundry_team` with `envelopePath`. Never paste hidden context into normal Pi messages to simulate a subagent.
 - **Green test-result blocks need a hard section terminator** — `validate-barrier-envelopes.sh` treats lines after `Test results:` as outcome labels until the next `#`/`##` header. Put follow-up instructions under `## Task`; otherwise ordinary prose such as `Reply exactly: GREEN_OK` is correctly rejected as a non-PASS/FAIL result leak.
+- **Codex plugin support is packaging, not subagents (yet)** — local Codex examples use `.codex-plugin/plugin.json`, `skills/`, optional `commands/`, and `agents/openai.yaml` agent cards. The installed CLI can smoke-load this repo as a local marketplace, but does not document a Claude-style dispatchable subagent API. Keep canonical reviewer prompts under `plugins/foundry/agents/**/*.md` until a PromptEnvelope-safe Codex dispatch primitive exists.
+- **Module extraction needs validators for old grep anchors** — moving bulky adversarial instructions into playbooks is safe only if tests preserve anchor strings such as `findings[0].outcome`, Phase 2b `VALUABLE`, `spec_update_and_restart`, and PASS/FAIL-only barrier language.
 
 ## What's Next
 
 Ilia feedback (2026-04-17, `docs/solutions/workflow-issues/ilia-feedback-foundry-plugin-20260417.md`) raised four structural items. Repo identity is complete, the private dispatch runtime mirrors the public `PromptEnvelope` v1 contract, and a replay-level behavioral smoke harness now exists. The remaining suggested order is:
 
-1. **Codex CLI plugin support** (`todos/pi-codex-plugin-support.md`) — add a Codex CLI plugin bundle (`.codex-plugin/plugin.json`) that exposes the existing `skills/foundry-*` adapters and documents/validates any `agents/` or `commands/` wrappers without forking canonical prompts.
-2. **Modularize heaviest skills** (`todos/modularize-heaviest-skills.md`) — profile obedience first, especially now that Pi dispatch relies on explicit PromptEnvelope artifacts and `foundry_team`.
-3. **From-scratch Pi adversarial feature run** (`todos/from-scratch-pi-adversarial-run.md`) — optional harder follow-up after the smoke-scoped Sudoku replay: run a non-example feature where red and green generate fresh artifacts, then feed any obedience gaps back into skill modularization.
+1. **From-scratch Pi adversarial feature run** (`todos/from-scratch-pi-adversarial-run.md`) — harder follow-up after the smoke-scoped Sudoku replay: run a non-example feature where red and green generate fresh artifacts, then feed any obedience gaps back into skill modularization.
+2. **Continue modularization only from evidence** (`todos/modularize-heaviest-skills.md`) — first slice is done; profile future real runs before extracting more modules.
+3. **Codex dispatch follow-up** (`todos/pi-codex-plugin-support.md`) — packaging is done; revisit only when Codex documents a PromptEnvelope-safe dispatchable subagent/team primitive.
 
 Also still open from before:
 
-5. **Arbiter agent/process** (`todos/arbiter-agent.md`) — formalize scoped single-test arbitration that can judge test vs implementation vs spec/NLSpec gap
-6. **Multi-provider delegation** — systematically exercise red-on-Gemini, green-on-Codex across examples
-7. **Adversarial UI** — brainstorm at `docs/brainstorms/2026-04-04-adversarial-ui-design-system.md`; three-level testing via design systems
-8. **Rubik's cube fix** — add golden vectors from Kociemba's Python reference (31/46 -> ~44/46)
-9. **Phase 2 trigger strategy** — re-assess N=3 vs pattern-based (`todos/phase2-trigger-strategy.md`)
-10. **Exercise spec-divergence loop** — run the updated adversarial skill end-to-end on a new example to smoke-test the divergence evaluator in practice
+4. **Arbiter agent/process** (`todos/arbiter-agent.md`) — formalize scoped single-test arbitration that can judge test vs implementation vs spec/NLSpec gap
+5. **Multi-provider delegation** — systematically exercise red-on-Gemini, green-on-Codex across examples
+6. **Adversarial UI** — brainstorm at `docs/brainstorms/2026-04-04-adversarial-ui-design-system.md`; three-level testing via design systems
+7. **Rubik's cube fix** — add golden vectors from Kociemba's Python reference (31/46 -> ~44/46)
+8. **Phase 2 trigger strategy** — re-assess N=3 vs pattern-based (`todos/phase2-trigger-strategy.md`)
+9. **Exercise spec-divergence loop** — run the updated adversarial skill end-to-end on a new example to smoke-test the divergence evaluator in practice
 
 ## Repo Layout
 
 ```
 public/foundry/
+├── .codex-plugin/plugin.json            (Codex CLI plugin manifest)
+├── agents/openai.yaml                   (Codex agent card metadata)
+├── assets/foundry-codex.svg             (Codex icon)
+├── commands/                            (Codex thin command wrappers)
 ├── package.json                         (Pi package manifest)
 ├── runs/
 │   └── pi-autonomous-sudoku-smoke/      (validated Pi adversarial smoke artifacts)
 ├── .claude-plugin/marketplace.json
 ├── extensions/
 │   └── pi-foundry-team/                 (Pi `foundry_team` dispatch extension)
-├── skills/                              (Pi Agent Skills adapters)
+├── skills/                              (Pi/Codex Agent Skills adapters)
 ├── plugins/foundry/
 │   ├── .claude-plugin/plugin.json
 │   ├── agents/
@@ -170,13 +180,16 @@ public/foundry/
 ├── tests/
 │   ├── behavioral-smoke.sh
 │   ├── pi-live-dispatch-smoke.sh        (slow/manual, real Pi model calls)
+│   ├── validate-adversarial-modules.sh
 │   ├── validate-agents.sh
 │   ├── validate-barrier-envelopes.sh
 │   ├── validate-behavioral-smoke-contract.sh
+│   ├── validate-codex-plugin.sh
 │   └── validate-pi-extension.sh
 ├── docs/
 │   ├── brainstorms/
 │   ├── plans/
+│   ├── playbooks/                       (extracted adversarial workflow modules)
 │   └── solutions/
 └── todos/
 ```

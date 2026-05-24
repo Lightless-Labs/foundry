@@ -1,0 +1,43 @@
+{
+  "name": "foundry",
+  "version": "0.1.0",
+  "description": "Adversarial red/green development workflow with research, brainstorm, NLSpec, and information-barriered implementation skills.",
+  "author": {
+    "name": "Lightless Labs",
+    "url": "https://github.com/Lightless-Labs"
+  },
+  "homepage": "https://github.com/Lightless-Labs/foundry",
+  "repository": "https://github.com/Lightless-Labs/foundry",
+  "license": "MIT",
+  "keywords": [
+    "foundry",
+    "adversarial",
+    "red-green",
+    "nlspec",
+    "testing",
+    "agent-skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Foundry",
+    "shortDescription": "Adversarial red/green workflow with strict PromptEnvelope information barriers",
+    "longDescription": "Foundry packages research, brainstorm, NLSpec derivation, and adversarial red/green implementation as thin Agent Skills adapters. The canonical workflow prompts remain under plugins/foundry/skills, while Codex loads the root skills/foundry-* adapters. Red teams write tests from the full NLSpec, green teams implement from NLSpec How plus PASS/FAIL labels only, and orchestrators preserve replayable PromptEnvelope artifacts.",
+    "developerName": "Lightless Labs",
+    "category": "Coding",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/Lightless-Labs/foundry",
+    "defaultPrompt": [
+      "Use Foundry to derive an NLSpec from this spec.",
+      "Run Foundry adversarial red/green implementation from this NLSpec.",
+      "Forge this feature through research, brainstorm, NLSpec, and adversarial implementation."
+    ],
+    "brandColor": "#111827",
+    "composerIcon": "./assets/foundry-codex.svg",
+    "logo": "./assets/foundry-codex.svg",
+    "screenshots": []
+  }
+}

@@ -1,11 +1,11 @@
 ---
 name: foundry-adversarial
-description: "Run Foundry's adversarial red/green implementation process under Pi. Use when you have a reviewed NLSpec and need isolated red test writing plus green implementation with PromptEnvelope barriers."
+description: "Run Foundry's adversarial red/green implementation process as an Agent Skills adapter. Use when you have a reviewed NLSpec and need isolated red test writing plus green implementation with PromptEnvelope barriers."
 ---
 
-# Foundry Adversarial — Pi Adapter
+# Foundry Adversarial — Agent Skills Adapter
 
-This is a thin Pi-compatible adapter for the canonical Foundry skill.
+This is a thin Agent Skills-compatible adapter for the canonical Foundry skill.
 
 Canonical source of truth:
 
@@ -26,7 +26,7 @@ When the canonical skill calls for subagents, teams, `Agent(...)`, or parallel r
 
 ## Invocation Notes
 
-Pi exposes this adapter as:
+Pi and Codex expose this adapter as:
 
 ```text
 /skill:foundry-adversarial <arguments>

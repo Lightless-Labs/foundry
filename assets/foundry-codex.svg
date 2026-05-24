@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Foundry">
+  <rect width="128" height="128" rx="24" fill="#111827"/>
+  <path d="M31 79c0-18.225 14.775-33 33-33s33 14.775 33 33" fill="none" stroke="#f97316" stroke-width="10" stroke-linecap="round"/>
+  <path d="M40 81h48v15H40z" fill="#f97316"/>
+  <path d="M47 31h34l-7 27H54z" fill="#e5e7eb"/>
+  <path d="M36 102h56" stroke="#e5e7eb" stroke-width="8" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,11 @@
+interface:
+  display_name: "Foundry"
+  short_description: "Use Foundry skills for research, brainstorm, NLSpec, and adversarial red/green implementation."
+  icon_small: "./assets/foundry-codex.svg"
+  icon_large: "./assets/foundry-codex.svg"
+  default_prompt: "Use Foundry's Agent Skills adapters and canonical prompts; preserve the PromptEnvelope red/green information barrier."
+
+# Codex cached marketplace examples expose agent cards through agents/openai.yaml,
+# but the local CLI does not document a Claude-style dispatchable subagent API.
+# Foundry reviewer prompts therefore remain canonical at plugins/foundry/agents/**/*.md
+# and are loaded by orchestrators/tools that can enforce PromptEnvelope isolation.

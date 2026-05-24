@@ -2,8 +2,8 @@
 title: Add Pi extensions and Codex CLI plugin support
 origin: 2026-05-01 user request during repo-identity cleanup
 priority: medium
-status: partial — Pi support landed; Codex CLI plugin support pending
-updated: 2026-05-22
+status: completed — Pi support and Codex CLI plugin packaging landed
+updated: 2026-05-24
 ---
 
 # Pi Extensions and Codex CLI Plugin Support
@@ -15,6 +15,8 @@ updated: 2026-05-22
 **Addendum:** 2026-05-22 — smoke-scoped autonomous Pi adversarial run completed using `/skill:foundry-adversarial` + `foundry_team`. The run emitted `runs/pi-autonomous-sudoku-smoke/` artifacts and passed behavioral-smoke/barrier validation. Remaining Pi hardening from a from-scratch non-example feature is tracked separately in `todos/from-scratch-pi-adversarial-run.md`.
 
 **Addendum:** 2026-05-22 — clarified that "Codex support" means **Codex CLI plugin support**, not generic Codex documentation. Local CLI exposes `codex plugin marketplace add|upgrade|remove`; cached marketplace examples under `~/.codex/.tmp/plugins/plugins/*` use `.codex-plugin/plugin.json` plus optional `skills/`, `agents/`, `commands/`, `hooks.json`, `.app.json`, `.mcp.json`, and `assets/`. Foundry should add a Codex CLI plugin bundle that exposes the existing `skills/foundry-*` adapters and, where supported, thin agent/command wrappers around canonical `plugins/foundry/agents/**/*.md` without forking prompts.
+
+**Addendum:** 2026-05-24 — Codex CLI plugin packaging landed. Added `.codex-plugin/plugin.json`, `assets/foundry-codex.svg`, `agents/openai.yaml`, and thin `commands/foundry-{adversarial,forge}.md` wrappers. The manifest exposes the existing root `skills/foundry-*` Agent Skills adapters (`"skills": "./skills/"`); adapters remain packaging glue and point back to canonical `plugins/foundry/skills/**/SKILL.md`. `agents/openai.yaml` documents the current Codex blocker: local examples expose agent cards, but the installed CLI does not document a Claude-style dispatchable subagent API, so canonical reviewers stay under `plugins/foundry/agents/**/*.md` until a PromptEnvelope-safe Codex dispatch primitive is confirmed. Added `tests/validate-codex-plugin.sh` and smoke-loaded the repo with `HOME=$(mktemp -d) codex plugin marketplace add "$PWD"`.
 
 Foundry currently ships as a Claude plugin with skills, agents, examples, and validation aimed at Claude's plugin surface. To make the workflow portable across agent harnesses, add first-class support for Pi extensions and Codex CLI plugin packaging.
 
@@ -43,16 +45,16 @@ Foundry currently ships as a Claude plugin with skills, agents, examples, and va
 - [x] Add validation for the Pi extension package contract (`tests/validate-pi-extension.sh`).
 - [x] Add Pi skill adapters/install docs for the canonical Foundry skills.
 - [x] Run a real public-plugin adversarial session under Pi using `foundry_team`.
-- [ ] Research Codex CLI plugin conventions and document support/blockers.
-- [ ] Add `.codex-plugin/plugin.json` or `plugins/foundry/.codex-plugin/plugin.json` for Foundry.
-- [ ] Expose existing `skills/foundry-*` adapters through the Codex CLI plugin manifest.
-- [ ] Decide whether Codex plugin `agents/` can wrap canonical Foundry agents without prompt forks; document blockers if not.
-- [ ] Add `tests/validate-codex-plugin.sh` for manifest shape, skill exposure, canonical-source links, and barrier-language anchors.
-- [ ] Smoke-load/install the local Codex CLI plugin if the CLI supports local marketplace/plugin sources.
+- [x] Research Codex CLI plugin conventions and document support/blockers.
+- [x] Add `.codex-plugin/plugin.json` or `plugins/foundry/.codex-plugin/plugin.json` for Foundry.
+- [x] Expose existing `skills/foundry-*` adapters through the Codex CLI plugin manifest.
+- [x] Decide whether Codex plugin `agents/` can wrap canonical Foundry agents without prompt forks; document blockers if not.
+- [x] Add `tests/validate-codex-plugin.sh` for manifest shape, skill exposure, canonical-source links, and barrier-language anchors.
+- [x] Smoke-load/install the local Codex CLI plugin if the CLI supports local marketplace/plugin sources.
 
 ## Acceptance criteria
 
-- [ ] A documented packaging strategy exists for both Pi extensions and Codex CLI plugin support.
-- [ ] At least one Foundry skill and one Foundry agent can be exposed through each target harness, or explicit blockers are documented.
+- [x] A documented packaging strategy exists for both Pi extensions and Codex CLI plugin support.
+- [x] At least one Foundry skill and one Foundry agent can be exposed through each target harness, or explicit blockers are documented.
 - [x] Existing Claude plugin behavior and validation remain unchanged.
 - [x] Information-barrier guarantees are preserved or stricter in the landed Pi child-dispatch slice.

@@ -3,9 +3,9 @@ name: foundry-nlspec
 description: "Derive a Natural Language Specification from a spec document and review it. Use when a spec exists and you need a buildable spec for adversarial implementation."
 ---
 
-# Foundry Nlspec — Pi Adapter
+# Foundry Nlspec — Agent Skills Adapter
 
-This is a thin Pi-compatible adapter for the canonical Foundry skill.
+This is a thin Agent Skills-compatible adapter for the canonical Foundry skill.
 
 Canonical source of truth:
 
@@ -22,7 +22,7 @@ Canonical source of truth:
 
 ## Invocation Notes
 
-Pi exposes this adapter as:
+Pi and Codex expose this adapter as:
 
 ```text
 /skill:foundry-nlspec <arguments>

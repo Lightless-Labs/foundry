@@ -1,6 +1,6 @@
 # Foundry Pi and Codex Support
 
-**Updated:** 2026-05-22
+**Updated:** 2026-05-24
 
 This document records the public-plugin packaging strategy for non-Claude harnesses.
 
@@ -91,13 +91,62 @@ tests/behavioral-smoke.sh runs/pi-autonomous-sudoku-smoke
 
 The `runs/pi-autonomous-sudoku-smoke/` fixture was produced by invoking `/skill:foundry-adversarial` under Pi with `foundry_team`, copying the Sudoku worked example to `/tmp`, running the red tests (`30/30`), and dispatching red-team, green-team, and barrier-integrity-auditor from PromptEnvelope artifacts.
 
-## Codex support
+## Codex CLI plugin support
 
-Codex support remains pending. Current known strategy:
+Foundry now includes a Codex CLI plugin bundle at `.codex-plugin/plugin.json`.
 
-- Keep canonical prompts in `plugins/foundry/skills/` and `plugins/foundry/agents/`.
-- Add only thin adapters or generated packaging for Codex once Codex's current plugin/skill conventions are confirmed.
-- Preserve the same PromptEnvelope boundary for any Codex child-dispatch mechanism.
-- Do not invent a Codex-specific red/green API without validating it against the active Codex harness docs/runtime.
+Local Codex marketplace examples use:
+
+- `.codex-plugin/plugin.json` as the required manifest.
+- `skills/` as Agent Skills-compatible skill folders.
+- Optional `agents/openai.yaml` agent cards.
+- Optional `commands/*.md` command wrappers.
+- Optional assets such as SVG/PNG icons.
+
+Foundry's Codex manifest exposes the existing root `skills/foundry-*` adapters via:
+
+```json
+"skills": "./skills/"
+```
+
+Those adapters are still packaging glue only. They point back to the canonical Claude plugin prompts under `plugins/foundry/skills/**/SKILL.md`; do not fork workflow instructions into Codex-specific files.
+
+### Codex commands and agent metadata
+
+The Codex bundle also includes:
+
+- `commands/foundry-adversarial.md` — thin command wrapper that routes to `skills/foundry-adversarial/SKILL.md` and then to the canonical adversarial skill.
+- `commands/foundry-forge.md` — thin command wrapper for the full pipeline.
+- `agents/openai.yaml` — plugin-level agent card metadata.
+
+Current blocker: cached Codex marketplace examples expose `agents/openai.yaml` as an agent card, but the installed Codex CLI help does not document a Claude-style dispatchable subagent API. Therefore Foundry does **not** expose the 24 canonical reviewer prompts as Codex-native subagents yet. The canonical reviewer prompts remain under `plugins/foundry/agents/**/*.md` for orchestrators/tools that can enforce PromptEnvelope isolation.
+
+### Codex install notes
+
+The installed CLI exposes:
+
+```bash
+codex plugin marketplace add <SOURCE>
+codex plugin marketplace upgrade <SOURCE>
+codex plugin marketplace remove <SOURCE>
+```
+
+`add` accepts owner/repo refs, Git URLs, SSH URLs, or local marketplace root directories. It does not currently expose a separate documented local `plugin install ./` command in `codex plugin --help`.
+
+Local development smoke-load (validated with a temporary `HOME` on 2026-05-24):
+
+```bash
+codex plugin marketplace add /path/to/foundry
+```
+
+Then validate the package shape locally with:
+
+```bash
+tests/validate-codex-plugin.sh
+```
+
+### Codex barrier rule
+
+Codex skills must preserve the same PromptEnvelope boundary as Claude and Pi. If a Codex runtime does not provide an isolated subagent/team primitive, do **not** simulate red/green isolation by pasting hidden context into the main conversation. Use a harness/tool that consumes PromptEnvelope artifacts, or stop and report the blocker.
 
 The tracking todo is `todos/pi-codex-plugin-support.md`.
