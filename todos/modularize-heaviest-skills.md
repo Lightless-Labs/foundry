@@ -2,7 +2,7 @@
 title: Modularize heaviest skills — smaller contracts, more executable checks
 origin: 2026-04-17 ilia-feedback-foundry-plugin (item 4)
 priority: medium
-status: completed — first modularization slice landed
+status: completed — first modularization slice and Roman-run hardening landed
 updated: 2026-05-24
 ---
 
