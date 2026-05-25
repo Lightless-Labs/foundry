@@ -8,6 +8,7 @@ SKILL="plugins/foundry/skills/foundry-adversarial/SKILL.md"
 DIVERGENCE="docs/playbooks/foundry-adversarial-divergence-routing.md"
 RESTART="docs/playbooks/foundry-adversarial-spec-update-and-restart.md"
 TROUBLE="docs/playbooks/foundry-adversarial-provider-troubleshooting.md"
+PI_CONTINUATION="docs/playbooks/foundry-adversarial-pi-continuation.md"
 
 pass() {
   echo "$1: PASS"
@@ -37,10 +38,12 @@ require_file "adversarial-skill" "$SKILL"
 require_file "divergence-playbook" "$DIVERGENCE"
 require_file "restart-playbook" "$RESTART"
 require_file "provider-troubleshooting-playbook" "$TROUBLE"
+require_file "pi-continuation-playbook" "$PI_CONTINUATION"
 
 require_literal "skill-references-divergence-playbook" "$SKILL" "$DIVERGENCE"
 require_literal "skill-references-restart-playbook" "$SKILL" "$RESTART"
 require_literal "skill-references-troubleshooting-playbook" "$SKILL" "$TROUBLE"
+require_literal "skill-references-pi-continuation-playbook" "$SKILL" "$PI_CONTINUATION"
 require_literal "skill-keeps-phase2b-valuable-anchor" "$SKILL" 'Phase 2b `VALUABLE`'
 require_literal "skill-keeps-findings-outcome" "$SKILL" "findings[0].outcome"
 require_literal "skill-keeps-spec-update-name" "$SKILL" "spec_update_and_restart"
@@ -64,6 +67,10 @@ require_literal "restart-red-test-paths" "$RESTART" "red_test_paths"
 require_literal "troubleshooting-opencode" "$TROUBLE" "OpenCode"
 require_literal "troubleshooting-kimi" "$TROUBLE" "Kimi K2.5"
 require_literal "troubleshooting-no-raw-failures" "$TROUBLE" "Do not reveal assertions, stack traces, raw outputs"
+require_literal "pi-continuation-foundry-team" "$PI_CONTINUATION" "foundry_team"
+require_literal "pi-continuation-pass-fail-labels" "$PI_CONTINUATION" "PASS/FAIL outcome labels"
+require_literal "pi-continuation-no-outcome-label-samples" "$PI_CONTINUATION" "Do **not** use PASS/FAIL test outcome labels"
+require_literal "pi-continuation-final-validators" "$PI_CONTINUATION" "tests/behavioral-smoke.sh runs/<run_id>"
 
 TOTAL_COUNT=$((PASS_COUNT + FAIL_COUNT))
 printf '\nTOTAL: %d passed, %d failed out of %d adversarial module checks\n' "$PASS_COUNT" "$FAIL_COUNT" "$TOTAL_COUNT"

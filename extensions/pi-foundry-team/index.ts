@@ -135,6 +135,40 @@ function samplesFrom(withheld: unknown): string[] {
 	return samples;
 }
 
+function testResultLabelNames(prompt: string): Set<string> {
+	const labels = new Set<string>();
+	let inResults = false;
+	for (const line of prompt.split(/\r?\n/)) {
+		const stripped = line.trim();
+		if (stripped === "Test results:") {
+			inResults = true;
+			continue;
+		}
+		if (!inResults) continue;
+		if (!stripped) continue;
+		if (stripped.startsWith("## ") || stripped.startsWith("# ")) {
+			inResults = false;
+			continue;
+		}
+		const match = stripped.match(/^(.+?):\s*(PASS|FAIL)\s*$/);
+		if (!match) continue;
+		const label = match[1].trim();
+		labels.add(label);
+		for (const separator of ["::", "/"]) {
+			if (label.includes(separator)) labels.add(label.split(separator).pop() ?? label);
+		}
+	}
+	return labels;
+}
+
+function sampleIsOutcomeLabel(sample: string, labels: Set<string>): boolean {
+	if (labels.has(sample)) return true;
+	for (const label of labels) {
+		if (sample.length >= 8 && (label.includes(sample) || sample.includes(label))) return true;
+	}
+	return false;
+}
+
 function validateEnvelope(envelope: JsonObject): { prompt: string; recipient: string; phase: string } {
 	if (envelope.schema_version !== "foundry.prompt-envelope.v1") {
 		throw new Error("Envelope schema_version must be foundry.prompt-envelope.v1");
@@ -154,7 +188,11 @@ function validateEnvelope(envelope: JsonObject): { prompt: string; recipient: st
 	if (isRedOrGreen && samples.length === 0) {
 		throw new Error("Red/green recipient envelopes must include meaningful withheld_context samples");
 	}
+	const outcomeLabels = lowerRecipient.includes("green") ? testResultLabelNames(prompt) : new Set<string>();
 	for (const sample of samples) {
+		if (outcomeLabels.size > 0 && sampleIsOutcomeLabel(sample, outcomeLabels)) {
+			throw new Error(`Withheld sample duplicates allowed PASS/FAIL outcome label: ${sample.slice(0, 80)}`);
+		}
 		if (prompt.includes(sample)) {
 			throw new Error(`Withheld sample leaked into prompt: ${sample.slice(0, 80)}`);
 		}

@@ -32,7 +32,7 @@ Additional validators:
 - `tests/pi-live-dispatch-smoke.sh` — slow/manual live lane that performs real Pi model calls, runs Sudoku `30/30`, dispatches red/green child Pi processes through `foundry_team`, writes `behavioral-smoke.toon`, and validates the resulting run directory.
 - `runs/pi-autonomous-sudoku-smoke/` — smoke-scoped autonomous `/skill:foundry-adversarial` Pi run artifacts (red-team, green-team, barrier-integrity-auditor PromptEnvelopes + `behavioral-smoke.toon`).
 
-Last local validation (2026-05-24): `tests/validate-agents.sh` remained 215/215; `tests/validate-codex-plugin.sh` passed 44/44; `tests/validate-adversarial-modules.sh` passed 27/27; `tests/validate-pi-extension.sh` passed 40/40; `tests/validate-behavioral-smoke-contract.sh` passed 7/7; `tests/validate-barrier-envelopes.sh runs/pi-autonomous-sudoku-smoke/dispatch` passed; `tests/behavioral-smoke.sh runs/pi-autonomous-sudoku-smoke` passed; `tests/validate-barrier-envelopes.sh runs/pi-from-scratch-roman-numeral/dispatch` passed; `tests/behavioral-smoke.sh runs/pi-from-scratch-roman-numeral` passed. Last slow live lane remains 2026-05-22: `tests/pi-live-dispatch-smoke.sh --keep` passed with a real `foundry_team` Pi tool call; `/skill:foundry-adversarial` under Pi produced `runs/pi-autonomous-sudoku-smoke/` with Sudoku `30/30` and provider-qualified `openai-codex/gpt-5.5` model lanes. New from-scratch live Pi run (2026-05-24) produced `runs/pi-from-scratch-roman-numeral/` with fresh red tests, fresh green implementation, and Roman numeral `8/8`.
+Last local validation (2026-05-24): `tests/validate-agents.sh` remained 215/215; `tests/validate-codex-plugin.sh` passed 44/44; `tests/validate-adversarial-modules.sh` passed 33/33; `tests/validate-pi-extension.sh` passed 41/41; `tests/validate-behavioral-smoke-contract.sh` passed 7/7; `tests/validate-barrier-envelopes.sh` self-tests passed including outcome-label withheld-sample regression; `tests/validate-barrier-envelopes.sh runs/pi-autonomous-sudoku-smoke/dispatch` passed; `tests/behavioral-smoke.sh runs/pi-autonomous-sudoku-smoke` passed; `tests/validate-barrier-envelopes.sh runs/pi-from-scratch-roman-numeral/dispatch` passed; `tests/behavioral-smoke.sh runs/pi-from-scratch-roman-numeral` passed. Last slow live lane remains 2026-05-22: `tests/pi-live-dispatch-smoke.sh --keep` passed with a real `foundry_team` Pi tool call; `/skill:foundry-adversarial` under Pi produced `runs/pi-autonomous-sudoku-smoke/` with Sudoku `30/30` and provider-qualified `openai-codex/gpt-5.5` model lanes. New from-scratch live Pi run (2026-05-24) produced `runs/pi-from-scratch-roman-numeral/` with fresh red tests, fresh green implementation, and Roman numeral `8/8`.
 
 ### 5 Skills (composable pipeline)
 
@@ -129,15 +129,15 @@ Green receives ONLY `test_name: PASS/FAIL` — no assertions, no expected values
 - **Codex plugin support is packaging, not subagents (yet)** — local Codex examples use `.codex-plugin/plugin.json`, `skills/`, optional `commands/`, and `agents/openai.yaml` agent cards. The installed CLI can smoke-load this repo as a local marketplace, but does not document a Claude-style dispatchable subagent API. Keep canonical reviewer prompts under `plugins/foundry/agents/**/*.md` until a PromptEnvelope-safe Codex dispatch primitive exists.
 - **Module extraction needs validators for old grep anchors** — moving bulky adversarial instructions into playbooks is safe only if tests preserve anchor strings such as `findings[0].outcome`, Phase 2b `VALUABLE`, `spec_update_and_restart`, and PASS/FAIL-only barrier language.
 - **From-scratch Pi works but needs resumable/longer live orchestration** — Roman numeral run generated fresh red tests and green code and reached Phase 3, but the outer 900s shell timeout interrupted reviewer fan-out. Continue via PromptEnvelope/foundry_team worked, but future live lanes should use longer timeouts, sessions, or phase-level resumability.
-- **Withheld samples must exclude allowed outcome labels** — a continuation envelope used a test name as a withheld red-test sample while the same name was allowed in `Test results:`. `foundry_team` correctly rejected it. Future helpers should derive withheld samples from assertion/body/raw-output snippets, not PASS/FAIL label names.
+- **Withheld samples must exclude allowed outcome labels** — a continuation envelope used a test name as a withheld red-test sample while the same name was allowed in `Test results:`. `foundry_team` correctly rejected it. This is now mechanically checked in `tests/validate-barrier-envelopes.sh` and `extensions/pi-foundry-team/index.ts`; samples should come from assertion/body/raw-output snippets, not PASS/FAIL label names.
 
 ## What's Next
 
 Ilia feedback (2026-04-17, `docs/solutions/workflow-issues/ilia-feedback-foundry-plugin-20260417.md`) raised four structural items. Repo identity is complete, the private dispatch runtime mirrors the public `PromptEnvelope` v1 contract, and a replay-level behavioral smoke harness now exists. The remaining suggested order is:
 
-1. **Continue modularization only from evidence** (`todos/modularize-heaviest-skills.md`) — from-scratch Pi Roman numeral run exposed two follow-ups: use longer/resumable live orchestration for Phase 3 reviewer fan-out, and add/helper-test withheld-sample derivation so PASS/FAIL outcome labels are not accidentally treated as forbidden samples.
+1. **Arbiter agent/process** (`todos/arbiter-agent.md`) — formalize scoped single-test arbitration that can judge test vs implementation vs spec/NLSpec gap.
 2. **Codex dispatch follow-up** (`todos/pi-codex-plugin-support.md`) — packaging is done; revisit only when Codex documents a PromptEnvelope-safe dispatchable subagent/team primitive.
-3. **Arbiter agent/process** (`todos/arbiter-agent.md`) — formalize scoped single-test arbitration that can judge test vs implementation vs spec/NLSpec gap.
+3. **Continue modularization only from evidence** (`todos/modularize-heaviest-skills.md`) — first slice and Roman-run hardening are done; profile future real runs before extracting more modules.
 
 Also still open from before:
 
@@ -191,7 +191,7 @@ public/foundry/
 ├── docs/
 │   ├── brainstorms/
 │   ├── plans/
-│   ├── playbooks/                       (extracted adversarial workflow modules)
+│   ├── playbooks/                       (extracted adversarial workflow modules + Pi continuation)
 │   └── solutions/
 └── todos/
 ```

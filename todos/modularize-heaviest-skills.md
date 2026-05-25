@@ -12,6 +12,8 @@ updated: 2026-05-24
 
 **Addendum:** 2026-05-24 — from-scratch Pi Roman numeral run produced two concrete obedience/workflow observations. First, the full Pi `/skill:foundry-adversarial` orchestration completed red/green generation and reached Phase 3, but the outer shell timed out during reviewer fan-out; future live runs should either use a longer timeout/resumable Pi session or narrower phase-level invocations. Second, a manual continuation envelope mistakenly put an allowed test outcome label in `withheld_context.samples`; `foundry_team` correctly rejected it before dispatch. This suggests a future executable helper should derive withheld samples from bodies/assertions/raw output only and explicitly exclude allowed PASS/FAIL test-name labels.
 
+**Addendum:** 2026-05-24 — hardening landed for both observations. `tests/validate-barrier-envelopes.sh` now rejects green withheld samples that duplicate allowed PASS/FAIL outcome labels (including terminal names from namespaced labels), and the self-tests include that regression. `extensions/pi-foundry-team/index.ts` now rejects the same mistake before child dispatch with a clearer error. Added `docs/playbooks/foundry-adversarial-pi-continuation.md` and linked it from the adversarial skill for timeout/resume continuation from serialized PromptEnvelope artifacts.
+
 `foundry-adversarial/SKILL.md` was the heaviest skill in the plugin. It carries a lot of nuance — information barrier, Phase 1b/2b divergence handling, spec-update-and-restart, test-fix inner loop, troubleshooting. That nuance is why the skill works, but it's also a reliability risk: long instruction blocks are easier for models to partially obey.
 
 ## What to fix

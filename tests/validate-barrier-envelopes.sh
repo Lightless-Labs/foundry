@@ -64,6 +64,41 @@ def pass_(path):
     return True
 
 
+def test_result_label_names(prompt):
+    labels = set()
+    in_results = False
+    for line in prompt.splitlines():
+        stripped = line.strip()
+        if stripped == "Test results:":
+            in_results = True
+            continue
+        if in_results:
+            if not stripped:
+                continue
+            if stripped.startswith("## ") or stripped.startswith("# "):
+                in_results = False
+                continue
+            match = re.match(r"^(.+?):\s*(PASS|FAIL)\s*$", stripped)
+            if match:
+                label = match.group(1).strip()
+                labels.add(label)
+                # Treat namespaced labels as aliases too: module::test_name and file/path/test_name
+                # often appear in prompts while envelope authors copy only the terminal test name.
+                for separator in ("::", "/"):
+                    if separator in label:
+                        labels.add(label.rsplit(separator, 1)[-1])
+    return labels
+
+
+def sample_is_outcome_label(sample, labels):
+    if sample in labels:
+        return True
+    for label in labels:
+        if len(sample) >= 8 and (sample in label or label in sample):
+            return True
+    return False
+
+
 def ensure_list(value, path, field):
     if not isinstance(value, list):
         raise ValueError(f"{field} must be a list")
@@ -109,7 +144,11 @@ def validate_envelope(path):
         if not has_meaningful_sample:
             return fail(path, "red/green recipient envelope must include at least one meaningful withheld_context sample")
 
+    outcome_labels = test_result_label_names(prompt) if is_green else set()
+
     # Literal withheld-sample check: this is the mechanical barrier core.
+    # Also reject samples that duplicate allowed PASS/FAIL outcome labels: those labels are visible
+    # to green by design and are not suitable poison samples for red test code/raw output.
     for i, item in enumerate(data.get("withheld_context", [])):
         if not isinstance(item, dict):
             return fail(path, f"withheld_context[{i}] must be an object")
@@ -125,8 +164,10 @@ def validate_envelope(path):
             if len(sample) < 8:
                 # Too short to be a meaningful poison sample; ignore to avoid false positives.
                 continue
+            label = item.get("label", f"withheld_context[{i}]")
+            if is_green and sample_is_outcome_label(sample, outcome_labels):
+                return fail(path, f"withheld sample duplicates allowed PASS/FAIL outcome label: {label!r}")
             if sample in prompt:
-                label = item.get("label", f"withheld_context[{i}]")
                 return fail(path, f"withheld sample leaked into prompt: {label!r}")
 
     # Recipient-specific coarse checks. These catch common accidental leaks even when samples are weak.
@@ -225,6 +266,26 @@ JSON
 }
 JSON
 
+  cat >"$tmp/bad-green-outcome-label-sample.json" <<'JSON'
+{
+  "schema_version": "foundry.prompt-envelope.v1",
+  "run_id": "selftest",
+  "phase": "phase2",
+  "recipient": "green-team",
+  "prompt": "You are the GREEN TEAM.\n\nNLSpec How section: implement the parser.\n\nTest results:\n  parser::rejects_empty_input: FAIL\n\n## Task\nFix the implementation.",
+  "visible_context": [
+    {"label": "nlspec_how", "kind": "nlspec_how", "sha256": "demo", "content": "implement the parser"},
+    {"label": "outcome_labels", "kind": "test_outcomes", "sha256": "demo", "content": "parser::rejects_empty_input: FAIL"}
+  ],
+  "withheld_context": [
+    {"label": "red_test_name", "kind": "red_test_code", "sha256": "demo", "samples": ["rejects_empty_input"]}
+  ],
+  "redactions": [
+    {"source": "raw_test_output", "action": "pass_fail_labels_only", "removed": ["assertion_text", "stack_trace", "line_numbers"]}
+  ]
+}
+JSON
+
   echo "Self-test: good envelope should pass"
   validate_targets "$tmp/good-green.json"
 
@@ -243,6 +304,14 @@ JSON
     return 1
   fi
   cat /tmp/foundry-barrier-bad-schema.out
+
+  echo "Self-test: outcome-label withheld sample should fail"
+  if validate_targets "$tmp/bad-green-outcome-label-sample.json" >/tmp/foundry-barrier-bad-label-sample.out 2>&1; then
+    cat /tmp/foundry-barrier-bad-label-sample.out
+    echo "bad-green-outcome-label-sample unexpectedly passed" >&2
+    return 1
+  fi
+  cat /tmp/foundry-barrier-bad-label-sample.out
 
   echo "Barrier envelope self-tests: PASS"
 }

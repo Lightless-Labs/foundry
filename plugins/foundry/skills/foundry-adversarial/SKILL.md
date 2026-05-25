@@ -469,4 +469,4 @@ These can be set via the conversation or a config file:
 
 ### Troubleshooting
 
-Use `docs/playbooks/foundry-adversarial-provider-troubleshooting.md` for convergence and provider-specific troubleshooting, including OpenCode command-shape failures and Kimi K2.5 tokenizer/file-output salvage. Keep the barrier invariant intact while troubleshooting: green still receives only NLSpec How plus `test_name: PASS/FAIL` labels, never raw failures, assertions, test code, or NLSpec Done criteria.
+Use `docs/playbooks/foundry-adversarial-provider-troubleshooting.md` for convergence and provider-specific troubleshooting, including OpenCode command-shape failures and Kimi K2.5 tokenizer/file-output salvage. If a live Pi run is interrupted after PromptEnvelope artifacts exist, use `docs/playbooks/foundry-adversarial-pi-continuation.md` to resume from serialized envelopes instead of reconstructing hidden context in the main conversation. Keep the barrier invariant intact while troubleshooting: green still receives only NLSpec How plus `test_name: PASS/FAIL` labels, never raw failures, assertions, test code, or NLSpec Done criteria.
