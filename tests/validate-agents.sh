@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # validate-agents.sh — Red team validation script for Foundry review agents
-# Checks all 24 agents against structural, attribution, coverage, and territory specs.
+# Checks all 25 agents against structural, attribution, coverage, and territory specs.
 # Compatible with Bash 3 (macOS default).
 set -euo pipefail
 
@@ -40,7 +40,7 @@ while IFS= read -r f; do
   ALL_AGENT_NAMES+=("$(basename "$f" .md)")
 done < <(find "$AGENTS_ROOT" -name '*.md' -type f | sort)
 
-EXPECTED_COUNT=24
+EXPECTED_COUNT=25
 ACTUAL_COUNT="${#ALL_AGENT_FILES[@]}"
 if [ "$ACTUAL_COUNT" -ne "$EXPECTED_COUNT" ]; then
   echo "WARNING: Expected $EXPECTED_COUNT agents, found $ACTUAL_COUNT"
@@ -283,12 +283,16 @@ check_terms "green-team-reviewer" "$(resolve_agent green-team-reviewer)" \
 check_terms "barrier-integrity-auditor" "$(resolve_agent barrier-integrity-auditor)" \
   "prompt" "workspace" "PASS/FAIL" "assertion" "stack trace" "filter"
 
+# 20. arbiter-agent
+check_terms "arbiter-agent" "$(resolve_agent arbiter-agent)" \
+  "single-test|one disputed test" "TEST_WRONG" "IMPLEMENTATION_WRONG" "SPEC_INCOMPLETE" "INCONCLUSIVE" "prompt-injection|Prompt-injection" "redacted" "PASS/FAIL"
+
 echo ""
 echo "═══ TERRITORY BOUNDARY CHECKS ═══"
 echo ""
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# 20: Territory boundary — "What you don't flag" references at least one other agent
+# 21: Territory boundary — "What you don't flag" references at least one other agent
 # ═══════════════════════════════════════════════════════════════════════════════
 
 for i in "${!ALL_AGENT_FILES[@]}"; do

@@ -2,7 +2,7 @@
 
 Read this at the start of every session. Update it before context compaction or at natural milestones.
 
-**Last updated:** 2026-05-24
+**Last updated:** 2026-05-26
 
 ## What This Repo Is
 
@@ -18,9 +18,9 @@ This repo is the **skills + agents + examples** side. The Rust engine (state mac
 
 ## Current State
 
-### Validation: 215/215 checks passing + replay/Pi/Codex/module self-tests + Pi adversarial smoke
+### Validation: 224/224 checks passing + replay/Pi/Codex/module self-tests + Pi adversarial smoke
 
-`tests/validate-agents.sh` covers structural (YAML frontmatter, required sections, model: inherit, tools), attribution (12 adopted agents), language-specific coverage, adversarial process coverage, and territory boundaries.
+`tests/validate-agents.sh` covers structural (YAML frontmatter, required sections, model: inherit, tools), attribution (12 adopted agents), language-specific coverage, adversarial process coverage including the scoped arbiter, and territory boundaries.
 
 Additional validators:
 - `tests/validate-barrier-envelopes.sh` — PromptEnvelope v1 replay/audit checks.
@@ -32,7 +32,7 @@ Additional validators:
 - `tests/pi-live-dispatch-smoke.sh` — slow/manual live lane that performs real Pi model calls, runs Sudoku `30/30`, dispatches red/green child Pi processes through `foundry_team`, writes `behavioral-smoke.toon`, and validates the resulting run directory.
 - `runs/pi-autonomous-sudoku-smoke/` — smoke-scoped autonomous `/skill:foundry-adversarial` Pi run artifacts (red-team, green-team, barrier-integrity-auditor PromptEnvelopes + `behavioral-smoke.toon`).
 
-Last local validation (2026-05-24): `tests/validate-agents.sh` remained 215/215; `tests/validate-codex-plugin.sh` passed 44/44; `tests/validate-adversarial-modules.sh` passed 33/33; `tests/validate-pi-extension.sh` passed 41/41; `tests/validate-behavioral-smoke-contract.sh` passed 7/7; `tests/validate-barrier-envelopes.sh` self-tests passed including outcome-label withheld-sample regression; `tests/validate-barrier-envelopes.sh runs/pi-autonomous-sudoku-smoke/dispatch` passed; `tests/behavioral-smoke.sh runs/pi-autonomous-sudoku-smoke` passed; `tests/validate-barrier-envelopes.sh runs/pi-from-scratch-roman-numeral/dispatch` passed; `tests/behavioral-smoke.sh runs/pi-from-scratch-roman-numeral` passed. Last slow live lane remains 2026-05-22: `tests/pi-live-dispatch-smoke.sh --keep` passed with a real `foundry_team` Pi tool call; `/skill:foundry-adversarial` under Pi produced `runs/pi-autonomous-sudoku-smoke/` with Sudoku `30/30` and provider-qualified `openai-codex/gpt-5.5` model lanes. New from-scratch live Pi run (2026-05-24) produced `runs/pi-from-scratch-roman-numeral/` with fresh red tests, fresh green implementation, and Roman numeral `8/8`.
+Last local validation (2026-05-26): `tests/validate-agents.sh` passed 224/224 with the new arbiter agent; `tests/validate-adversarial-modules.sh` passed 42/42; `tests/validate-codex-plugin.sh` passed 44/44; `tests/validate-pi-extension.sh` passed 41/41; `tests/validate-behavioral-smoke-contract.sh` passed 7/7; `tests/validate-barrier-envelopes.sh` self-tests passed including outcome-label withheld-sample regression. Last replay validations remain 2026-05-24: `tests/validate-barrier-envelopes.sh runs/pi-autonomous-sudoku-smoke/dispatch` passed; `tests/behavioral-smoke.sh runs/pi-autonomous-sudoku-smoke` passed; `tests/validate-barrier-envelopes.sh runs/pi-from-scratch-roman-numeral/dispatch` passed; `tests/behavioral-smoke.sh runs/pi-from-scratch-roman-numeral` passed. Last slow live lane remains 2026-05-22: `tests/pi-live-dispatch-smoke.sh --keep` passed with a real `foundry_team` Pi tool call; `/skill:foundry-adversarial` under Pi produced `runs/pi-autonomous-sudoku-smoke/` with Sudoku `30/30` and provider-qualified `openai-codex/gpt-5.5` model lanes. New from-scratch live Pi run (2026-05-24) produced `runs/pi-from-scratch-roman-numeral/` with fresh red tests, fresh green implementation, and Roman numeral `8/8`.
 
 ### 5 Skills (composable pipeline)
 
@@ -56,9 +56,9 @@ Agent Skills adapters expose `/skill:foundry-research`, `/skill:foundry-brainsto
 
 Codex CLI packaging lives at `.codex-plugin/plugin.json` and exposes `"skills": "./skills/"`, `commands/foundry-{adversarial,forge}.md`, `agents/openai.yaml`, and `assets/foundry-codex.svg`. Local smoke-load with a temporary HOME succeeded via `codex plugin marketplace add "$PWD"` on 2026-05-24. Current Codex blocker: examples expose `agents/openai.yaml` as an agent card, but the installed CLI does not document a Claude-style dispatchable subagent API; canonical Foundry reviewers remain under `plugins/foundry/agents/**/*.md` until a PromptEnvelope-safe Codex dispatch primitive is confirmed.
 
-### 24 Agents
+### 25 Agents
 
-**Adversarial process (6):** barrier-integrity-auditor, divergence-evaluator, green-team-reviewer, red-team-test-reviewer, nlspec-fidelity-reviewer, spec-completeness-reviewer
+**Adversarial process (7):** arbiter-agent, barrier-integrity-auditor, divergence-evaluator, green-team-reviewer, red-team-test-reviewer, nlspec-fidelity-reviewer, spec-completeness-reviewer
 
 **Language-specific (6):** rust, swift, typescript, bazel, cucumber, uniffi-bridge
 
@@ -87,7 +87,7 @@ Each example preserves all artifacts: research doc, spec, NLSpec, red team tests
 | `todos/modularize-heaviest-skills.md` | Medium | **COMPLETED FIRST SLICE 2026-05-24** — extracted divergence routing, `spec_update_and_restart`, and provider troubleshooting playbooks; added `tests/validate-adversarial-modules.sh`; continue profiling future runs before further extraction |
 | `todos/pi-codex-plugin-support.md` | Medium | **COMPLETED 2026-05-24** — Pi package manifest + `foundry_team` extension + Agent Skills adapters + Codex CLI `.codex-plugin/plugin.json`, command wrappers, agent card, validation, docs, and local smoke-load landed |
 | `todos/from-scratch-pi-adversarial-run.md` | Medium | **COMPLETED 2026-05-24** — fresh Rust Roman numeral feature under Pi; red/green artifacts generated from scratch; 8/8 tests pass; barrier and behavioral validators pass |
-| `todos/arbiter-agent.md` | Future | Formalize scoped arbitration for single-test disputes; arbiter can route to red fix, green fix, or spec/NLSpec divergence loop |
+| `todos/arbiter-agent.md` | Future | **COMPLETED 2026-05-26** — added `arbiter-agent`, scoped arbitration playbook, adversarial skill routing, barrier-auditor guidance, and validator coverage |
 | `todos/phase2-trigger-strategy.md` | Future | Re-assess Phase 2 divergence trigger strategy (N=3 fixed vs pattern-based) |
 | `todos/adversarial-ui-investigation.md` | Future | Three-level adversarial testing via design systems |
 
@@ -97,6 +97,7 @@ Each example preserves all artifacts: research doc, spec, NLSpec, red team tests
 |--------|------|------------|
 | Red team | NLSpec (full), spec | Implementation code |
 | Green team | NLSpec How section only, test outcome labels (PASS/FAIL) | Test code, assertions, error messages, NLSpec Done section |
+| Arbiter agent | Full spec/NLSpec, one disputed test artifact, relevant implementation snippet, one runner result | Full red suite, full implementation, broad red/green conversation history |
 | Orchestrator | Everything | — |
 | Test runner | Both (execution only, no judgment) | — |
 
@@ -110,6 +111,7 @@ Green receives ONLY `test_name: PASS/FAIL` — no assertions, no expected values
 | nlspec (review) | nlspec-fidelity-reviewer; +adversarial-document/spec-completeness (conditional, 10+ DoD) |
 | adversarial (setup) | learnings-researcher |
 | adversarial (red review) | red-team-test-reviewer, cucumber-reviewer, barrier-integrity-auditor |
+| adversarial (arbitration, conditional) | arbiter-agent for one disputed test at a time after normal divergence routing or suspicious-pass evidence |
 | adversarial (final review) | green-team-reviewer, red-team-test-reviewer, barrier-integrity-auditor, language-specific (auto), correctness, testing, reliability |
 
 ## Key Learnings
@@ -130,22 +132,22 @@ Green receives ONLY `test_name: PASS/FAIL` — no assertions, no expected values
 - **Module extraction needs validators for old grep anchors** — moving bulky adversarial instructions into playbooks is safe only if tests preserve anchor strings such as `findings[0].outcome`, Phase 2b `VALUABLE`, `spec_update_and_restart`, and PASS/FAIL-only barrier language.
 - **From-scratch Pi works but needs resumable/longer live orchestration** — Roman numeral run generated fresh red tests and green code and reached Phase 3, but the outer 900s shell timeout interrupted reviewer fan-out. Continue via PromptEnvelope/foundry_team worked, but future live lanes should use longer timeouts, sessions, or phase-level resumability.
 - **Withheld samples must exclude allowed outcome labels** — a continuation envelope used a test name as a withheld red-test sample while the same name was allowed in `Test results:`. `foundry_team` correctly rejected it. This is now mechanically checked in `tests/validate-barrier-envelopes.sh` and `extensions/pi-foundry-team/index.ts`; samples should come from assertion/body/raw-output snippets, not PASS/FAIL label names.
+- **Scoped arbitration is a controlled breach, not a new normal** — `arbiter-agent` may see one disputed test, the relevant implementation snippet, full spec/NLSpec, and one runner result. Its raw context/output goes only to the orchestrator; red/green follow-up must be redacted back to normal barrier rules.
 
 ## What's Next
 
 Ilia feedback (2026-04-17, `docs/solutions/workflow-issues/ilia-feedback-foundry-plugin-20260417.md`) raised four structural items. Repo identity is complete, the private dispatch runtime mirrors the public `PromptEnvelope` v1 contract, and a replay-level behavioral smoke harness now exists. The remaining suggested order is:
 
-1. **Arbiter agent/process** (`todos/arbiter-agent.md`) — formalize scoped single-test arbitration that can judge test vs implementation vs spec/NLSpec gap.
-2. **Codex dispatch follow-up** (`todos/pi-codex-plugin-support.md`) — packaging is done; revisit only when Codex documents a PromptEnvelope-safe dispatchable subagent/team primitive.
-3. **Continue modularization only from evidence** (`todos/modularize-heaviest-skills.md`) — first slice and Roman-run hardening are done; profile future real runs before extracting more modules.
+1. **Codex dispatch follow-up** (`todos/pi-codex-plugin-support.md`) — packaging is done; revisit only when Codex documents a PromptEnvelope-safe dispatchable subagent/team primitive.
+2. **Continue modularization only from evidence** (`todos/modularize-heaviest-skills.md`) — first slice, arbiter routing, and Roman-run hardening are done; profile future real runs before extracting more modules.
 
 Also still open from before:
 
-4. **Multi-provider delegation** — systematically exercise red-on-Gemini, green-on-Codex across examples
-5. **Adversarial UI** — brainstorm at `docs/brainstorms/2026-04-04-adversarial-ui-design-system.md`; three-level testing via design systems
-6. **Rubik's cube fix** — add golden vectors from Kociemba's Python reference (31/46 -> ~44/46)
-7. **Phase 2 trigger strategy** — re-assess N=3 vs pattern-based (`todos/phase2-trigger-strategy.md`)
-8. **Exercise spec-divergence loop** — run the updated adversarial skill end-to-end on a new example to smoke-test the divergence evaluator in practice
+3. **Multi-provider delegation** — systematically exercise red-on-Gemini, green-on-Codex across examples
+4. **Adversarial UI** — brainstorm at `docs/brainstorms/2026-04-04-adversarial-ui-design-system.md`; three-level testing via design systems
+5. **Rubik's cube fix** — add golden vectors from Kociemba's Python reference (31/46 -> ~44/46)
+6. **Phase 2 trigger strategy** — re-assess N=3 vs pattern-based (`todos/phase2-trigger-strategy.md`)
+7. **Exercise spec-divergence/arbiter loops** — run the updated adversarial skill end-to-end on a new example to smoke-test the divergence evaluator and scoped arbiter in practice
 
 ## Repo Layout
 
@@ -168,7 +170,7 @@ public/foundry/
 │   ├── agents/
 │   │   ├── document-review/     (2 agents)
 │   │   ├── research/            (1 agent)
-│   │   └── review/              (21 agents)
+│   │   └── review/              (22 agents)
 │   └── skills/
 │       ├── foundry-adversarial/SKILL.md
 │       ├── foundry-brainstorm/SKILL.md

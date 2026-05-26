@@ -7,18 +7,18 @@ This playbook contains provider/runtime-specific troubleshooting for `foundry:ad
 ### Green is stuck on the same test
 
 - Check if the test name gives enough information under the information barrier.
-- Consider a future scoped arbiter flow: the arbiter sees only the spec, one failing test, and one PASS/FAIL result, then judges whether the test, implementation, or spec is wrong/incomplete.
-- Do not reveal assertions, stack traces, raw outputs, `.feature` text, step definitions, or NLSpec Done criteria to green.
+- If normal Phase 2b divergence routing does not resolve the stalemate, use `docs/playbooks/foundry-adversarial-arbiter-routing.md` for a scoped `arbiter-agent` invocation over exactly one disputed test.
+- Do not reveal assertions, stack traces, raw outputs, `.feature` text, step definitions, NLSpec Done criteria, or arbiter raw context to green.
 
 ### Red tests are trivially satisfiable
 
 - The red-team-test-reviewer should catch this.
-- If it persists, the `too_easily_threshold` triggers red iteration.
+- If it persists, the `too_easily_threshold` triggers red iteration. If a reviewer finds a concrete false-green/suspicious-pass signal, use `docs/playbooks/foundry-adversarial-arbiter-routing.md` before declaring success.
 
 ### Both teams iterate without convergence
 
 - Pause after the configured `inner_loop_limit`.
-- Ask the user to inspect both sides and arbitrate.
+- Use scoped arbiter routing for one disputed test at a time when evidence is narrow enough; otherwise ask the user to inspect both sides and arbitrate.
 
 ## OpenCode / Kimi Dispatch Issues
 

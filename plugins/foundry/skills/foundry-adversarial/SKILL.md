@@ -22,6 +22,7 @@ This is the core invariant. Violating it defeats the purpose.
 | Red reviewer | NLSpec, test code | Implementation code |
 | Green team | NLSpec How section only, test outcome labels (pass/fail) | Test code, assertions, error messages, NLSpec Done section |
 | Green reviewer | NLSpec How section, implementation, test outcomes | Test code, NLSpec Done section |
+| Arbiter agent | Full spec/NLSpec, one disputed test artifact, relevant implementation snippet, one runner result | Full red suite, full implementation, broad red/green conversation history |
 | You (orchestrator) | Everything | — |
 
 **You are the only entity that crosses the barrier. You enforce it by controlling what each subagent receives in its prompt. Every dispatch MUST pass through the PromptEnvelope gate below before `Agent(...)` is invoked, or before the Pi `foundry_team` tool is called.**
@@ -108,6 +109,7 @@ Minimum withheld samples by recipient:
 | Red team / red reviewer | Green workspace paths, implementation file names, representative implementation snippets |
 | Green team / green reviewer | Red workspace paths, `.feature` scenario text, step-definition/assertion snippets, raw failure output, NLSpec Done section snippets |
 | Language/correctness/reliability reviewers | Red test files and NLSpec Done snippets unless the reviewer explicitly audits tests |
+| Arbiter agent | Unrelated red tests, unrelated green files, broad conversation history; scope the prompt to one disputed test |
 | Barrier-integrity-auditor | Nothing withheld from the auditor; auditor receives envelope paths and may inspect all serialized artifacts |
 
 Run `tests/validate-barrier-envelopes.sh runs/<run_id>/dispatch` whenever envelopes exist. This script is the public-plugin validator for replayable barrier artifacts.
@@ -334,8 +336,9 @@ This is where you mediate. Loop:
 3. **Filter outcomes** — Extract ONLY `test_name: PASS/FAIL`. Discard assertions, errors, stack traces.
 4. **Update trackers** — PASS: reset `consecutive_fails=0`. FAIL: if test content hash changed, reset to 1; else increment `consecutive_fails`.
 5. **Check divergence threshold** — For any test where `consecutive_fails >= threshold` (default 3), use `docs/playbooks/foundry-adversarial-divergence-routing.md`. Process one test at a time in ascending `test_id` order. Route on `findings[0].outcome`: Phase 2b `VALUABLE` → invoke `spec_update_and_restart`, then restart Phase 1; Phase 2b `NOT_VALUABLE` → send green back with `findings[0].rationale` and reset this test's tracker; Phase 2b `INCONCLUSIVE` → escalate to user and pause.
-6. **Check termination** — All pass → Phase 3. Any fail → send filtered outcomes to green.
-7. **Check bounds** — If green has iterated more than the configured limit (default 20), pause and ask the user.
+6. **Check arbitration threshold** — If normal divergence routing does not resolve a stable single-test dispute, or if a reviewer flags a suspicious pass/false-green signal, use `docs/playbooks/foundry-adversarial-arbiter-routing.md`. Dispatch `foundry:review:arbiter-agent` through a validated PromptEnvelope scoped to exactly one test. Route on `findings[0].outcome`: `TEST_WRONG` → red fixes the test without seeing implementation; `IMPLEMENTATION_WRONG` → green receives only redacted guidance plus `test_name: PASS/FAIL`; `SPEC_INCOMPLETE` → invoke `spec_update_and_restart`; `INCONCLUSIVE` → pause for user judgment.
+7. **Check termination** — All pass → Phase 3. Any fail → send filtered outcomes to green.
+8. **Check bounds** — If green has iterated more than the configured limit (default 20), pause and ask the user.
 
 **Send to green team ONLY:**
 ```
@@ -425,7 +428,7 @@ Agent(
     runs/<run_id>/dispatch/
 
     For each envelope, compare prompt content against withheld_context samples and the barrier matrix.
-    Verify that green saw only NLSpec How + test outcome labels, and red saw no implementation material.
+    Verify that green saw only NLSpec How + test outcome labels, red saw no implementation material, and any arbiter-agent PromptEnvelope was scoped to exactly one disputed test with redacted follow-up.
     Report any leak as P0."
 )
 ```
@@ -463,6 +466,7 @@ These can be set via the conversation or a config file:
 | Setting | Default | Description |
 |---------|---------|-------------|
 | `inner_loop_limit` | 20 | Max green fix iterations before pausing |
+| `arbitration_threshold` | after normal divergence routing | Stable single-test dispute threshold before invoking `foundry:review:arbiter-agent` |
 | `too_easily_threshold` | 3 | Consecutive passes before flagging "too easy" |
 | `test_timeout` | 120s | Per-test-run timeout |
 | `provider` | current model | Which model to use for subagents |

@@ -9,6 +9,7 @@ DIVERGENCE="docs/playbooks/foundry-adversarial-divergence-routing.md"
 RESTART="docs/playbooks/foundry-adversarial-spec-update-and-restart.md"
 TROUBLE="docs/playbooks/foundry-adversarial-provider-troubleshooting.md"
 PI_CONTINUATION="docs/playbooks/foundry-adversarial-pi-continuation.md"
+ARBITER="docs/playbooks/foundry-adversarial-arbiter-routing.md"
 
 pass() {
   echo "$1: PASS"
@@ -39,11 +40,13 @@ require_file "divergence-playbook" "$DIVERGENCE"
 require_file "restart-playbook" "$RESTART"
 require_file "provider-troubleshooting-playbook" "$TROUBLE"
 require_file "pi-continuation-playbook" "$PI_CONTINUATION"
+require_file "arbiter-routing-playbook" "$ARBITER"
 
 require_literal "skill-references-divergence-playbook" "$SKILL" "$DIVERGENCE"
 require_literal "skill-references-restart-playbook" "$SKILL" "$RESTART"
 require_literal "skill-references-troubleshooting-playbook" "$SKILL" "$TROUBLE"
 require_literal "skill-references-pi-continuation-playbook" "$SKILL" "$PI_CONTINUATION"
+require_literal "skill-references-arbiter-playbook" "$SKILL" "$ARBITER"
 require_literal "skill-keeps-phase2b-valuable-anchor" "$SKILL" 'Phase 2b `VALUABLE`'
 require_literal "skill-keeps-findings-outcome" "$SKILL" "findings[0].outcome"
 require_literal "skill-keeps-spec-update-name" "$SKILL" "spec_update_and_restart"
@@ -67,6 +70,15 @@ require_literal "restart-red-test-paths" "$RESTART" "red_test_paths"
 require_literal "troubleshooting-opencode" "$TROUBLE" "OpenCode"
 require_literal "troubleshooting-kimi" "$TROUBLE" "Kimi K2.5"
 require_literal "troubleshooting-no-raw-failures" "$TROUBLE" "Do not reveal assertions, stack traces, raw outputs"
+require_literal "troubleshooting-arbiter-playbook" "$TROUBLE" "$ARBITER"
+
+require_literal "arbiter-agent-route" "$ARBITER" 'foundry:review:arbiter-agent'
+require_literal "arbiter-single-test-scope" "$ARBITER" "one disputed test"
+require_literal "arbiter-test-wrong" "$ARBITER" "TEST_WRONG"
+require_literal "arbiter-implementation-wrong" "$ARBITER" "IMPLEMENTATION_WRONG"
+require_literal "arbiter-spec-incomplete" "$ARBITER" "SPEC_INCOMPLETE"
+require_literal "arbiter-green-barrier" "$ARBITER" 'test_name: PASS/FAIL'
+
 require_literal "pi-continuation-foundry-team" "$PI_CONTINUATION" "foundry_team"
 require_literal "pi-continuation-pass-fail-labels" "$PI_CONTINUATION" "PASS/FAIL outcome labels"
 require_literal "pi-continuation-no-outcome-label-samples" "$PI_CONTINUATION" "Do **not** use PASS/FAIL test outcome labels"
