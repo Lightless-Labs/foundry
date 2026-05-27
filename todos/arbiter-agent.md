@@ -8,7 +8,7 @@ completed: 2026-05-26
 
 # Arbiter Agent
 
-**Completed 2026-05-26** — Public plugin support landed: `plugins/foundry/agents/review/arbiter-agent.md`, `docs/playbooks/foundry-adversarial-arbiter-routing.md`, adversarial skill routing, barrier-auditor guidance, and validator coverage.
+**Completed 2026-05-26** — Public plugin support landed: `plugins/foundry/agents/review/arbiter-agent.md`, `docs/playbooks/foundry-adversarial-arbiter-routing.md`, adversarial skill routing, barrier-auditor guidance, validator coverage, and arbiter PromptEnvelope scope hardening in both replay validation and Pi `foundry_team` dispatch.
 
 An ephemeral agent that performs a controlled, scoped breach of the information barrier to arbitrate whether a failing test is wrong, the implementation is wrong, or the spec is wrong/incomplete.
 

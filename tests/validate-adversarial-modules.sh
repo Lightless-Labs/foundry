@@ -10,6 +10,7 @@ RESTART="docs/playbooks/foundry-adversarial-spec-update-and-restart.md"
 TROUBLE="docs/playbooks/foundry-adversarial-provider-troubleshooting.md"
 PI_CONTINUATION="docs/playbooks/foundry-adversarial-pi-continuation.md"
 ARBITER="docs/playbooks/foundry-adversarial-arbiter-routing.md"
+BARRIER_VALIDATOR="tests/validate-barrier-envelopes.sh"
 
 pass() {
   echo "$1: PASS"
@@ -41,6 +42,7 @@ require_file "restart-playbook" "$RESTART"
 require_file "provider-troubleshooting-playbook" "$TROUBLE"
 require_file "pi-continuation-playbook" "$PI_CONTINUATION"
 require_file "arbiter-routing-playbook" "$ARBITER"
+require_file "barrier-envelope-validator" "$BARRIER_VALIDATOR"
 
 require_literal "skill-references-divergence-playbook" "$SKILL" "$DIVERGENCE"
 require_literal "skill-references-restart-playbook" "$SKILL" "$RESTART"
@@ -78,6 +80,9 @@ require_literal "arbiter-test-wrong" "$ARBITER" "TEST_WRONG"
 require_literal "arbiter-implementation-wrong" "$ARBITER" "IMPLEMENTATION_WRONG"
 require_literal "arbiter-spec-incomplete" "$ARBITER" "SPEC_INCOMPLETE"
 require_literal "arbiter-green-barrier" "$ARBITER" 'test_name: PASS/FAIL'
+require_literal "arbiter-validator-recipient" "$BARRIER_VALIDATOR" "ARBITER_RECIPIENT_RE"
+require_literal "arbiter-validator-scope" "$BARRIER_VALIDATOR" "single_test_scope"
+require_literal "arbiter-validator-overbroad" "$BARRIER_VALIDATOR" "ARBITER_OVERBROAD_VISIBLE_CONTEXT"
 
 require_literal "pi-continuation-foundry-team" "$PI_CONTINUATION" "foundry_team"
 require_literal "pi-continuation-pass-fail-labels" "$PI_CONTINUATION" "PASS/FAIL outcome labels"

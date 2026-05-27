@@ -45,6 +45,17 @@ const AGENTS_ROOT = path.join(PACKAGE_ROOT, "plugins", "foundry", "agents");
 const MAX_PARALLEL_DISPATCHES = 8;
 const MAX_CONCURRENCY = 4;
 const OUTPUT_CAP_BYTES = 50 * 1024;
+const ARBITER_REQUIRED_VISIBLE_CONTEXT: Array<[string, RegExp]> = [
+	["spec_or_nlspec", /(?:^|[_ -])(nl)?spec(?:$|[_ -])/i],
+	["single_disputed_test", /disputed[_ -]?test|test[_ -]?artifact/i],
+	["implementation_snippet", /implementation|relevant[_ -]?snippet/i],
+	["runner_result", /runner[_ -]?result|test[_ -]?result|raw[_ -]?output|outcome/i],
+];
+const ARBITER_OVERBROAD_VISIBLE_CONTEXT = [
+	/full[_ -]?test[_ -]?suite|all[_ -]?tests|complete[_ -]?test[_ -]?suite/i,
+	/full[_ -]?implementation|complete[_ -]?implementation|whole[_ -]?implementation|implementation[_ -]?tree/i,
+	/conversation[_ -]?history|red[_ -]?green[_ -]?history|chat[_ -]?history|transcript/i,
+];
 
 function parseFrontmatter(markdown: string): { frontmatter: Record<string, string>; body: string } {
 	if (!markdown.startsWith("---\n")) return { frontmatter: {}, body: markdown };
@@ -169,6 +180,51 @@ function sampleIsOutcomeLabel(sample: string, labels: Set<string>): boolean {
 	return false;
 }
 
+function contextName(item: unknown): string {
+	if (!item || typeof item !== "object" || Array.isArray(item)) return "";
+	const context = item as JsonObject;
+	return `${typeof context.label === "string" ? context.label : ""} ${typeof context.kind === "string" ? context.kind : ""}`;
+}
+
+function validateArbiterScope(envelope: JsonObject, prompt: string): void {
+	if (!prompt.includes("ArbiterInput:")) throw new Error("Arbiter envelope prompt must contain an ArbiterInput packet");
+	if (/\bdisputed_tests\s*:/.test(prompt)) {
+		throw new Error("Arbiter envelope must contain exactly one disputed_test, not disputed_tests");
+	}
+	if ((prompt.match(/^\s*disputed_test\s*:/gm) ?? []).length !== 1) {
+		throw new Error("Arbiter envelope must contain exactly one disputed_test block");
+	}
+	if ((prompt.match(/^\s*test_artifact\s*:/gm) ?? []).length !== 1) {
+		throw new Error("Arbiter envelope must contain exactly one test_artifact block");
+	}
+
+	const visible = envelope.visible_context;
+	if (!Array.isArray(visible)) throw new Error("Envelope visible_context must be a list");
+	for (let i = 0; i < visible.length; i++) {
+		const item = visible[i];
+		if (!item || typeof item !== "object" || Array.isArray(item)) {
+			throw new Error(`visible_context[${i}] must be an object`);
+		}
+		const name = contextName(item);
+		for (const pattern of ARBITER_OVERBROAD_VISIBLE_CONTEXT) {
+			if (pattern.test(name)) throw new Error(`Arbiter visible_context is over-broad: ${name}`);
+		}
+	}
+
+	const missing = ARBITER_REQUIRED_VISIBLE_CONTEXT
+		.filter(([, pattern]) => !visible.some((item) => pattern.test(contextName(item))))
+		.map(([label]) => label);
+	if (missing.length > 0) throw new Error(`Arbiter visible_context missing scoped context: ${missing.join(", ")}`);
+
+	const redactionsText = JSON.stringify(envelope.redactions ?? []);
+	if (!redactionsText.includes("single_test_scope")) {
+		throw new Error("Arbiter envelope redactions must include single_test_scope");
+	}
+	if (samplesFrom(envelope.withheld_context).length === 0) {
+		throw new Error("Arbiter envelope must include at least one meaningful withheld_context sample");
+	}
+}
+
 function validateEnvelope(envelope: JsonObject): { prompt: string; recipient: string; phase: string } {
 	if (envelope.schema_version !== "foundry.prompt-envelope.v1") {
 		throw new Error("Envelope schema_version must be foundry.prompt-envelope.v1");
@@ -184,10 +240,12 @@ function validateEnvelope(envelope: JsonObject): { prompt: string; recipient: st
 	const isRedOrGreen = /(^|[-_])(?:red|green)([-_]|$)|red-team|green-team|red-reviewer|green-reviewer/.test(
 		lowerRecipient,
 	);
+	const isArbiter = /(^|[:/_-])arbiter-agent($|[:/_-])|foundry:review:arbiter-agent/i.test(recipient);
 	const samples = samplesFrom(envelope.withheld_context);
 	if (isRedOrGreen && samples.length === 0) {
 		throw new Error("Red/green recipient envelopes must include meaningful withheld_context samples");
 	}
+	if (isArbiter) validateArbiterScope(envelope, prompt);
 	const outcomeLabels = lowerRecipient.includes("green") ? testResultLabelNames(prompt) : new Set<string>();
 	for (const sample of samples) {
 		if (outcomeLabels.size > 0 && sampleIsOutcomeLabel(sample, outcomeLabels)) {
