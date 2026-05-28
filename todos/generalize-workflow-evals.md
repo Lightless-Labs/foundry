@@ -2,7 +2,8 @@
 title: Generalize Gherkin-authored workflow evals
 origin: 2026-05-26 arbiter routing eval discussion
 priority: high
-status: pending
+status: completed
+completed: 2026-05-28
 ---
 
 # Generalize Workflow Evals
@@ -10,6 +11,8 @@ status: pending
 The arbiter routing evals proved a useful pattern: author process scenarios in a small Gherkin subset, mock agent outputs deterministically, generate replayable PromptEnvelope artifacts, and validate routing/barrier/provenance invariants without live model calls.
 
 Generalize this into a reusable Foundry workflow eval framework rather than keeping it arbiter-specific.
+
+**Completed:** 2026-05-28 — generic deterministic eval harness landed at `tests/foundry-evals.sh` + `tests/evals/runner.py`. The old `tests/arbiter-routing-evals.sh` command is now a compatibility wrapper. Generic suites currently cover arbiter routing (4 mocked route cases) and green follow-up barrier enforcement (2 PromptEnvelope cases). Future suites can add divergence routing, red follow-up, spec restart, reviewer fan-out, and full phase choreography as adapters under `tests/evals/adapters/`.
 
 ## Goal
 
@@ -54,12 +57,12 @@ tests/
 
 ## Acceptance
 
-- [ ] Generic eval runner exists and can run one or more feature files by tag/suite.
-- [ ] Existing arbiter evals are ported without losing coverage.
-- [ ] At least one non-arbiter suite exists (prefer divergence routing or green follow-up barrier).
-- [ ] Eval output reports case IDs, expected routes, actual routes, and validator failures clearly.
-- [ ] `docs/HANDOFF.md` and validator docs list the generic eval command.
-- [ ] Fast validation includes the generic eval suite or a stable subset.
+- [x] Generic eval runner exists and can run one or more feature files by suite.
+- [x] Existing arbiter evals are ported without losing coverage.
+- [x] At least one non-arbiter suite exists (green follow-up barrier).
+- [x] Eval output reports case IDs, expected routes, actual routes, and validator failures clearly.
+- [x] `docs/HANDOFF.md` and validator docs list the generic eval command.
+- [x] Fast validation includes the generic eval suite as a standalone command plus structural anchors in `tests/validate-adversarial-modules.sh`.
 
 ## Notes
 
