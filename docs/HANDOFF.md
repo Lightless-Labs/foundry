@@ -88,6 +88,7 @@ Each example preserves all artifacts: research doc, spec, NLSpec, red team tests
 | `todos/modularize-heaviest-skills.md` | Medium | **COMPLETED FIRST SLICE 2026-05-24** — extracted divergence routing, `spec_update_and_restart`, and provider troubleshooting playbooks; added `tests/validate-adversarial-modules.sh`; continue profiling future runs before further extraction |
 | `todos/pi-codex-plugin-support.md` | Medium | **COMPLETED 2026-05-24** — Pi package manifest + `foundry_team` extension + Agent Skills adapters + Codex CLI `.codex-plugin/plugin.json`, command wrappers, agent card, validation, docs, and local smoke-load landed |
 | `todos/from-scratch-pi-adversarial-run.md` | Medium | **COMPLETED 2026-05-24** — fresh Rust Roman numeral feature under Pi; red/green artifacts generated from scratch; 8/8 tests pass; barrier and behavioral validators pass |
+| `todos/generalize-workflow-evals.md` | High | **OPEN** — generalize the Gherkin-authored arbiter eval pattern into reusable deterministic workflow evals for divergence, barrier follow-up, spec restarts, reviewer fan-out, and phase choreography |
 | `todos/arbiter-agent.md` | Future | **COMPLETED 2026-05-26** — added `arbiter-agent`, scoped arbitration playbook, adversarial skill routing, barrier-auditor guidance, validator coverage, and arbiter PromptEnvelope scope hardening |
 | `todos/phase2-trigger-strategy.md` | Future | Re-assess Phase 2 divergence trigger strategy (N=3 fixed vs pattern-based) |
 | `todos/adversarial-ui-investigation.md` | Future | Three-level adversarial testing via design systems |
@@ -140,16 +141,17 @@ Green receives ONLY `test_name: PASS/FAIL` — no assertions, no expected values
 
 Ilia feedback (2026-04-17, `docs/solutions/workflow-issues/ilia-feedback-foundry-plugin-20260417.md`) raised four structural items. Repo identity is complete, the private dispatch runtime mirrors the public `PromptEnvelope` v1 contract, and a replay-level behavioral smoke harness now exists. The remaining suggested order is:
 
-1. **Codex dispatch follow-up** (`todos/pi-codex-plugin-support.md`) — packaging is done; revisit only when Codex documents a PromptEnvelope-safe dispatchable subagent/team primitive.
-2. **Continue modularization only from evidence** (`todos/modularize-heaviest-skills.md`) — first slice, arbiter routing/scope validation/evals, and Roman-run hardening are done; profile future real runs before extracting more modules.
+1. **Generalize workflow evals** (`todos/generalize-workflow-evals.md`) — promote the arbiter Gherkin/mock pattern into a reusable deterministic eval framework, then add divergence or green-followup barrier evals as the first non-arbiter suite.
+2. **Codex dispatch follow-up** (`todos/pi-codex-plugin-support.md`) — packaging is done; revisit only when Codex documents a PromptEnvelope-safe dispatchable subagent/team primitive.
+3. **Continue modularization only from evidence** (`todos/modularize-heaviest-skills.md`) — first slice, arbiter routing/scope validation/evals, and Roman-run hardening are done; profile future real runs before extracting more modules.
 
 Also still open from before:
 
-3. **Multi-provider delegation** — systematically exercise red-on-Gemini, green-on-Codex across examples
-4. **Adversarial UI** — brainstorm at `docs/brainstorms/2026-04-04-adversarial-ui-design-system.md`; three-level testing via design systems
-5. **Rubik's cube fix** — add golden vectors from Kociemba's Python reference (31/46 -> ~44/46)
-6. **Phase 2 trigger strategy** — re-assess N=3 vs pattern-based (`todos/phase2-trigger-strategy.md`)
-7. **Exercise spec-divergence/arbiter loops live** — deterministic arbiter evals now exist; next step is a real end-to-end example that triggers divergence evaluator and scoped arbiter behavior in practice
+4. **Multi-provider delegation** — systematically exercise red-on-Gemini, green-on-Codex across examples
+5. **Adversarial UI** — brainstorm at `docs/brainstorms/2026-04-04-adversarial-ui-design-system.md`; three-level testing via design systems
+6. **Rubik's cube fix** — add golden vectors from Kociemba's Python reference (31/46 -> ~44/46)
+7. **Phase 2 trigger strategy** — re-assess N=3 vs pattern-based (`todos/phase2-trigger-strategy.md`)
+8. **Exercise spec-divergence/arbiter loops live** — deterministic arbiter evals now exist; next step is a real end-to-end example that triggers divergence evaluator and scoped arbiter behavior in practice
 
 ## Repo Layout
 
