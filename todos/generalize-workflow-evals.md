@@ -14,7 +14,9 @@ Generalize this into a reusable Foundry workflow eval framework rather than keep
 
 **Completed:** 2026-05-28 — generic deterministic eval harness landed at `tests/foundry-evals.sh` + `tests/evals/runner.py`. The old `tests/arbiter-routing-evals.sh` command is now a compatibility wrapper. Generic suites initially covered arbiter routing (4 mocked route cases) and green follow-up barrier enforcement (2 PromptEnvelope cases).
 
-**Addendum:** 2026-05-28 — added the first process-routing expansion suite, `divergence-routing`, with Phase 1b and Phase 2b coverage for `VALUABLE`, `NOT_VALUABLE`, and `INCONCLUSIVE`. The adapter validates divergence evaluator PromptEnvelopes, reviewer-schema `findings[0].outcome` routing, spec restart provenance records, red/green barrier-preserving follow-up, and Phase 2b tracker reset metadata. Future suites can add red follow-up, spec restart, reviewer fan-out, and full phase choreography as adapters under `tests/evals/adapters/`.
+**Addendum:** 2026-05-28 — added the first process-routing expansion suite, `divergence-routing`, with Phase 1b and Phase 2b coverage for `VALUABLE`, `NOT_VALUABLE`, and `INCONCLUSIVE`. The adapter validates divergence evaluator PromptEnvelopes, reviewer-schema `findings[0].outcome` routing, spec restart provenance records, red/green barrier-preserving follow-up, and Phase 2b tracker reset metadata.
+
+**Addendum:** 2026-05-28 — added `red-followup-barrier` and `spec-update-restart` suites. Red follow-up cases validate that arbiter/divergence/reviewer routes withhold implementation code, counterpart paths, and counterpart reasoning. Spec restart cases validate `NLSpecRerunInput`, verbatim `gap_description`, NLSpec-agent-only authorship metadata, Phase 1 restart packages, tracker reset, and revision-cap escalation. Future suites can add reviewer fan-out and full phase choreography as adapters under `tests/evals/adapters/`.
 
 ## Goal
 
