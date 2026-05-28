@@ -18,21 +18,22 @@ This repo is the **skills + agents + examples** side. The Rust engine (state mac
 
 ## Current State
 
-### Validation: 224/224 checks passing + replay/Pi/Codex/module self-tests + Pi adversarial smoke
+### Validation: 224/224 checks passing + arbiter evals + replay/Pi/Codex/module self-tests + Pi adversarial smoke
 
 `tests/validate-agents.sh` covers structural (YAML frontmatter, required sections, model: inherit, tools), attribution (12 adopted agents), language-specific coverage, adversarial process coverage including the scoped arbiter, and territory boundaries.
 
 Additional validators:
 - `tests/validate-barrier-envelopes.sh` — PromptEnvelope v1 replay/audit checks, including green PASS/FAIL-only gates and arbiter single-test scope gates.
 - `tests/behavioral-smoke.sh` — replay-level run checks over PromptEnvelope artifacts plus `behavioral-smoke.toon` summaries (example pass rates, model lanes, divergence restart counts).
+- `tests/arbiter-routing-evals.sh` — deterministic Gherkin-driven eval runner for mocked arbiter routes (`TEST_WRONG`, `IMPLEMENTATION_WRONG`, `SPEC_INCOMPLETE`, `INCONCLUSIVE`) and downstream barrier-preserving follow-up.
 - `tests/validate-behavioral-smoke-contract.sh` — ensures `foundry-adversarial` requires real runs to emit/validate `behavioral-smoke.toon`.
 - `tests/validate-pi-extension.sh` — ensures the Pi package exposes the `foundry_team` child-dispatch extension and uses the PromptEnvelope contract, including runtime arbiter scope rejection.
 - `tests/validate-codex-plugin.sh` — ensures the Codex CLI plugin manifest exposes the root Agent Skills adapters, canonical-source links, command wrappers, agent-card blocker notes, and barrier-language anchors.
-- `tests/validate-adversarial-modules.sh` — ensures extracted adversarial playbooks preserve divergence routing, scoped arbiter routing, `spec_update_and_restart`, provider troubleshooting, and critical grep anchors.
+- `tests/validate-adversarial-modules.sh` — ensures extracted adversarial playbooks preserve divergence routing, scoped arbiter routing/evals, `spec_update_and_restart`, provider troubleshooting, and critical grep anchors.
 - `tests/pi-live-dispatch-smoke.sh` — slow/manual live lane that performs real Pi model calls, runs Sudoku `30/30`, dispatches red/green child Pi processes through `foundry_team`, writes `behavioral-smoke.toon`, and validates the resulting run directory.
 - `runs/pi-autonomous-sudoku-smoke/` — smoke-scoped autonomous `/skill:foundry-adversarial` Pi run artifacts (red-team, green-team, barrier-integrity-auditor PromptEnvelopes + `behavioral-smoke.toon`).
 
-Last local validation (2026-05-26): `tests/validate-agents.sh` passed 224/224 with the new arbiter agent; `tests/validate-adversarial-modules.sh` passed 46/46; `tests/validate-codex-plugin.sh` passed 44/44; `tests/validate-pi-extension.sh` passed 43/43; `tests/validate-behavioral-smoke-contract.sh` passed 7/7; `tests/validate-barrier-envelopes.sh` self-tests passed including outcome-label withheld-sample regression plus good/bad arbiter scope cases; `tests/validate-barrier-envelopes.sh runs/pi-autonomous-sudoku-smoke/dispatch` passed; `tests/behavioral-smoke.sh runs/pi-autonomous-sudoku-smoke` passed; `tests/validate-barrier-envelopes.sh runs/pi-from-scratch-roman-numeral/dispatch` passed; `tests/behavioral-smoke.sh runs/pi-from-scratch-roman-numeral` passed. Last slow live lane remains 2026-05-22: `tests/pi-live-dispatch-smoke.sh --keep` passed with a real `foundry_team` Pi tool call; `/skill:foundry-adversarial` under Pi produced `runs/pi-autonomous-sudoku-smoke/` with Sudoku `30/30` and provider-qualified `openai-codex/gpt-5.5` model lanes. New from-scratch live Pi run (2026-05-24) produced `runs/pi-from-scratch-roman-numeral/` with fresh red tests, fresh green implementation, and Roman numeral `8/8`.
+Last local validation (2026-05-26): `tests/validate-agents.sh` passed 224/224 with the new arbiter agent; `tests/arbiter-routing-evals.sh` passed 4/4 mocked route evals; `tests/validate-adversarial-modules.sh` passed 54/54; `tests/validate-codex-plugin.sh` passed 44/44; `tests/validate-pi-extension.sh` passed 43/43; `tests/validate-behavioral-smoke-contract.sh` passed 7/7; `tests/validate-barrier-envelopes.sh` self-tests passed including outcome-label withheld-sample regression plus good/bad arbiter scope cases; `tests/validate-barrier-envelopes.sh runs/pi-autonomous-sudoku-smoke/dispatch` passed; `tests/behavioral-smoke.sh runs/pi-autonomous-sudoku-smoke` passed; `tests/validate-barrier-envelopes.sh runs/pi-from-scratch-roman-numeral/dispatch` passed; `tests/behavioral-smoke.sh runs/pi-from-scratch-roman-numeral` passed. Last slow live lane remains 2026-05-22: `tests/pi-live-dispatch-smoke.sh --keep` passed with a real `foundry_team` Pi tool call; `/skill:foundry-adversarial` under Pi produced `runs/pi-autonomous-sudoku-smoke/` with Sudoku `30/30` and provider-qualified `openai-codex/gpt-5.5` model lanes. New from-scratch live Pi run (2026-05-24) produced `runs/pi-from-scratch-roman-numeral/` with fresh red tests, fresh green implementation, and Roman numeral `8/8`.
 
 ### 5 Skills (composable pipeline)
 
@@ -133,13 +134,14 @@ Green receives ONLY `test_name: PASS/FAIL` — no assertions, no expected values
 - **From-scratch Pi works but needs resumable/longer live orchestration** — Roman numeral run generated fresh red tests and green code and reached Phase 3, but the outer 900s shell timeout interrupted reviewer fan-out. Continue via PromptEnvelope/foundry_team worked, but future live lanes should use longer timeouts, sessions, or phase-level resumability.
 - **Withheld samples must exclude allowed outcome labels** — a continuation envelope used a test name as a withheld red-test sample while the same name was allowed in `Test results:`. `foundry_team` correctly rejected it. This is now mechanically checked in `tests/validate-barrier-envelopes.sh` and `extensions/pi-foundry-team/index.ts`; samples should come from assertion/body/raw-output snippets, not PASS/FAIL label names.
 - **Scoped arbitration is a controlled breach, not a new normal** — `arbiter-agent` may see one disputed test, the relevant implementation snippet, full spec/NLSpec, and one runner result. Its raw context/output goes only to the orchestrator; red/green follow-up must be redacted back to normal barrier rules. `tests/validate-barrier-envelopes.sh` and `foundry_team` now require `ArbiterInput`, exactly one `disputed_test`/`test_artifact`, scoped visible-context categories, withheld samples, and `single_test_scope` redaction metadata.
+- **Workflow evals can be Gherkin-authored mocks** — `tests/fixtures/arbiter-routing-evals.feature` demonstrates reusable BDD-style eval cases for agent/process behavior. The runner mocks arbiter JSON outputs, validates generated PromptEnvelopes, and checks downstream barrier-preserving routes without live model calls.
 
 ## What's Next
 
 Ilia feedback (2026-04-17, `docs/solutions/workflow-issues/ilia-feedback-foundry-plugin-20260417.md`) raised four structural items. Repo identity is complete, the private dispatch runtime mirrors the public `PromptEnvelope` v1 contract, and a replay-level behavioral smoke harness now exists. The remaining suggested order is:
 
 1. **Codex dispatch follow-up** (`todos/pi-codex-plugin-support.md`) — packaging is done; revisit only when Codex documents a PromptEnvelope-safe dispatchable subagent/team primitive.
-2. **Continue modularization only from evidence** (`todos/modularize-heaviest-skills.md`) — first slice, arbiter routing/scope validation, and Roman-run hardening are done; profile future real runs before extracting more modules.
+2. **Continue modularization only from evidence** (`todos/modularize-heaviest-skills.md`) — first slice, arbiter routing/scope validation/evals, and Roman-run hardening are done; profile future real runs before extracting more modules.
 
 Also still open from before:
 
@@ -147,7 +149,7 @@ Also still open from before:
 4. **Adversarial UI** — brainstorm at `docs/brainstorms/2026-04-04-adversarial-ui-design-system.md`; three-level testing via design systems
 5. **Rubik's cube fix** — add golden vectors from Kociemba's Python reference (31/46 -> ~44/46)
 6. **Phase 2 trigger strategy** — re-assess N=3 vs pattern-based (`todos/phase2-trigger-strategy.md`)
-7. **Exercise spec-divergence/arbiter loops** — run the updated adversarial skill end-to-end on a new example to smoke-test the divergence evaluator and scoped arbiter in practice
+7. **Exercise spec-divergence/arbiter loops live** — deterministic arbiter evals now exist; next step is a real end-to-end example that triggers divergence evaluator and scoped arbiter behavior in practice
 
 ## Repo Layout
 
@@ -184,6 +186,8 @@ public/foundry/
 ├── tests/
 │   ├── behavioral-smoke.sh
 │   ├── pi-live-dispatch-smoke.sh        (slow/manual, real Pi model calls)
+│   ├── arbiter-routing-evals.sh
+│   ├── fixtures/arbiter-routing-evals.feature
 │   ├── validate-adversarial-modules.sh
 │   ├── validate-agents.sh
 │   ├── validate-barrier-envelopes.sh
