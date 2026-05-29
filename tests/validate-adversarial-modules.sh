@@ -23,6 +23,8 @@ RED_FOLLOWUP_EVAL_ADAPTER="tests/evals/adapters/red_followup_barrier.py"
 RED_FOLLOWUP_EVAL_FEATURE="tests/evals/features/red-followup-barrier.feature"
 SPEC_RESTART_EVAL_ADAPTER="tests/evals/adapters/spec_update_restart.py"
 SPEC_RESTART_EVAL_FEATURE="tests/evals/features/spec-update-restart.feature"
+REVIEWER_FANOUT_EVAL_ADAPTER="tests/evals/adapters/reviewer_fanout.py"
+REVIEWER_FANOUT_EVAL_FEATURE="tests/evals/features/reviewer-fanout.feature"
 
 pass() {
   echo "$1: PASS"
@@ -67,6 +69,8 @@ require_file "red-followup-eval-adapter" "$RED_FOLLOWUP_EVAL_ADAPTER"
 require_file "red-followup-eval-feature" "$RED_FOLLOWUP_EVAL_FEATURE"
 require_file "spec-restart-eval-adapter" "$SPEC_RESTART_EVAL_ADAPTER"
 require_file "spec-restart-eval-feature" "$SPEC_RESTART_EVAL_FEATURE"
+require_file "reviewer-fanout-eval-adapter" "$REVIEWER_FANOUT_EVAL_ADAPTER"
+require_file "reviewer-fanout-eval-feature" "$REVIEWER_FANOUT_EVAL_FEATURE"
 
 require_literal "skill-references-divergence-playbook" "$SKILL" "$DIVERGENCE"
 require_literal "skill-references-restart-playbook" "$SKILL" "$RESTART"
@@ -130,6 +134,10 @@ require_literal "spec-restart-eval-nlspec-rerun" "$SPEC_RESTART_EVAL_ADAPTER" "N
 require_literal "spec-restart-eval-gap-verbatim" "$SPEC_RESTART_EVAL_ADAPTER" "gap_description_verbatim"
 require_literal "spec-restart-eval-tracker-reset" "$SPEC_RESTART_EVAL_ADAPTER" "reset_all_counters"
 require_literal "spec-restart-eval-revision-cap" "$SPEC_RESTART_EVAL_ADAPTER" "revision_cap_reached"
+require_literal "reviewer-fanout-eval-gherkin" "$REVIEWER_FANOUT_EVAL_FEATURE" "Phase 3 reviewer fan-out is complete and barrier-safe"
+require_literal "reviewer-fanout-eval-green-reviewer" "$REVIEWER_FANOUT_EVAL_ADAPTER" "green-team-reviewer"
+require_literal "reviewer-fanout-eval-conditional-bazel" "$REVIEWER_FANOUT_EVAL_ADAPTER" "has_build"
+require_literal "reviewer-fanout-eval-territory" "$REVIEWER_FANOUT_EVAL_ADAPTER" "IMPLEMENTATION_FACING"
 
 require_literal "pi-continuation-foundry-team" "$PI_CONTINUATION" "foundry_team"
 require_literal "pi-continuation-pass-fail-labels" "$PI_CONTINUATION" "PASS/FAIL outcome labels"

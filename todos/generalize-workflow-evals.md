@@ -18,6 +18,8 @@ Generalize this into a reusable Foundry workflow eval framework rather than keep
 
 **Addendum:** 2026-05-28 — added `red-followup-barrier` and `spec-update-restart` suites. Red follow-up cases validate that arbiter/divergence/reviewer routes withhold implementation code, counterpart paths, and counterpart reasoning. Spec restart cases validate `NLSpecRerunInput`, verbatim `gap_description`, NLSpec-agent-only authorship metadata, Phase 1 restart packages, tracker reset, and revision-cap escalation. Future suites can add reviewer fan-out and full phase choreography as adapters under `tests/evals/adapters/`.
 
+**Addendum:** 2026-05-29 — added `reviewer-fanout` suite. It generates Phase 3 PromptEnvelopes for mandatory reviewers plus language/Bazel/UniFFI/reliability conditionals, validates all envelopes through `validate-barrier-envelopes.sh`, and asserts implementation-facing versus test-facing reviewer territory boundaries. Generic eval coverage is now 6 suites / 21 deterministic cases; remaining high-value expansion is full phase choreography.
+
 ## Goal
 
 Create a deterministic eval harness for Foundry workflow behavior:
@@ -56,8 +58,8 @@ tests/
 3. **Green follow-up barrier** — prove green receives only NLSpec How plus `test_name: PASS/FAIL`, never assertions, raw failures, `.feature` text, or NLSpec Done.
 4. **Red follow-up barrier** — prove red receives no implementation code, green paths, or green reasoning after arbitration/reviewer routes.
 5. **Spec update/restart** — prove `findings[0].gap_description` is passed verbatim, the NLSpec agent is sole author, `TestFailureTracker` resets, and Phase 1 restarts.
-6. **Reviewer fan-out** — mock reviewer outputs and verify routing back to red, green, spec update, or user.
-7. **Phase choreography** — full mocked adversarial runs with scripted outputs per phase.
+6. **Reviewer fan-out** — deterministic Phase 3 reviewer selection plus PromptEnvelope territory checks for implementation-facing and test-facing reviewers.
+7. **Phase choreography** — full mocked adversarial runs with scripted outputs per phase, including rejected reviewer-output routing back to red, green, spec update, or user.
 
 ## Acceptance
 
