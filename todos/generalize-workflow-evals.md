@@ -20,6 +20,8 @@ Generalize this into a reusable Foundry workflow eval framework rather than keep
 
 **Addendum:** 2026-05-29 — added `reviewer-fanout` suite. It generates Phase 3 PromptEnvelopes for mandatory reviewers plus language/Bazel/UniFFI/reliability conditionals, validates all envelopes through `validate-barrier-envelopes.sh`, and asserts implementation-facing versus test-facing reviewer territory boundaries. Generic eval coverage is now 6 suites / 21 deterministic cases; remaining high-value expansion is full phase choreography.
 
+**Addendum:** 2026-05-30 — added `phase-choreography` suite. It builds replayable mocked run directories across setup, red/review, green, test/fix, optional `VALUABLE` spec restart, reviewer rejection/fix, final review, and Phase 4 finalization; validates PromptEnvelopes and `behavioral-smoke.toon`; and raises coverage to 7 suites / 24 deterministic cases. The original generic eval roadmap is now complete enough to use as a fast regression lane; future work should either add edge-case suites from real bugs or reuse the scenarios in a slow/live lane.
+
 ## Goal
 
 Create a deterministic eval harness for Foundry workflow behavior:
@@ -59,7 +61,7 @@ tests/
 4. **Red follow-up barrier** — prove red receives no implementation code, green paths, or green reasoning after arbitration/reviewer routes.
 5. **Spec update/restart** — prove `findings[0].gap_description` is passed verbatim, the NLSpec agent is sole author, `TestFailureTracker` resets, and Phase 1 restarts.
 6. **Reviewer fan-out** — deterministic Phase 3 reviewer selection plus PromptEnvelope territory checks for implementation-facing and test-facing reviewers.
-7. **Phase choreography** — full mocked adversarial runs with scripted outputs per phase, including rejected reviewer-output routing back to red, green, spec update, or user.
+7. **Phase choreography** — full mocked adversarial runs with scripted outputs per phase, including `VALUABLE` spec restart, reviewer rejection routed back to green, final validator gates, and behavioral-smoke artifacts.
 
 ## Acceptance
 
