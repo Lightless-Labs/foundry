@@ -94,6 +94,8 @@ When editing skills or agents, preserve this invariant explicitly. Prefer mechan
 
 - Use sub-agents for each task when available. Parallelize independent research/validation work.
 - Favor small, atomic commits.
+- Commit eagerly at natural safe points, keeping each commit focused and reviewable.
+- Push regularly after successful validation and after completing a milestone; do not leave completed local commits unpushed unless the user explicitly asks you not to push.
 - Use a TDD/check-driven approach: run `tests/validate-agents.sh` after skill/agent changes.
 - When picking up a milestone from a roadmap or general plan, create a dedicated plan if one does not already exist.
 - When a plan is deepened, reviewed, completed, or amended, update its header with the date and reason.
