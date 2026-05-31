@@ -1,0 +1,56 @@
+{
+  "schema_version": "foundry.prompt-envelope.v1",
+  "run_id": "pi-live-divergence-arbiter-smoke",
+  "phase": "phase1b",
+  "recipient": "red-team",
+  "prompt": "You are the RED TEAM. Revise exactly one disputed slugify test using only the product contract and this barrier-safe arbitration summary.\n\nSpec/NLSpec: Slugify product contract: produce lowercase ASCII URL-safe slugs. Non-ASCII symbols are outside the current contract unless a later spec revision says otherwise. Slugify accepts a short title and returns a lowercase ASCII URL slug. How: trim leading/trailing separators; lowercase ASCII letters; treat ASCII whitespace and punctuation as separators; collapse repeated separators to one hyphen; strip leading/trailing hyphens. Definition of Done currently covers ASCII words, punctuation, empty input, and repeated separators. The current NLSpec does not define Unicode transliteration or emoji handling.\nDisputed test id: slugify_preserves_emoji_token\nBarrier-safe arbitration summary: the current contract requires ASCII URL-safe slugs and does not require emoji preservation. Revise or remove this test unless the user/spec explicitly adds emoji behavior.\n\nDo not inspect implementation files, counterpart workspace paths, or counterpart reasoning.\n",
+  "visible_context": [
+    {
+      "label": "spec_content",
+      "kind": "spec",
+      "sha256": "live-smoke",
+      "content": "Slugify product contract: produce lowercase ASCII URL-safe slugs. Non-ASCII symbols are outside the current contract unless a later spec revision says otherwise."
+    },
+    {
+      "label": "nlspec_content",
+      "kind": "nlspec",
+      "sha256": "live-smoke",
+      "content": "Slugify accepts a short title and returns a lowercase ASCII URL slug. How: trim leading/trailing separators; lowercase ASCII letters; treat ASCII whitespace and punctuation as separators; collapse repeated separators to one hyphen; strip leading/trailing hyphens. Definition of Done currently covers ASCII words, punctuation, empty input, and repeated separators. The current NLSpec does not define Unicode transliteration or emoji handling."
+    },
+    {
+      "label": "arbiter_redacted_summary",
+      "kind": "arbiter_summary",
+      "sha256": "live-smoke",
+      "content": "ASCII URL-safe contract does not require emoji preservation"
+    }
+  ],
+  "withheld_context": [
+    {
+      "label": "implementation_snippet",
+      "kind": "implementation_code",
+      "sha256": "live-smoke",
+      "samples": [
+        "pub fn slugify(input: &str) -> String"
+      ]
+    },
+    {
+      "label": "implementation_path",
+      "kind": "implementation_path",
+      "sha256": "live-smoke",
+      "samples": [
+        "src/slugify.rs"
+      ]
+    }
+  ],
+  "redactions": [
+    {
+      "source": "arbiter_output",
+      "action": "remove_implementation_details",
+      "removed": [
+        "implementation_snippet",
+        "workspace_paths",
+        "counterpart_reasoning"
+      ]
+    }
+  ]
+}

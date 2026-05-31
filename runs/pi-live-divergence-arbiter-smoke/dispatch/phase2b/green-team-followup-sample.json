@@ -1,0 +1,60 @@
+{
+  "schema_version": "foundry.prompt-envelope.v1",
+  "run_id": "pi-live-divergence-arbiter-smoke",
+  "phase": "phase2b",
+  "recipient": "green-team",
+  "prompt": "You are the GREEN TEAM. Implement according to the NLSpec How section only.\n\nNLSpec How section: Trim leading/trailing separators, lowercase ASCII letters, treat ASCII whitespace and punctuation as separators, collapse repeated separators to one hyphen, and strip leading/trailing hyphens.\n\nTest results:\n  slugify_ascii_words: PASS\n  slugify_repeated_separators: PASS\n  slugify_unicode_transliteration: FAIL\n\n## Task\nContinue using only the How section plus PASS/FAIL labels. The orchestrator is separately checking whether the failing Unicode behavior needs a spec revision; do not infer hidden assertions or inspect counterpart tests.\n",
+  "visible_context": [
+    {
+      "label": "nlspec_how",
+      "kind": "nlspec_how",
+      "sha256": "live-smoke",
+      "content": "Trim leading/trailing separators, lowercase ASCII letters, treat ASCII whitespace and punctuation as separators, collapse repeated separators to one hyphen, and strip leading/trailing hyphens."
+    },
+    {
+      "label": "outcome_labels",
+      "kind": "test_outcomes",
+      "sha256": "live-smoke",
+      "content": "slugify_ascii_words: PASS\nslugify_repeated_separators: PASS\nslugify_unicode_transliteration: FAIL"
+    }
+  ],
+  "withheld_context": [
+    {
+      "label": "red_test_code",
+      "kind": "red_test_code",
+      "sha256": "live-smoke",
+      "samples": [
+        "fn unicode_transliteration_keeps_creme_brulee_readable()",
+        "assert_slug(\"Cr\u00e8me br\u00fbl\u00e9e\", \"creme-brulee\")"
+      ]
+    },
+    {
+      "label": "nlspec_done",
+      "kind": "nlspec_done",
+      "sha256": "live-smoke",
+      "samples": [
+        "Definition of Done currently covers ASCII words"
+      ]
+    },
+    {
+      "label": "raw_failure",
+      "kind": "raw_test_output",
+      "sha256": "live-smoke",
+      "samples": [
+        "expected creme-brulee but actual was cr-me-br-l-e"
+      ]
+    }
+  ],
+  "redactions": [
+    {
+      "source": "test_runner",
+      "action": "pass_fail_labels_only",
+      "removed": [
+        "assertions",
+        "expected_values",
+        "raw_output",
+        "line_numbers"
+      ]
+    }
+  ]
+}

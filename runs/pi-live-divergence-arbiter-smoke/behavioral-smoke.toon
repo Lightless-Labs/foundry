@@ -1,0 +1,14 @@
+schema_version: foundry.behavioral-smoke.v1
+run_id: pi-live-divergence-arbiter-smoke
+requires_divergence_restart: true
+
+test_results[1]{example,passed,total,expected_passed,expected_total}:
+  live-divergence-arbiter-smoke,1,1,1,1
+
+model_lanes[3]{recipient,planned_model,actual_model}:
+  divergence-evaluator,openai-codex/gpt-5.5,openai-codex/gpt-5.5
+  arbiter-agent,openai-codex/gpt-5.5,openai-codex/gpt-5.5
+  orchestrator,openai-codex/gpt-5.5,openai-codex/gpt-5.5
+
+divergence_restarts[1]{phase,outcome,revision_history_count}:
+  PHASE_2B,VALUABLE,1
