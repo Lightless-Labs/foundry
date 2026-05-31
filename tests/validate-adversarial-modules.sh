@@ -27,6 +27,8 @@ REVIEWER_FANOUT_EVAL_ADAPTER="tests/evals/adapters/reviewer_fanout.py"
 REVIEWER_FANOUT_EVAL_FEATURE="tests/evals/features/reviewer-fanout.feature"
 PHASE_CHOREOGRAPHY_EVAL_ADAPTER="tests/evals/adapters/phase_choreography.py"
 PHASE_CHOREOGRAPHY_EVAL_FEATURE="tests/evals/features/phase-choreography.feature"
+PHASE2_TRIGGER_EVAL_ADAPTER="tests/evals/adapters/phase2_trigger_strategy.py"
+PHASE2_TRIGGER_EVAL_FEATURE="tests/evals/features/phase2-trigger-strategy.feature"
 
 pass() {
   echo "$1: PASS"
@@ -75,6 +77,8 @@ require_file "reviewer-fanout-eval-adapter" "$REVIEWER_FANOUT_EVAL_ADAPTER"
 require_file "reviewer-fanout-eval-feature" "$REVIEWER_FANOUT_EVAL_FEATURE"
 require_file "phase-choreography-eval-adapter" "$PHASE_CHOREOGRAPHY_EVAL_ADAPTER"
 require_file "phase-choreography-eval-feature" "$PHASE_CHOREOGRAPHY_EVAL_FEATURE"
+require_file "phase2-trigger-eval-adapter" "$PHASE2_TRIGGER_EVAL_ADAPTER"
+require_file "phase2-trigger-eval-feature" "$PHASE2_TRIGGER_EVAL_FEATURE"
 
 require_literal "skill-references-divergence-playbook" "$SKILL" "$DIVERGENCE"
 require_literal "skill-references-restart-playbook" "$SKILL" "$RESTART"
@@ -93,6 +97,8 @@ require_literal "divergence-phase2b-valuable" "$DIVERGENCE" 'Phase 2b `VALUABLE`
 require_literal "divergence-red-test-paths" "$DIVERGENCE" "red_test_paths"
 require_literal "divergence-one-at-a-time" "$DIVERGENCE" "one at a time"
 require_literal "divergence-behavioral-contract" "$DIVERGENCE" 'revision_history_count` exactly `1`'
+require_literal "divergence-adaptive-trigger" "$DIVERGENCE" "adaptive_with_fixed_floor"
+require_literal "divergence-implementation-hashes" "$DIVERGENCE" "implementation_attempt_hashes"
 
 require_literal "restart-hard-rule" "$RESTART" "MUST NOT write NLSpec content directly"
 require_literal "restart-gap-description" "$RESTART" "findings[0].gap_description"
@@ -147,6 +153,11 @@ require_literal "phase-choreography-eval-behavioral-smoke" "$PHASE_CHOREOGRAPHY_
 require_literal "phase-choreography-eval-restart" "$PHASE_CHOREOGRAPHY_EVAL_ADAPTER" "phase1b_valuable_restart"
 require_literal "phase-choreography-eval-reviewer-reject" "$PHASE_CHOREOGRAPHY_EVAL_ADAPTER" "phase3_green_reject_then_fix"
 require_literal "phase-choreography-eval-tracker-reset" "$PHASE_CHOREOGRAPHY_EVAL_ADAPTER" "reset_all_counters"
+require_literal "phase2-trigger-eval-gherkin" "$PHASE2_TRIGGER_EVAL_FEATURE" "Phase 2b trigger decision is deterministic"
+require_literal "phase2-trigger-eval-adaptive" "$PHASE2_TRIGGER_EVAL_FEATURE" "adaptive_two_distinct_attempts"
+require_literal "phase2-trigger-eval-fixed" "$PHASE2_TRIGGER_EVAL_FEATURE" "fixed_threshold_third_fail"
+require_literal "phase2-trigger-eval-implementation-hashes" "$PHASE2_TRIGGER_EVAL_ADAPTER" "implementation_attempt_hashes"
+require_literal "phase2-trigger-eval-pass-fail-only" "$PHASE2_TRIGGER_EVAL_ADAPTER" "green_feedback_remains_pass_fail_only"
 
 require_literal "pi-continuation-foundry-team" "$PI_CONTINUATION" "foundry_team"
 require_literal "pi-continuation-pass-fail-labels" "$PI_CONTINUATION" "PASS/FAIL outcome labels"

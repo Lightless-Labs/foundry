@@ -2,7 +2,7 @@
 
 Read this at the start of every session. Update it before context compaction or at natural milestones.
 
-**Last updated:** 2026-05-30
+**Last updated:** 2026-05-31
 
 ## What This Repo Is
 
@@ -18,14 +18,14 @@ This repo is the **skills + agents + examples** side. The Rust engine (state mac
 
 ## Current State
 
-### Validation: 224/224 checks passing + 7 generic workflow eval suites + arbiter evals + replay/Pi/Codex/module self-tests + Pi adversarial smoke
+### Validation: 224/224 checks passing + 8 generic workflow eval suites + arbiter evals + replay/Pi/Codex/module self-tests + Pi adversarial smoke
 
 `tests/validate-agents.sh` covers structural (YAML frontmatter, required sections, model: inherit, tools), attribution (12 adopted agents), language-specific coverage, adversarial process coverage including the scoped arbiter, and territory boundaries.
 
 Additional validators:
 - `tests/validate-barrier-envelopes.sh` — PromptEnvelope v1 replay/audit checks, including green PASS/FAIL-only gates and arbiter single-test scope gates.
 - `tests/behavioral-smoke.sh` — replay-level run checks over PromptEnvelope artifacts plus `behavioral-smoke.toon` summaries (example pass rates, model lanes, divergence restart counts).
-- `tests/foundry-evals.sh` — generic deterministic Gherkin-authored workflow eval runner. Current suites: `arbiter-routing` (mocked arbiter routes), `divergence-routing` (Phase 1b/2b `VALUABLE`/`NOT_VALUABLE`/`INCONCLUSIVE` routing), `green-followup-barrier` (green receives only NLSpec How plus PASS/FAIL labels), `phase-choreography` (full mocked run phase order, restart/reviewer-reject branches, final validators, and behavioral-smoke artifacts), `red-followup-barrier` (red receives no implementation/counterpart context), `reviewer-fanout` (Phase 3 mandatory/conditional reviewer dispatch and reviewer territory boundaries), and `spec-update-restart` (NLSpec rerun/provenance/tracker-reset/revision-cap behavior).
+- `tests/foundry-evals.sh` — generic deterministic Gherkin-authored workflow eval runner. Current suites: `arbiter-routing` (mocked arbiter routes), `divergence-routing` (Phase 1b/2b `VALUABLE`/`NOT_VALUABLE`/`INCONCLUSIVE` routing), `green-followup-barrier` (green receives only NLSpec How plus PASS/FAIL labels), `phase-choreography` (full mocked run phase order, restart/reviewer-reject branches, final validators, and behavioral-smoke artifacts), `phase2-trigger-strategy` (adaptive/fixed Phase 2b trigger decisions), `red-followup-barrier` (red receives no implementation/counterpart context), `reviewer-fanout` (Phase 3 mandatory/conditional reviewer dispatch and reviewer territory boundaries), and `spec-update-restart` (NLSpec rerun/provenance/tracker-reset/revision-cap behavior).
 - `tests/arbiter-routing-evals.sh` — compatibility wrapper for the generic `arbiter-routing` suite; still accepts the old fixture path.
 - `tests/validate-behavioral-smoke-contract.sh` — ensures `foundry-adversarial` requires real runs to emit/validate `behavioral-smoke.toon`.
 - `tests/validate-pi-extension.sh` — ensures the Pi package exposes the `foundry_team` child-dispatch extension and uses the PromptEnvelope contract, including runtime arbiter scope rejection.
@@ -34,7 +34,7 @@ Additional validators:
 - `tests/pi-live-dispatch-smoke.sh` — slow/manual live lane that performs real Pi model calls, runs Sudoku `30/30`, dispatches red/green child Pi processes through `foundry_team`, writes `behavioral-smoke.toon`, and validates the resulting run directory.
 - `runs/pi-autonomous-sudoku-smoke/` — smoke-scoped autonomous `/skill:foundry-adversarial` Pi run artifacts (red-team, green-team, barrier-integrity-auditor PromptEnvelopes + `behavioral-smoke.toon`).
 
-Last local validation (2026-05-30): `tests/foundry-evals.sh --suite phase-choreography` passed 3/3 cases; `tests/foundry-evals.sh` passed 7 generic suites / 24 cases (`arbiter-routing`, `divergence-routing`, `green-followup-barrier`, `phase-choreography`, `red-followup-barrier`, `reviewer-fanout`, `spec-update-restart`); `tests/validate-adversarial-modules.sh` passed 94/94 with phase-choreography anchors; `tests/validate-agents.sh` passed 224/224. Earlier 2026-05-29 focused suite runs passed for `reviewer-fanout` (3/3), `divergence-routing` (6/6), `red-followup-barrier` (3/3), and `spec-update-restart` (3/3); `tests/arbiter-routing-evals.sh tests/fixtures/arbiter-routing-evals.feature` passed the compatibility path; `tests/validate-codex-plugin.sh` passed 44/44; `tests/validate-pi-extension.sh` passed 43/43; `tests/validate-behavioral-smoke-contract.sh` passed 7/7; `tests/validate-barrier-envelopes.sh` self-tests passed. Previously on 2026-05-26: `tests/validate-barrier-envelopes.sh runs/pi-autonomous-sudoku-smoke/dispatch` passed; `tests/behavioral-smoke.sh runs/pi-autonomous-sudoku-smoke` passed; `tests/validate-barrier-envelopes.sh runs/pi-from-scratch-roman-numeral/dispatch` passed; `tests/behavioral-smoke.sh runs/pi-from-scratch-roman-numeral` passed. Last slow live lane remains 2026-05-22: `tests/pi-live-dispatch-smoke.sh --keep` passed with a real `foundry_team` Pi tool call; `/skill:foundry-adversarial` under Pi produced `runs/pi-autonomous-sudoku-smoke/` with Sudoku `30/30` and provider-qualified `openai-codex/gpt-5.5` model lanes. New from-scratch live Pi run (2026-05-24) produced `runs/pi-from-scratch-roman-numeral/` with fresh red tests, fresh green implementation, and Roman numeral `8/8`.
+Last local validation (2026-05-31): `tests/foundry-evals.sh --suite phase2-trigger-strategy` passed 4/4 cases; `tests/foundry-evals.sh` passed 8 generic suites / 28 cases (`arbiter-routing`, `divergence-routing`, `green-followup-barrier`, `phase-choreography`, `phase2-trigger-strategy`, `red-followup-barrier`, `reviewer-fanout`, `spec-update-restart`); `tests/validate-adversarial-modules.sh` passed 103/103 with adaptive trigger anchors; `tests/validate-agents.sh` passed 224/224. Previous 2026-05-30: `tests/foundry-evals.sh --suite phase-choreography` passed 3/3 cases; `tests/foundry-evals.sh` passed 7 generic suites / 24 cases; `tests/validate-adversarial-modules.sh` passed 94/94 with phase-choreography anchors; `tests/validate-agents.sh` passed 224/224. Earlier 2026-05-29 focused suite runs passed for `reviewer-fanout` (3/3), `divergence-routing` (6/6), `red-followup-barrier` (3/3), and `spec-update-restart` (3/3); `tests/arbiter-routing-evals.sh tests/fixtures/arbiter-routing-evals.feature` passed the compatibility path; `tests/validate-codex-plugin.sh` passed 44/44; `tests/validate-pi-extension.sh` passed 43/43; `tests/validate-behavioral-smoke-contract.sh` passed 7/7; `tests/validate-barrier-envelopes.sh` self-tests passed. Previously on 2026-05-26: `tests/validate-barrier-envelopes.sh runs/pi-autonomous-sudoku-smoke/dispatch` passed; `tests/behavioral-smoke.sh runs/pi-autonomous-sudoku-smoke` passed; `tests/validate-barrier-envelopes.sh runs/pi-from-scratch-roman-numeral/dispatch` passed; `tests/behavioral-smoke.sh runs/pi-from-scratch-roman-numeral` passed. Last slow live lane remains 2026-05-22: `tests/pi-live-dispatch-smoke.sh --keep` passed with a real `foundry_team` Pi tool call; `/skill:foundry-adversarial` under Pi produced `runs/pi-autonomous-sudoku-smoke/` with Sudoku `30/30` and provider-qualified `openai-codex/gpt-5.5` model lanes. New from-scratch live Pi run (2026-05-24) produced `runs/pi-from-scratch-roman-numeral/` with fresh red tests, fresh green implementation, and Roman numeral `8/8`.
 
 ### 5 Skills (composable pipeline)
 
@@ -89,9 +89,9 @@ Each example preserves all artifacts: research doc, spec, NLSpec, red team tests
 | `todos/modularize-heaviest-skills.md` | Medium | **COMPLETED FIRST SLICE 2026-05-24** — extracted divergence routing, `spec_update_and_restart`, and provider troubleshooting playbooks; added `tests/validate-adversarial-modules.sh`; continue profiling future runs before further extraction |
 | `todos/pi-codex-plugin-support.md` | Medium | **COMPLETED 2026-05-24** — Pi package manifest + `foundry_team` extension + Agent Skills adapters + Codex CLI `.codex-plugin/plugin.json`, command wrappers, agent card, validation, docs, and local smoke-load landed |
 | `todos/from-scratch-pi-adversarial-run.md` | Medium | **COMPLETED 2026-05-24** — fresh Rust Roman numeral feature under Pi; red/green artifacts generated from scratch; 8/8 tests pass; barrier and behavioral validators pass |
-| `todos/generalize-workflow-evals.md` | High | **COMPLETED 2026-05-28; EXTENDED 2026-05-29/30** — generic `tests/foundry-evals.sh` runner + adapter layout landed; current suites cover arbiter routing, divergence routing, green/red follow-up barriers, reviewer fan-out, phase choreography, and spec update/restart; old arbiter command remains a compatibility wrapper |
+| `todos/generalize-workflow-evals.md` | High | **COMPLETED 2026-05-28; EXTENDED 2026-05-29/30/31** — generic `tests/foundry-evals.sh` runner + adapter layout landed; current suites cover arbiter routing, divergence routing, green/red follow-up barriers, reviewer fan-out, phase choreography, Phase 2 trigger strategy, and spec update/restart; old arbiter command remains a compatibility wrapper |
 | `todos/arbiter-agent.md` | Future | **COMPLETED 2026-05-26** — added `arbiter-agent`, scoped arbitration playbook, adversarial skill routing, barrier-auditor guidance, validator coverage, and arbiter PromptEnvelope scope hardening |
-| `todos/phase2-trigger-strategy.md` | Future | Re-assess Phase 2 divergence trigger strategy (N=3 fixed vs pattern-based) |
+| `todos/phase2-trigger-strategy.md` | Future | **COMPLETED 2026-05-31** — adopted `adaptive_with_fixed_floor`: fixed N=3 fallback plus N=2 early trigger for unchanged tests with distinct green implementation attempts; covered by `phase2-trigger-strategy` evals |
 | `todos/adversarial-ui-investigation.md` | Future | Three-level adversarial testing via design systems |
 
 ## Information Barrier (core invariant)
@@ -138,6 +138,7 @@ Green receives ONLY `test_name: PASS/FAIL` — no assertions, no expected values
 - **Scoped arbitration is a controlled breach, not a new normal** — `arbiter-agent` may see one disputed test, the relevant implementation snippet, full spec/NLSpec, and one runner result. Its raw context/output goes only to the orchestrator; red/green follow-up must be redacted back to normal barrier rules. `tests/validate-barrier-envelopes.sh` and `foundry_team` now require `ArbiterInput`, exactly one `disputed_test`/`test_artifact`, scoped visible-context categories, withheld samples, and `single_test_scope` redaction metadata.
 - **Workflow evals can be Gherkin-authored mocks** — `tests/foundry-evals.sh` runs adapter-backed `.feature` suites under `tests/evals/features/` without live model calls. Current suites mock arbiter and divergence evaluator JSON outputs, generate red/green follow-up, reviewer fan-out, full phase-choreography, and NLSpec-rerun PromptEnvelopes, verify spec restart/tracker-reset/revision-cap records, and delegate mechanical leak checks to `validate-barrier-envelopes.sh`. Keep live model evals as a separate slow lane that can reuse the same scenarios later.
 - **Reviewer fan-out needs territory assertions beyond generic leak checks** — the barrier validator catches red/green sample leaks, but Phase 3 includes implementation-facing reviewers (`green-team-reviewer`, language/Bazel/UniFFI/correctness/reliability) and test-facing reviewers (`red-team-test-reviewer`, `testing-reviewer`) that require adapter-level assertions for complete reviewer selection and prompt territory boundaries.
+- **Phase 2b trigger strategy is adaptive with a fixed floor** — keep N=3 as the auditable fallback, but escalate at N=2 when the red test is unchanged and at least two distinct green implementation hashes still fail. Do not early-trigger first failures, unchanged green attempts, or red test-content changes; green still receives only PASS/FAIL labels.
 
 ## What's Next
 
@@ -152,7 +153,6 @@ Also still open from before:
 4. **Multi-provider delegation** — systematically exercise red-on-Gemini, green-on-Codex across examples
 5. **Adversarial UI** — brainstorm at `docs/brainstorms/2026-04-04-adversarial-ui-design-system.md`; three-level testing via design systems
 6. **Rubik's cube fix** — add golden vectors from Kociemba's Python reference (31/46 -> ~44/46)
-7. **Phase 2 trigger strategy** — re-assess N=3 vs pattern-based (`todos/phase2-trigger-strategy.md`)
 
 ## Repo Layout
 

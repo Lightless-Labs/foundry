@@ -326,16 +326,18 @@ Agent(
 Maintain per failing test:
 - `test_id`: test identifier
 - `consecutive_fails`: consecutive green iterations where this test failed (Phase 2b trigger fires → resets to 0; test passes → resets to 0; test content changes → resets to 1)
-- `threshold`: default 3
+- `threshold`: default 3 fixed fallback
 - `test_content_hash`: hash of test file content; detects test changes between iterations
+- `implementation_attempt_hashes`: ordered unique hashes of green implementation revisions observed while this unchanged test continues to fail
+- `trigger_strategy`: default `adaptive_with_fixed_floor`
 
 This is where you mediate. Loop:
 
 1. **Assemble runner workspace** — Copy green's implementation + red's tests into a temporary directory
 2. **Run tests** — Execute the test suite
 3. **Filter outcomes** — Extract ONLY `test_name: PASS/FAIL`. Discard assertions, errors, stack traces.
-4. **Update trackers** — PASS: reset `consecutive_fails=0`. FAIL: if test content hash changed, reset to 1; else increment `consecutive_fails`.
-5. **Check divergence threshold** — For any test where `consecutive_fails >= threshold` (default 3), use `docs/playbooks/foundry-adversarial-divergence-routing.md`. Process one test at a time in ascending `test_id` order. Route on `findings[0].outcome`: Phase 2b `VALUABLE` → invoke `spec_update_and_restart`, then restart Phase 1; Phase 2b `NOT_VALUABLE` → send green back with `findings[0].rationale` and reset this test's tracker; Phase 2b `INCONCLUSIVE` → escalate to user and pause.
+4. **Update trackers** — PASS: reset `consecutive_fails=0` and clear `implementation_attempt_hashes`. FAIL: if test content hash changed, reset `consecutive_fails=1` and start `implementation_attempt_hashes` with the current implementation hash; else increment `consecutive_fails` and append the current implementation hash when it is distinct from prior attempts.
+5. **Check divergence threshold** — For any test where `consecutive_fails >= threshold` (default 3), or where `trigger_strategy=adaptive_with_fixed_floor` and the unchanged test has `consecutive_fails >= 2` plus at least two distinct `implementation_attempt_hashes`, use `docs/playbooks/foundry-adversarial-divergence-routing.md`. This preserves the fixed N=3 floor while escalating clear pattern-based green/spec divergence one iteration earlier. Process one test at a time in ascending `test_id` order. Route on `findings[0].outcome`: Phase 2b `VALUABLE` → invoke `spec_update_and_restart`, then restart Phase 1; Phase 2b `NOT_VALUABLE` → send green back with `findings[0].rationale` and reset this test's tracker; Phase 2b `INCONCLUSIVE` → escalate to user and pause.
 6. **Check arbitration threshold** — If normal divergence routing does not resolve a stable single-test dispute, or if a reviewer flags a suspicious pass/false-green signal, use `docs/playbooks/foundry-adversarial-arbiter-routing.md`. Dispatch `foundry:review:arbiter-agent` through a validated PromptEnvelope scoped to exactly one test. Route on `findings[0].outcome`: `TEST_WRONG` → red fixes the test without seeing implementation; `IMPLEMENTATION_WRONG` → green receives only redacted guidance plus `test_name: PASS/FAIL`; `SPEC_INCOMPLETE` → invoke `spec_update_and_restart`; `INCONCLUSIVE` → pause for user judgment.
 7. **Check termination** — All pass → Phase 3. Any fail → send filtered outcomes to green.
 8. **Check bounds** — If green has iterated more than the configured limit (default 20), pause and ask the user.
@@ -466,6 +468,7 @@ These can be set via the conversation or a config file:
 | Setting | Default | Description |
 |---------|---------|-------------|
 | `inner_loop_limit` | 20 | Max green fix iterations before pausing |
+| `divergence_trigger_strategy` | `adaptive_with_fixed_floor` | Phase 2b triggers at fixed N=3 or at N=2 when a stable failing test survives distinct green implementation attempts |
 | `arbitration_threshold` | after normal divergence routing | Stable single-test dispute threshold before invoking `foundry:review:arbiter-agent` |
 | `too_easily_threshold` | 3 | Consecutive passes before flagging "too easy" |
 | `test_timeout` | 120s | Per-test-run timeout |

@@ -22,6 +22,8 @@ Generalize this into a reusable Foundry workflow eval framework rather than keep
 
 **Addendum:** 2026-05-30 — added `phase-choreography` suite. It builds replayable mocked run directories across setup, red/review, green, test/fix, optional `VALUABLE` spec restart, reviewer rejection/fix, final review, and Phase 4 finalization; validates PromptEnvelopes and `behavioral-smoke.toon`; and raises coverage to 7 suites / 24 deterministic cases. The original generic eval roadmap is now complete enough to use as a fast regression lane; future work should either add edge-case suites from real bugs or reuse the scenarios in a slow/live lane.
 
+**Addendum:** 2026-05-31 — added `phase2-trigger-strategy` suite. It covers the adopted `adaptive_with_fixed_floor` trigger policy: fixed N=3 fallback, N=2 early trigger when unchanged tests survive distinct green implementation attempts, no early trigger for unchanged implementation hashes, and tracker reset after red test content changes. Generic eval coverage is now 8 suites / 28 deterministic cases.
+
 ## Goal
 
 Create a deterministic eval harness for Foundry workflow behavior:
@@ -62,6 +64,7 @@ tests/
 5. **Spec update/restart** — prove `findings[0].gap_description` is passed verbatim, the NLSpec agent is sole author, `TestFailureTracker` resets, and Phase 1 restarts.
 6. **Reviewer fan-out** — deterministic Phase 3 reviewer selection plus PromptEnvelope territory checks for implementation-facing and test-facing reviewers.
 7. **Phase choreography** — full mocked adversarial runs with scripted outputs per phase, including `VALUABLE` spec restart, reviewer rejection routed back to green, final validator gates, and behavioral-smoke artifacts.
+8. **Phase 2 trigger strategy** — adaptive/fixed Phase 2b trigger decisions: N=3 fallback, N=2 early trigger with distinct green implementation hashes, no early trigger for unchanged implementations, and reset on red test content changes.
 
 ## Acceptance
 

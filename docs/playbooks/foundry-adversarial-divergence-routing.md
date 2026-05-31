@@ -29,7 +29,9 @@ Trigger when the red-team-test-reviewer flags a test scenario that references be
 
 ## Phase 2b: Test-Fix Inner-Loop Divergence
 
-Trigger when a single failing test reaches the configured consecutive-failure threshold.
+Trigger when a single failing test reaches the configured consecutive-failure threshold. The default strategy is `adaptive_with_fixed_floor`: keep the fixed N=3 threshold as the audited fallback, but escalate at N=2 when the red test content is unchanged and green has made at least two distinct implementation attempts (`implementation_attempt_hashes`) that still leave the same test failing.
+
+Do not early-trigger on a first failure, on unchanged green implementation hashes, or after red test content changes. Those cases continue the normal green loop until the fixed threshold or another route applies.
 
 1. Process threshold-crossing tests one at a time in ascending `test_id` order.
 2. Resolve or escalate the current divergence before evaluating the next.
@@ -49,9 +51,11 @@ Trigger when a single failing test reaches the configured consecutive-failure th
 The `TestFailureTracker` is pipeline-run-scoped:
 
 - Reset all counters on every Phase 1 restart.
-- Passing test → reset `consecutive_fails=0`.
-- Failing test with changed test content hash → reset to `1`.
-- Failing test with unchanged test content hash → increment by `1`.
+- Passing test → reset `consecutive_fails=0` and clear `implementation_attempt_hashes`.
+- Failing test with changed test content hash → reset to `1` and start `implementation_attempt_hashes` from the current green implementation hash.
+- Failing test with unchanged test content hash → increment by `1`; append the current implementation hash only if distinct.
+- Adaptive early trigger → fire when `consecutive_fails >= 2`, the test content hash is unchanged, and at least two distinct `implementation_attempt_hashes` have failed.
+- Fixed fallback trigger → fire when `consecutive_fails >= threshold` (default 3), even if the implementation hash did not change.
 - Phase 2b `NOT_VALUABLE` route → reset the evaluated test to `0` after sending feedback to green.
 
 ## Behavioral-Smoke Contract
