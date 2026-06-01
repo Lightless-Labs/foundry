@@ -92,6 +92,7 @@ require_literal "skill-keeps-behavioral-smoke" "$SKILL" "runs/<run_id>/behaviora
 require_literal "skill-keeps-barrier-green-labels" "$SKILL" "test_name: PASS/FAIL"
 
 require_literal "divergence-findings-outcome" "$DIVERGENCE" "findings[0].outcome"
+require_literal "divergence-noncanonical-route-to" "$DIVERGENCE" "noncanonical schema drift"
 require_literal "divergence-phase1b-valuable" "$DIVERGENCE" 'Phase 1b `VALUABLE`'
 require_literal "divergence-phase2b-valuable" "$DIVERGENCE" 'Phase 2b `VALUABLE`'
 require_literal "divergence-red-test-paths" "$DIVERGENCE" "red_test_paths"
@@ -135,6 +136,8 @@ require_literal "divergence-eval-gherkin" "$DIVERGENCE_EVAL_FEATURE" "Mocked div
 require_literal "divergence-eval-phase1b" "$DIVERGENCE_EVAL_FEATURE" "PHASE_1B"
 require_literal "divergence-eval-phase2b" "$DIVERGENCE_EVAL_FEATURE" "PHASE_2B"
 require_literal "divergence-eval-findings-route" "$DIVERGENCE_EVAL_ADAPTER" "findings[0].outcome"
+require_literal "divergence-eval-forbids-route-to" "$DIVERGENCE_EVAL_ADAPTER" "forbidden_routing_fields"
+require_literal "divergence-eval-schema-drift-self-check" "$DIVERGENCE_EVAL_ADAPTER" "assert_route_to_schema_drift_rejected"
 require_literal "divergence-eval-spec-restart" "$DIVERGENCE_EVAL_ADAPTER" "spec_update_and_restart"
 require_literal "divergence-eval-tracker-reset" "$DIVERGENCE_EVAL_ADAPTER" "consecutive_fails"
 require_literal "red-followup-eval-gherkin" "$RED_FOLLOWUP_EVAL_FEATURE" "Red follow-up preserves the information barrier"

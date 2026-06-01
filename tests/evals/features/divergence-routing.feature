@@ -6,7 +6,7 @@ Feature: Foundry divergence routing evals
   Background:
     Given PromptEnvelope schema "foundry.prompt-envelope.v1"
     And divergence evaluator dispatch is scoped to one divergence at a time
-    And routing uses findings[0].outcome rather than a top-level outcome field
+    And routing uses findings[0].outcome rather than top-level outcome or route_to fields
     And VALUABLE invokes spec_update_and_restart
     And NOT_VALUABLE routes back to the responsible team with barrier-preserving feedback
     And INCONCLUSIVE pauses for user judgment

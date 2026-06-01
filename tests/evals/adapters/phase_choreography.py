@@ -213,7 +213,7 @@ EvaluatorInput:
   divergence_phase: PHASE_1B
   red_test_paths: tests/features/roman.feature
 
-Return reviewer-schema JSON. Route exclusively through findings[0].outcome.
+Return reviewer-schema JSON. Route exclusively through findings[0].outcome. Do not emit route_to, route, next_step, or top-level outcome.
 """
     return envelope(
         run_id=run_id,
@@ -437,7 +437,7 @@ def run_script(case: dict[str, str], run_dir: Path, root: Path, barrier_validato
         write_envelope(run_dir, "phase1b", "divergence-evaluator.json", divergence_envelope(run_id))
         write_json(run_dir / "mock-agent-outputs" / "divergence-evaluator.json", {
             "reviewer": "divergence-evaluator",
-            "findings": [{"outcome": "VALUABLE", "gap_description": "Clarify whether lowercase Roman numeral input is in scope", "route_to": "spec_update_and_restart"}],
+            "findings": [{"outcome": "VALUABLE", "gap_description": "Clarify whether lowercase Roman numeral input is in scope"}],
             "residual_risks": [],
             "testing_gaps": [],
         })

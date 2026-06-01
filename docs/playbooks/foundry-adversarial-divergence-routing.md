@@ -7,6 +7,7 @@ This playbook is a mandatory module for `plugins/foundry/skills/foundry-adversar
 - Only trigger divergence routing for potential spec/NLSpec gaps, not ordinary weak tests, missing coverage, or implementation bugs.
 - Only one divergence evaluator invocation may be in flight at a time.
 - Route exclusively on `findings[0].outcome`; evaluator output follows the reviewer schema, not a top-level outcome field.
+- Treat `route_to`, `route`, `next_step`, or any other routing helper in divergence-evaluator output as noncanonical schema drift. Ignore it for orchestration and prefer tightening the evaluator prompt/eval fixtures over relying on it.
 - `VALUABLE` means the NLSpec/spec should change; invoke `spec_update_and_restart` and restart Phase 1.
 - `NOT_VALUABLE` means the current team should fix its artifact using `findings[0].rationale`.
 - `INCONCLUSIVE` means pause and escalate to the user.

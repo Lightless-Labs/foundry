@@ -61,6 +61,8 @@ Return your judgment as JSON matching this schema. No prose outside the JSON.
 
 **Invariant:** `gap_description` MUST be a non-null string when `outcome == VALUABLE`. It MUST be absent or `null` when `outcome` is `NOT_VALUABLE` or `INCONCLUSIVE`. The `findings` array contains exactly one element per invocation.
 
+**Strict schema rule:** `findings[0].outcome` is the only routing surface. Do **not** emit `route_to`, `route`, `next_step`, top-level `outcome`, top-level `route_to`, or any other routing helper. The orchestrator derives `spec_update_and_restart`, team follow-up, or user escalation from `findings[0].outcome`.
+
 ### Input you receive
 
 Your prompt contains an `EvaluatorInput`:
@@ -74,20 +76,22 @@ EvaluatorInput:
 
 ### Output you produce
 
-A `DivergenceJudgment`:
+A `DivergenceJudgment` stored at `findings[0]`:
 
 ```yaml
-DivergenceJudgment:
-  outcome: DivergenceOutcome  # VALUABLE|NOT_VALUABLE|INCONCLUSIVE
+findings[0]:
+  outcome: DivergenceOutcome  # VALUABLE|NOT_VALUABLE|INCONCLUSIVE; sole routing field
   rationale: String           # mandatory, must explain reasoning from first principles
   gap_description: String|None  # present (non-null) iff outcome == VALUABLE; absent or null otherwise
 ```
 
+Do not add `route_to` to this object. Unlike the scoped arbiter agent, the divergence evaluator does not choose a team route directly.
+
 `divergence_phase` is a `DivergencePhase` value: `PHASE_1B` (red test references absent behavior) or `PHASE_2B` (green fails same test repeatedly).
 
-**Routing:**
-- `VALUABLE` → NLSpec re-derivation triggered, pipeline restarts from Phase 1
-- `NOT_VALUABLE` → Team sent back with your rationale, pipeline continues
-- `INCONCLUSIVE` → Pipeline pauses for manual user judgment
+**Routing is performed by the orchestrator, not by you:**
+- `VALUABLE` → orchestrator triggers NLSpec re-derivation and restarts Phase 1
+- `NOT_VALUABLE` → orchestrator sends the responsible team back with your rationale, preserving barriers
+- `INCONCLUSIVE` → orchestrator pauses for manual user judgment
 
 **ZFC (Zero Framework Cognition):** You reason from first principles. There is no pre-built taxonomy of divergence types. The orchestrator carries no intelligence about what constitutes a spec gap — it delegates entirely to your judgment.
