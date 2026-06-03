@@ -175,12 +175,26 @@ def validate_manifest(path):
                 f"but saw {row['passed']}/{row['total']}",
             )
 
-    for row in tables["model_lanes"]["rows"]:
+    model_rows = tables["model_lanes"]["rows"]
+    for row in model_rows:
         if row["planned_model"] != row["actual_model"]:
             return fail(
                 path,
                 f"model lane mismatch for {row['recipient']!r}: planned {row['planned_model']!r}, "
                 f"actual {row['actual_model']!r}",
+            )
+
+    if data.get("requires_distinct_model_lanes") is True:
+        by_recipient = {str(row["recipient"]): row for row in model_rows}
+        missing = [recipient for recipient in ("red-team", "green-team") if recipient not in by_recipient]
+        if missing:
+            return fail(path, f"requires_distinct_model_lanes=true but missing model lanes: {', '.join(missing)}")
+        red = by_recipient["red-team"]
+        green = by_recipient["green-team"]
+        if red["planned_model"] == green["planned_model"] or red["actual_model"] == green["actual_model"]:
+            return fail(
+                path,
+                "requires_distinct_model_lanes=true but red-team and green-team use the same model lane",
             )
 
     divergence_rows = tables.get("divergence_restarts", {}).get("rows", [])
@@ -264,14 +278,15 @@ JSON
 schema_version: foundry.behavioral-smoke.v1
 run_id: behavioral-selftest
 requires_divergence_restart: true
+requires_distinct_model_lanes: true
 
 test_results[2]{example,passed,total,expected_passed,expected_total}:
   sudoku-solver,30,30,30,30
   chess-engine,44,44,44,44
 
 model_lanes[3]{recipient,planned_model,actual_model}:
-  red-team,google-gemini/gemini-2.5-pro,google-gemini/gemini-2.5-pro
-  green-team,openai-codex/gpt-5.4,openai-codex/gpt-5.4
+  red-team,openai-codex/gpt-5.5:xhigh,openai-codex/gpt-5.5:xhigh
+  green-team,kimi-coding/kimi-for-coding,kimi-coding/kimi-for-coding
   orchestrator,anthropic/claude-opus-4.7,anthropic/claude-opus-4.7
 
 divergence_restarts[1]{phase,outcome,revision_history_count}:
@@ -280,7 +295,7 @@ TOON
 }
 
 run_self_tests() {
-  local tmp good bad_model bad_divergence bad_toon
+  local tmp good bad_model bad_distinct bad_divergence bad_toon
   tmp="$(mktemp -d)"
   trap "rm -rf '$tmp'" EXIT
 
@@ -295,7 +310,7 @@ run_self_tests() {
 from pathlib import Path
 path = Path(__import__('sys').argv[1])
 text = path.read_text()
-path.write_text(text.replace('openai-codex/gpt-5.4,openai-codex/gpt-5.4', 'openai-codex/gpt-5.4,anthropic/claude-opus-4.7'))
+path.write_text(text.replace('kimi-coding/kimi-for-coding,kimi-coding/kimi-for-coding', 'kimi-coding/kimi-for-coding,anthropic/claude-opus-4.7'))
 PY
   echo "Self-test: model-lane mismatch should fail"
   if validate_targets "$bad_model" >/tmp/foundry-behavioral-bad-model.out 2>&1; then
@@ -304,6 +319,22 @@ PY
     return 1
   fi
   cat /tmp/foundry-behavioral-bad-model.out
+
+  bad_distinct="$tmp/bad-distinct"
+  cp -R "$good" "$bad_distinct"
+  python3 - "$bad_distinct/behavioral-smoke.toon" <<'PY'
+from pathlib import Path
+path = Path(__import__('sys').argv[1])
+text = path.read_text()
+path.write_text(text.replace('green-team,kimi-coding/kimi-for-coding,kimi-coding/kimi-for-coding', 'green-team,openai-codex/gpt-5.5:xhigh,openai-codex/gpt-5.5:xhigh'))
+PY
+  echo "Self-test: required distinct red/green model lanes should fail when lanes collapse"
+  if validate_targets "$bad_distinct" >/tmp/foundry-behavioral-bad-distinct.out 2>&1; then
+    cat /tmp/foundry-behavioral-bad-distinct.out
+    echo "bad-distinct unexpectedly passed" >&2
+    return 1
+  fi
+  cat /tmp/foundry-behavioral-bad-distinct.out
 
   bad_divergence="$tmp/bad-divergence"
   cp -R "$good" "$bad_divergence"

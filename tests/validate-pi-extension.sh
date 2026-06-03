@@ -77,6 +77,8 @@ require_literal "arbiter-scope-guard" "$EXT" 'Arbiter envelope redactions must i
 require_literal "arbiter-overbroad-guard" "$EXT" 'Arbiter visible_context is over-broad'
 require_literal "exact-envelope-prompt" "$EXT" 'args.push(prompt)'
 require_literal "provider-model-lane-id" "$EXT" 'return `${provider}/${model}`'
+require_literal "per-dispatch-model-override" "$EXT" 'if (plannedModel) args.push("--model", plannedModel)'
+require_literal "thinking-lane-reporting" "$EXT" 'actualModel: actualModelLane(actualModel, plannedModel)'
 require_literal "agent-discovery" "$EXT" 'plugins", "foundry", "agents"'
 require_literal "parallel-bounds" "$EXT" 'MAX_PARALLEL_DISPATCHES = 8'
 require_literal "official-subagent-pattern-note" "$SKILL" 'examples/extensions/subagent/'

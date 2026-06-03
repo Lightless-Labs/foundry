@@ -277,6 +277,23 @@ function modelLaneId(message: any): string | undefined {
 	return `${provider}/${model}`;
 }
 
+function splitThinkingLane(model: string | undefined): { base: string; thinking?: string } | undefined {
+	if (!model) return undefined;
+	const match = model.match(/^(.*):(off|minimal|low|medium|high|xhigh)$/);
+	if (!match) return { base: model };
+	return { base: match[1], thinking: match[2] };
+}
+
+function actualModelLane(actualModel: string | undefined, plannedModel: string | undefined): string | undefined {
+	if (!actualModel) return undefined;
+	const actual = splitThinkingLane(actualModel);
+	const planned = splitThinkingLane(plannedModel);
+	if (actual && planned?.thinking && actual.base === planned.base && !actual.thinking) {
+		return `${actual.base}:${planned.thinking}`;
+	}
+	return actualModel;
+}
+
 function truncateOutput(text: string): string {
 	const bytes = Buffer.byteLength(text, "utf8");
 	if (bytes <= OUTPUT_CAP_BYTES) return text;
@@ -393,7 +410,7 @@ async function runDispatch(
 			phase,
 			agent: agent?.name,
 			plannedModel,
-			actualModel,
+			actualModel: actualModelLane(actualModel, plannedModel),
 			exitCode,
 			stopReason,
 			errorMessage,

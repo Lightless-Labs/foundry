@@ -61,6 +61,32 @@ Pi has no built-in Claude-style `Agent(...)` or subagent primitive. Foundry's Pi
 
 For adversarial runs, never paste red/green hidden context directly into the main Pi conversation to simulate teams. Write PromptEnvelope artifacts and dispatch through `foundry_team`.
 
+### Multi-provider / distinct-lane delegation
+
+`foundry_team` accepts an optional `model` field on each dispatch item and passes it to the child `pi --model ...` invocation. Use this for red/green separation experiments while keeping the same PromptEnvelope barrier.
+
+Preferred live pattern when Kimi is available:
+
+```bash
+tests/pi-live-dispatch-smoke.sh \
+  --red-model openai-codex/gpt-5.5:xhigh \
+  --green-model kimi-coding/kimi-for-coding \
+  --require-distinct-model-lanes \
+  --run-dir runs/pi-live-multilane-smoke
+```
+
+Fallback if only Codex lanes are available:
+
+```bash
+tests/pi-live-dispatch-smoke.sh \
+  --red-model openai-codex/gpt-5.5:xhigh \
+  --green-model openai-codex/gpt-5.5:medium \
+  --require-distinct-model-lanes \
+  --run-dir runs/pi-live-multilane-smoke
+```
+
+Use the exact provider-qualified model IDs accepted by the local Pi installation. The script records the actual model lanes in `behavioral-smoke.toon`; when `requires_distinct_model_lanes: true`, `tests/behavioral-smoke.sh` rejects a run whose red and green lanes collapse to the same actual model.
+
 ### Validation
 
 Fast structural checks:

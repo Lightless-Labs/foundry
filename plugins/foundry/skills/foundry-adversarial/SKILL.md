@@ -126,6 +126,7 @@ Single dispatch:
 {
   "envelopePath": "runs/<run_id>/dispatch/phase1b/red-team-test-reviewer.json",
   "agent": "foundry:review:red-team-test-reviewer",
+  "model": "<optional provider/model lane>",
   "tools": ["read", "grep", "find", "ls"]
 }
 ```
@@ -136,12 +137,14 @@ Parallel dispatch:
 {
   "dispatches": [
     {
-      "envelopePath": "runs/<run_id>/dispatch/phase1b/red-team-test-reviewer.json",
-      "agent": "foundry:review:red-team-test-reviewer"
+      "envelopePath": "runs/<run_id>/dispatch/phase1/red-team.json",
+      "model": "<red lane, e.g. openai-codex/gpt-5.5:xhigh>",
+      "tools": ["read", "write", "edit", "bash", "grep", "find", "ls"]
     },
     {
-      "envelopePath": "runs/<run_id>/dispatch/phase1b/cucumber-reviewer.json",
-      "agent": "foundry:review:cucumber-reviewer"
+      "envelopePath": "runs/<run_id>/dispatch/phase2/green-team.json",
+      "model": "<green lane, e.g. kimi-coding/kimi-for-coding or openai-codex/gpt-5.5:medium>",
+      "tools": ["read", "write", "edit", "bash", "grep", "find", "ls"]
     }
   ]
 }
@@ -151,6 +154,7 @@ Notes:
 - `foundry_team` discovers Foundry agent prompts from `plugins/foundry/agents/**/*.md`.
 - It disables child extensions, skills, prompt templates, sessions, and context files by default to keep child context explicit.
 - It reports `actualModel` in tool details; copy those values into `behavioral-smoke.toon` `model_lanes` rows.
+- For multi-provider or distinct-lane exercises, pass explicit per-dispatch `model` values (for example red on `openai-codex/gpt-5.5:xhigh` and green on `kimi-coding/kimi-for-coding`, or green on `openai-codex/gpt-5.5:medium` as a weaker fallback) and set `requires_distinct_model_lanes: true` in `behavioral-smoke.toon`.
 - If the tool is unavailable, stop and tell the user to install or enable the Foundry Pi package; do not fake subagent isolation in the main Pi session.
 
 ### Behavioral Smoke Run Summary: `behavioral-smoke.toon`
@@ -171,6 +175,7 @@ Required TOON subset and fields:
 schema_version: foundry.behavioral-smoke.v1
 run_id: <stable run id>
 requires_divergence_restart: false
+requires_distinct_model_lanes: false
 
 test_results[1]{example,passed,total,expected_passed,expected_total}:
   <feature-or-example-name>,<passed>,<total>,<expected_passed>,<expected_total>
@@ -186,6 +191,7 @@ divergence_restarts[0]{phase,outcome,revision_history_count}:
 Rules:
 - `test_results` records the final run result. For worked examples, `expected_*` MUST match the documented expected pass rate (Sudoku 30/30, Chess 44/44, Rubik's 31/46 until fixed). For new feature runs, set `expected_*` to the accepted final target for that run.
 - `model_lanes` records every distinct team lane. If a model is inherited from the current session, write the inherited model ID as both planned and actual. If provider overrides are used, planned and actual must still match.
+- Set `requires_distinct_model_lanes: true` only when the run is deliberately exercising red/green provider or model-lane separation; then red-team and green-team planned/actual model lanes MUST differ. Prefer different providers (for example Codex vs Kimi); if unavailable, use materially different lanes such as `openai-codex/gpt-5.5:xhigh` vs `openai-codex/gpt-5.5:medium` and call out the weaker isolation in the run notes.
 - `divergence_restarts` records every Phase 1b/2b evaluator outcome that restarted the pipeline. For each `VALUABLE` restart, `revision_history_count` MUST be exactly `1` for that restart event.
 - If the run is deliberately exercising the divergence loop, set `requires_divergence_restart: true`; otherwise `false`.
 - Update this file after Phase 2b restarts and finalize it in Phase 4 before reporting success.

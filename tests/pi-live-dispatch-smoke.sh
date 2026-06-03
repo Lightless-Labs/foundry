@@ -10,6 +10,7 @@
 #   tests/pi-live-dispatch-smoke.sh
 #   tests/pi-live-dispatch-smoke.sh --keep
 #   tests/pi-live-dispatch-smoke.sh --run-dir runs/manual-pi-live-smoke
+#   tests/pi-live-dispatch-smoke.sh --red-model openai-codex/gpt-5.5:xhigh --green-model kimi/k2.5 --require-distinct-model-lanes --keep
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -20,14 +21,22 @@ SUDOKU_DIR="$ROOT_DIR/examples/sudoku-solver"
 KEEP=0
 RUN_DIR=""
 EXPLICIT_RUN_DIR=0
+RED_MODEL="${FOUNDRY_RED_MODEL:-}"
+GREEN_MODEL="${FOUNDRY_GREEN_MODEL:-}"
+REQUIRE_DISTINCT_MODEL_LANES=0
 
 usage() {
   cat <<'USAGE'
-Usage: tests/pi-live-dispatch-smoke.sh [--keep] [--run-dir DIR]
+Usage: tests/pi-live-dispatch-smoke.sh [--keep] [--run-dir DIR] [--red-model MODEL] [--green-model MODEL] [--require-distinct-model-lanes]
 
 Runs a slow/manual live Pi dispatch smoke using the Foundry foundry_team
 extension. By default artifacts are written to a temporary directory and cleaned
 up on success. Use --keep or --run-dir to inspect the generated run artifacts.
+
+Use --red-model/--green-model to pass explicit per-lane Pi model overrides to
+foundry_team. Use --require-distinct-model-lanes for multi-provider/model-lane
+exercises; behavioral-smoke.toon will then fail validation if red and green run
+on the same actual model lane.
 USAGE
 }
 
@@ -46,6 +55,26 @@ while [ "$#" -gt 0 ]; do
       EXPLICIT_RUN_DIR=1
       KEEP=1
       shift 2
+      ;;
+    --red-model)
+      if [ "$#" -lt 2 ]; then
+        echo "--red-model requires a model id" >&2
+        exit 2
+      fi
+      RED_MODEL="$2"
+      shift 2
+      ;;
+    --green-model)
+      if [ "$#" -lt 2 ]; then
+        echo "--green-model requires a model id" >&2
+        exit 2
+      fi
+      GREEN_MODEL="$2"
+      shift 2
+      ;;
+    --require-distinct-model-lanes)
+      REQUIRE_DISTINCT_MODEL_LANES=1
+      shift
       ;;
     -h|--help)
       usage
@@ -134,12 +163,27 @@ echo "Running Sudoku worked-example red tests (expected 30/30)..."
 ) >"$RUN_DIR/sudoku-cargo-test.out" 2>&1
 
 echo "Invoking Pi foundry_team live dispatch..."
+DISPATCH_JSON=$(python3 - "$RUN_DIR/dispatch/phase1/red-team.json" "$RUN_DIR/dispatch/phase2/green-team.json" "$RED_MODEL" "$GREEN_MODEL" <<'PY'
+import json
+import sys
+red_path, green_path, red_model, green_model = sys.argv[1:5]
+dispatches = [
+    {"envelopePath": red_path},
+    {"envelopePath": green_path},
+]
+if red_model:
+    dispatches[0]["model"] = red_model
+if green_model:
+    dispatches[1]["model"] = green_model
+print(json.dumps({"dispatches": dispatches}, indent=2))
+PY
+)
 PI_PROMPT=$(cat <<EOF
-Use the foundry_team tool exactly once in parallel mode for these PromptEnvelope paths:
-- $RUN_DIR/dispatch/phase1/red-team.json
-- $RUN_DIR/dispatch/phase2/green-team.json
+Use the foundry_team tool exactly once in parallel mode with exactly this JSON argument:
 
-Do not answer directly before calling the tool. The only acceptable action is a foundry_team call with dispatches for both envelope paths.
+$DISPATCH_JSON
+
+Do not answer directly before calling the tool. The only acceptable action is a foundry_team call with the dispatches above, preserving any model fields exactly.
 EOF
 )
 
@@ -153,13 +197,18 @@ pi \
   --tools foundry_team \
   "$PI_PROMPT" >"$RUN_DIR/pi-foundry-team.jsonl"
 
-python3 - "$RUN_DIR/pi-foundry-team.jsonl" "$RUN_DIR/behavioral-smoke.toon" <<'PY'
+python3 - "$RUN_DIR/pi-foundry-team.jsonl" "$RUN_DIR/behavioral-smoke.toon" "$RED_MODEL" "$GREEN_MODEL" "$REQUIRE_DISTINCT_MODEL_LANES" <<'PY'
 import json
 import sys
 from pathlib import Path
 
 jsonl_path = Path(sys.argv[1])
 toon_path = Path(sys.argv[2])
+expected_models = {
+    "red-team": sys.argv[3] or None,
+    "green-team": sys.argv[4] or None,
+}
+requires_distinct_model_lanes = sys.argv[5] == "1" or bool(expected_models["red-team"] and expected_models["green-team"] and expected_models["red-team"] != expected_models["green-team"])
 
 orchestrator_model = None
 tool_result = None
@@ -199,17 +248,25 @@ for recipient, expected_output in [("red-team", "RED_OK"), ("green-team", "GREEN
         raise SystemExit(f"{recipient} output mismatch: {result.get('output')!r}")
     if not result.get("actualModel"):
         raise SystemExit(f"{recipient} missing actualModel in tool result")
+    expected_model = expected_models[recipient]
+    if expected_model and result.get("plannedModel") != expected_model:
+        raise SystemExit(f"{recipient} plannedModel mismatch: expected {expected_model!r}, got {result.get('plannedModel')!r}")
+    if expected_model and result.get("actualModel") != expected_model:
+        raise SystemExit(f"{recipient} actualModel mismatch: expected {expected_model!r}, got {result.get('actualModel')!r}")
 
 if not orchestrator_model:
     orchestrator_model = "unknown-inherited-model"
 
 red_model = by_recipient["red-team"]["actualModel"]
 green_model = by_recipient["green-team"]["actualModel"]
+if requires_distinct_model_lanes and red_model == green_model:
+    raise SystemExit(f"requires distinct red/green model lanes, but both used {red_model!r}")
 
 toon_path.write_text(
     "schema_version: foundry.behavioral-smoke.v1\n"
     "run_id: pi-live-dispatch-smoke\n"
     "requires_divergence_restart: false\n"
+    f"requires_distinct_model_lanes: {str(requires_distinct_model_lanes).lower()}\n"
     "\n"
     "test_results[1]{example,passed,total,expected_passed,expected_total}:\n"
     "  sudoku-solver,30,30,30,30\n"
