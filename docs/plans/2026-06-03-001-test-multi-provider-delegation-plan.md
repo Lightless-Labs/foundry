@@ -43,6 +43,7 @@ Gemini is no longer available in the current environment, so the first live lane
 2026-06-03:
 
 - `tests/pi-live-dispatch-smoke.sh --red-model openai-codex/gpt-5.5:xhigh --green-model openai-codex/gpt-5.5:medium --require-distinct-model-lanes --run-dir runs/pi-live-multilane-smoke` — passed; generated replay artifacts and `behavioral-smoke.toon` with distinct red/green Codex thinking lanes.
+- Kimi correction: `kimi-coding` auth is configured in Pi, but spot-check calls to `kimi-coding/kimi-for-coding` and `kimi-coding/k2.6-code-preview` hung without stdout/stderr under short manual checks, so the live smoke used the Codex-medium operational fallback rather than a true provider-diverse Kimi lane.
 - `tests/validate-barrier-envelopes.sh runs/pi-live-multilane-smoke/dispatch` — passed.
 - `tests/behavioral-smoke.sh runs/pi-live-multilane-smoke` — passed.
 - `tests/behavioral-smoke.sh` — self-tests passed, including the new collapsed-lane failure case.

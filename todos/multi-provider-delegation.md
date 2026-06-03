@@ -20,7 +20,7 @@ Foundry's information barrier should be strengthened by sending isolated red and
 
 ## Completion
 
-Completed 2026-06-03. Live run: `runs/pi-live-multilane-smoke/` with red `openai-codex/gpt-5.5:xhigh`, green `openai-codex/gpt-5.5:medium`, orchestrator `openai-codex/gpt-5.5`; barrier and behavioral validators passed.
+Completed 2026-06-03. Live run: `runs/pi-live-multilane-smoke/` with red `openai-codex/gpt-5.5:xhigh`, green `openai-codex/gpt-5.5:medium`, orchestrator `openai-codex/gpt-5.5`; barrier and behavioral validators passed. Correction: Pi has `kimi-coding` auth configured, but Kimi spot-check calls hung without stdout/stderr, so Codex medium was used as the operational fallback.
 
 ## Plan
 
