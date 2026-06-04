@@ -67,10 +67,10 @@ RECORD CubieCube:
 -- Corner numbering:
 --   0=URF  1=UFL  2=ULB  3=UBR  4=DFR  5=DLF  6=DBL  7=DRB
 -- Corner facelets (three facelets per corner, U/D sticker listed first):
---   URF: (U8, R9, F20)     UFL: (U6, F18, L44)
---   ULB: (U0, L36, B53)    UBR: (U2, B45, R11)
---   DFR: (D29, F26, R15)   DLF: (D27, L42, F24)
---   DBL: (D33, B51, L38)   DRB: (D35, R17, B47)
+--   URF: (U8, R9, F20)     UFL: (U6, F18, L38)
+--   ULB: (U0, L36, B47)    UBR: (U2, B45, R11)
+--   DFR: (D29, F26, R15)   DLF: (D27, L44, F24)
+--   DBL: (D33, B53, L42)   DRB: (D35, R17, B51)
 -- Orientation: 0 = U/D-color sticker is on U or D face
 --              1 = U/D-color sticker is one twist clockwise from U/D face
 --              2 = U/D-color sticker is two twists clockwise from U/D face
@@ -103,6 +103,15 @@ RECORD Coordinates:
 --   IDs:    0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17
 -- Phase 2 uses only 10 moves: U U' U2 D D' D2 R2 L2 F2 B2
 --   (phase2 move indices 0-9 map to move_ids: 0,1,2,3,4,5,8,11,14,17)
+
+-- Golden facelet vectors from Kociemba's Python reference implementation.
+-- These are convention anchors; red tests and green implementation MUST match them.
+-- Solved: UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB
+-- R:      UUFUUFUUFRRRRRRRRRFFDFFDFFDDDBDDBDDBLLLLLLLLLUBBUBBUBB
+-- U:      UUUUUUUUUBBBRRRRRRRRRFFFFFFDDDDDDDDDFFFLLLLLLLLLBBBBBB
+-- R U R' U': UULUUFUUFRRUBRRURRFFDFFUFFFDDRDDDDDDBLLLLLLLLBRRBBBBBB
+-- Hard 20-move scramble R U2 D' B D' R2 U' B2 L U2 D F2 R' U' D B2 L U' B2 R2:
+--         DFDRUDLDDRFRLRRDBRBBBFFUFBFULLLDUUFBBUURLRLDRFULDBBULF
 
 ENUM SolveResult:
     SOLVED(Vec<u8>)          -- move sequence (each element is a move_id 0-17)
@@ -180,13 +189,13 @@ FUNCTION parse(input: String) -> Result<Facelet, InputError>:
 -- Corner facelet triples (U/D sticker first, then clockwise):
 CONST CORNER_FACELETS: [[u8; 3]; 8] = [
     [8,  9,  20],  -- URF
-    [6,  18, 44],  -- UFL
-    [0,  36, 53],  -- ULB  (note: U0, L36, B53 — NOT U0, B53, L36)
+    [6,  18, 38],  -- UFL
+    [0,  36, 47],  -- ULB  (Kociemba: U1, L1, B3)
     [2,  45, 11],  -- UBR
     [29, 26, 15],  -- DFR
-    [27, 42, 24],  -- DLF  (note: D27, L42, F24)
-    [33, 51, 38],  -- DBL
-    [35, 17, 47],  -- DRB
+    [27, 44, 24],  -- DLF  (Kociemba: D1, L9, F7)
+    [33, 53, 42],  -- DBL
+    [35, 17, 51],  -- DRB
 ]
 
 -- Edge facelet pairs (U/D sticker first, or F/B sticker first for slice edges):
@@ -385,28 +394,28 @@ FUNCTION parity(perm: &[u8]) -> bool:
 -- with orientation deltas.
 
 CONST CORNER_CYCLES: [[u8; 4]; 6] = [
-    [0, 3, 2, 1],  -- U: URF->UBR->ULB->UFL
-    [4, 5, 6, 7],  -- D: DFR->DLF->DBL->DRB
-    [0, 4, 7, 3],  -- R: URF->DFR->DRB->UBR
-    [1, 2, 6, 5],  -- L: UFL->ULB->DBL->DLF
-    [0, 1, 5, 4],  -- F: URF->UFL->DLF->DFR
-    [3, 7, 6, 2],  -- B: UBR->DRB->DBL->ULB
+    [0, 1, 2, 3],  -- U pull-cycle, matches Kociemba moveCube U
+    [4, 7, 6, 5],  -- D pull-cycle, matches Kociemba moveCube D
+    [0, 3, 7, 4],  -- R pull-cycle, matches Kociemba moveCube R
+    [1, 5, 6, 2],  -- L pull-cycle, matches Kociemba moveCube L
+    [0, 4, 5, 1],  -- F pull-cycle, matches Kociemba moveCube F
+    [2, 6, 7, 3],  -- B pull-cycle, matches Kociemba moveCube B
 ]
 CONST CORNER_ORIENT_DELTAS: [[u8; 4]; 6] = [
     [0, 0, 0, 0],  -- U
     [0, 0, 0, 0],  -- D
-    [1, 2, 1, 2],  -- R
+    [2, 1, 2, 1],  -- R
     [1, 2, 1, 2],  -- L
     [1, 2, 1, 2],  -- F
     [1, 2, 1, 2],  -- B
 ]
 CONST EDGE_CYCLES: [[u8; 4]; 6] = [
-    [0, 3, 2, 1],  -- U: UR->UB->UL->UF
-    [4, 7, 6, 5],  -- D: DR->DB->DL->DF
-    [0, 8, 4, 11], -- R: UR->FR->DR->BR
-    [2, 9, 6, 10], -- L: UL->FL->DL->BL
-    [1, 9, 5, 8],  -- F: UF->FL->DF->FR
-    [3, 10, 7, 11], -- B: UB->BL->DB->BR
+    [0, 1, 2, 3],   -- U pull-cycle
+    [4, 7, 6, 5],   -- D pull-cycle
+    [0, 11, 4, 8],  -- R pull-cycle
+    [2, 9, 6, 10],  -- L pull-cycle
+    [1, 8, 5, 9],   -- F pull-cycle
+    [3, 10, 7, 11], -- B pull-cycle
 ]
 CONST EDGE_ORIENT_DELTAS: [[u8; 4]; 6] = [
     [0, 0, 0, 0],  -- U
@@ -805,15 +814,15 @@ FUNCTION integration_smoke_test():
     ASSERT result.exit_code == 1
 
     -- Known scramble: apply R U R' U' to solved cube, then solve
-    -- Facelet string for R U R' U' applied to solved:
-    scrambled = "UUFUURUURFFRRRRRRRFFDFFDFFDDDBDDDDDDLLLLLLLLLUBBBBLBBB"
+    -- Facelet string for R U R' U' applied to solved, from Kociemba Python reference:
+    scrambled = "UULUUFUUFRRUBRRURRFFDFFUFFFDDRDDDDDDBLLLLLLLLBRRBBBBBB"
     result = run_solver(scrambled)
     ASSERT result.exit_code == 0
     ASSERT result.stdout.trim().split_whitespace().count() <= 25
     -- Verify: applying the output moves to scrambled state yields solved
 
-    -- 20-move scramble (hard case)
-    hard = "DRLUUBFBLDRUFRRFUUBRDFFBDLLUFDRDDBLFLBRLLFRUDRBBUUBRLUD"
+    -- 20-move scramble (hard case), from Kociemba Python reference
+    hard = "DFDRUDLDDRFRLRRDBRBBBFFUFBFULLLDUUFBBUURLRLDRFULDBBULF"
     result = run_solver(hard)
     ASSERT result.exit_code == 0
     ASSERT result.stdout.trim().split_whitespace().count() <= 25

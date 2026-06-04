@@ -17,11 +17,13 @@ const SOLVED: &str = "UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB";
 /// Known to require exactly 20 moves in HTM (half-turn metric).
 const SUPERFLIP: &str = "UBULURUFURURFRBRDRFUFLFRFDFDFDLDRDBDLULBLFLDLBUBRBLBDB";
 
-/// R U R' U' applied to the solved cube (from NLSpec section 6.13).
-const SCRAMBLE_R_U_RP_UP: &str = "LUUUUBUUBBRRFRRFRRURRFFFFFFDDDDDDDDRLLFLLLLLLDBBUBBUBB";
+/// R U R' U' applied to the solved cube in Kociemba's Python reference
+/// (`URFDLB`, row-major faces, facelet-level golden vector).
+const SCRAMBLE_R_U_RP_UP: &str = "UULUUFUUFRRUBRRURRFFDFFUFFFDDRDDDDDDBLLLLLLLLBRRBBBBBB";
 
-/// A known hard 20-move scramble: R U2 D' B D' R2 U' B2 L U2 D F2 R' U' D B2 L U' B2 R2.
-const HARD_SCRAMBLE: &str = "FLDDUURFLFRBLRLRBFULUDFBLDBRRBFDUDUUDUUBLFBRLFBRDBRLFD";
+/// A known hard 20-move scramble from Kociemba's Python reference:
+/// R U2 D' B D' R2 U' B2 L U2 D F2 R' U' D B2 L U' B2 R2.
+const HARD_SCRAMBLE: &str = "DFDRUDLDDRFRLRRDBRBBBFFUFBFULLLDUUFBBUURLRLDRFULDBBULF";
 
 /// Wrong sticker counts string (from NLSpec section 6.13): extra U, missing R.
 const BAD_STICKER_COUNTS: &str = "UUUUUUUUURRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBUBBBBBBBB";
@@ -79,8 +81,8 @@ fn parse_moves(solution: &str) -> Vec<&str> {
 /// Validate that every token in the solution is a legal Singmaster move.
 fn is_valid_singmaster(solution: &str) -> bool {
     const VALID_MOVES: &[&str] = &[
-        "U", "U'", "U2", "D", "D'", "D2", "R", "R'", "R2",
-        "L", "L'", "L2", "F", "F'", "F2", "B", "B'", "B2",
+        "U", "U'", "U2", "D", "D'", "D2", "R", "R'", "R2", "L", "L'", "L2", "F", "F'", "F2", "B",
+        "B'", "B2",
     ];
     let moves = parse_moves(solution);
     !moves.is_empty() && moves.iter().all(|m| VALID_MOVES.contains(m))
@@ -97,10 +99,7 @@ fn has_no_redundant_moves(solution: &str) -> bool {
             return false;
         }
         // Opposite faces: second should not precede first in canonical order
-        if matches!(
-            (face_a, face_b),
-            ('D', 'U') | ('L', 'R') | ('B', 'F')
-        ) {
+        if matches!((face_a, face_b), ('D', 'U') | ('L', 'R') | ('B', 'F')) {
             return false;
         }
     }
@@ -141,41 +140,41 @@ fn has_no_redundant_moves(solution: &str) -> bool {
 #[rustfmt::skip]
 const PERM_U: [usize; 54] = [
      6,  3,  0,  7,  4,  1,  8,  5,  2,
-    18, 19, 20, 12, 13, 14, 15, 16, 17,
-    36, 37, 38, 21, 22, 23, 24, 25, 26,
+    45, 46, 47, 12, 13, 14, 15, 16, 17,
+     9, 10, 11, 21, 22, 23, 24, 25, 26,
     27, 28, 29, 30, 31, 32, 33, 34, 35,
-    45, 46, 47, 39, 40, 41, 42, 43, 44,
-     9, 10, 11, 48, 49, 50, 51, 52, 53,
+    18, 19, 20, 39, 40, 41, 42, 43, 44,
+    36, 37, 38, 48, 49, 50, 51, 52, 53,
 ];
 
 #[rustfmt::skip]
 const PERM_D: [usize; 54] = [
      0,  1,  2,  3,  4,  5,  6,  7,  8,
-     9, 10, 11, 12, 13, 14, 51, 52, 53,
-    18, 19, 20, 21, 22, 23, 15, 16, 17,
-    29, 32, 35, 28, 31, 34, 27, 30, 33,
-    36, 37, 38, 39, 40, 41, 24, 25, 26,
-    45, 46, 47, 48, 49, 50, 42, 43, 44,
+     9, 10, 11, 12, 13, 14, 24, 25, 26,
+    18, 19, 20, 21, 22, 23, 42, 43, 44,
+    33, 30, 27, 34, 31, 28, 35, 32, 29,
+    36, 37, 38, 39, 40, 41, 51, 52, 53,
+    45, 46, 47, 48, 49, 50, 15, 16, 17,
 ];
 
 #[rustfmt::skip]
 const PERM_R: [usize; 54] = [
-     0,  1, 51,  3,  4, 48,  6,  7, 45,
+     0,  1, 20,  3,  4, 23,  6,  7, 26,
     15, 12,  9, 16, 13, 10, 17, 14, 11,
-    18, 19,  2, 21, 22,  5, 24, 25,  8,
-    27, 28, 20, 30, 31, 23, 33, 34, 26,
+    18, 19, 29, 21, 22, 32, 24, 25, 35,
+    27, 28, 51, 30, 31, 48, 33, 34, 45,
     36, 37, 38, 39, 40, 41, 42, 43, 44,
-    35, 46, 47, 32, 49, 50, 29, 52, 53,
+     8, 46, 47,  5, 49, 50,  2, 52, 53,
 ];
 
 #[rustfmt::skip]
 const PERM_L: [usize; 54] = [
-    18,  1,  2, 21,  4,  5, 24,  7,  8,
+    53,  1,  2, 50,  4,  5, 47,  7,  8,
      9, 10, 11, 12, 13, 14, 15, 16, 17,
-    33, 19, 20, 30, 22, 23, 27, 25, 26,
-    47, 28, 29, 50, 31, 32, 53, 34, 35,
-    38, 41, 44, 37, 40, 43, 36, 39, 42,
-    45, 46,  6, 48, 49,  3, 51, 52,  0,
+     0, 19, 20,  3, 22, 23,  6, 25, 26,
+    18, 28, 29, 21, 31, 32, 24, 34, 35,
+    42, 39, 36, 43, 40, 37, 44, 41, 38,
+    45, 46, 33, 48, 49, 30, 51, 52, 27,
 ];
 
 #[rustfmt::skip]
@@ -195,7 +194,7 @@ const PERM_B: [usize; 54] = [
     18, 19, 20, 21, 22, 23, 24, 25, 26,
     27, 28, 29, 30, 31, 32, 36, 39, 42,
      2, 37, 38,  1, 40, 41,  0, 43, 44,
-    47, 50, 53, 46, 49, 52, 45, 48, 51,
+    51, 48, 45, 52, 49, 46, 53, 50, 47,
 ];
 
 fn apply_perm(facelets: &[u8; 54], perm: &[usize; 54]) -> [u8; 54] {
@@ -307,14 +306,22 @@ fn t01_accepts_solved_cube() {
 fn t02_handles_lowercase_input() {
     let lower = SOLVED.to_lowercase();
     let output = run_with_arg(&lower);
-    assert_eq!(output.status.code(), Some(0), "lowercase input should be accepted");
+    assert_eq!(
+        output.status.code(),
+        Some(0),
+        "lowercase input should be accepted"
+    );
 }
 
 #[test]
 fn t03_handles_mixed_case_input() {
-    let mixed = "UuUuUuUuUrRrRrRrRrFfFfFfFfFdDdDdDdDlLlLlLlLlBbBbBbBbB";
+    let mixed = "UuUuUuUuUrRrRrRrRrFfFfFfFfFdDdDdDdDdLlLlLlLlLbBbBbBbBb";
     let output = run_with_arg(mixed);
-    assert_eq!(output.status.code(), Some(0), "mixed case input should be accepted");
+    assert_eq!(
+        output.status.code(),
+        Some(0),
+        "mixed case input should be accepted"
+    );
 }
 
 #[test]
@@ -379,7 +386,11 @@ fn t09_rejects_wrong_sticker_count() {
     // 18 U's, 0 R's
     let bad = "UUUUUUUUUUUUUUUUUUFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB";
     let output = run_with_arg(bad);
-    assert_eq!(output.status.code(), Some(1), "wrong sticker count should exit 1");
+    assert_eq!(
+        output.status.code(),
+        Some(1),
+        "wrong sticker count should exit 1"
+    );
 }
 
 #[test]
@@ -496,7 +507,11 @@ fn t17_solves_known_4_move_scramble() {
 #[test]
 fn t18_solves_hard_20_move_scramble() {
     let output = run_with_arg(HARD_SCRAMBLE);
-    assert_eq!(output.status.code(), Some(0), "should solve the hard scramble");
+    assert_eq!(
+        output.status.code(),
+        Some(0),
+        "should solve the hard scramble"
+    );
     let solution = stdout_str(&output);
     let moves = parse_moves(&solution);
     assert!(
@@ -615,7 +630,10 @@ fn t27_solution_printed_to_stdout() {
     let output = run_with_arg(SCRAMBLE_R_U_RP_UP);
     assert_eq!(output.status.code(), Some(0));
     let out = stdout_str(&output);
-    assert!(!out.trim().is_empty(), "solution should be printed to stdout");
+    assert!(
+        !out.trim().is_empty(),
+        "solution should be printed to stdout"
+    );
     assert!(
         is_valid_singmaster(&out),
         "stdout should contain valid Singmaster moves, got: {out}"
@@ -629,7 +647,10 @@ fn t28_errors_printed_to_stderr() {
     let err = stderr_str(&output);
     assert!(!err.trim().is_empty(), "error messages should go to stderr");
     let out = stdout_str(&output);
-    assert!(out.trim().is_empty(), "stdout should be empty on error, got: {out}");
+    assert!(
+        out.trim().is_empty(),
+        "stdout should be empty on error, got: {out}"
+    );
 }
 
 #[test]
@@ -824,7 +845,11 @@ fn t42_one_move_scramble_solution_restores_solved() {
     let r_scrambled = facelets_to_string(&cube);
 
     let output = run_with_arg(&r_scrambled);
-    assert_eq!(output.status.code(), Some(0), "one-move scramble should solve");
+    assert_eq!(
+        output.status.code(),
+        Some(0),
+        "one-move scramble should solve"
+    );
     let solution = stdout_str(&output);
     let moves = parse_moves(&solution);
 
@@ -848,7 +873,11 @@ fn t43_validation_errors_use_exit_code_1() {
     // Corner orientation parity violation should be exit 1 (validation error)
     let bad = "UUUUUUUURFRRRRRRRRFFUFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB";
     let output = run_with_arg(bad);
-    assert_ne!(output.status.code(), Some(0), "parity-violated cube should not exit 0");
+    assert_ne!(
+        output.status.code(),
+        Some(0),
+        "parity-violated cube should not exit 0"
+    );
     assert_eq!(
         output.status.code(),
         Some(1),
@@ -871,8 +900,8 @@ fn t44_solution_is_space_separated_singmaster() {
         "solution should be a single line, got: {trimmed}"
     );
     let valid_moves = [
-        "U", "U'", "U2", "D", "D'", "D2", "R", "R'", "R2",
-        "L", "L'", "L2", "F", "F'", "F2", "B", "B'", "B2",
+        "U", "U'", "U2", "D", "D'", "D2", "R", "R'", "R2", "L", "L'", "L2", "F", "F'", "F2", "B",
+        "B'", "B2",
     ];
     for token in trimmed.split_whitespace() {
         assert!(

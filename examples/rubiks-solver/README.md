@@ -1,6 +1,6 @@
-# Example: Rubik's Cube Solver — Convention Mismatch Case Study
+# Example: Rubik's Cube Solver — Golden Vector Recovery Case Study
 
-This directory contains a Rubik's cube solver built using the Foundry adversarial workflow. Unlike the sudoku example (30/30 clean pass), this one hit a **convention mismatch** — the most instructive failure mode of the adversarial process.
+This directory contains a Rubik's cube solver built using the Foundry adversarial workflow. Unlike the sudoku example (30/30 clean pass), this one originally hit a **convention mismatch** — the most instructive failure mode of the adversarial process. It has since been repaired with Kociemba reference golden vectors.
 
 ## What Happened
 
@@ -24,15 +24,16 @@ The red team derived one set of permutation tables. The green team derived anoth
 
 This is the adversarial process working as designed — it **surfaced a spec defect** that conventional development would hide. In a normal workflow, one developer writes both tests and implementation using the same convention, so the mismatch never appears. The adversarial barrier forces independent derivation, which exposes convention ambiguity.
 
-## The Fix (for future specs)
+## The Fix
 
-**Golden test vectors.** The NLSpec should include:
+**Golden test vectors.** The repaired NLSpec and red tests now anchor the convention with vectors sourced from Kociemba's Python reference implementation (`URFDLB`, row-major 3x3 faces):
 
-```
+```text
 ### Golden Test Vectors (from Kociemba reference implementation)
-- Applying R to solved → "UUBUURUURFRRRRRRRRDFFDFFDFFDDLDDLDDLLLLLLLLLLBBBBBBBBBB"
-- Applying U R to solved → "[exact string]"
-- Applying R U R' U' to solved → "[exact string]"
+- Applying R to solved → "UUFUUFUUFRRRRRRRRRFFDFFDFFDDDBDDBDDBLLLLLLLLLUBBUBBUBB"
+- Applying U to solved → "UUUUUUUUUBBBRRRRRRRRRFFFFFFDDDDDDDDDFFFLLLLLLLLLBBBBBB"
+- Applying R U R' U' to solved → "UULUUFUUFRRUBRRURRFFDFFUFFFDDRDDDDDDBLLLLLLLLBRRBBBBBB"
+- Applying R U2 D' B D' R2 U' B2 L U2 D F2 R' U' D B2 L U' B2 R2 → "DFDRUDLDDRFRLRRDBRBBBFFUFBFULLLDUUFBBUURLRLDRFULDBBULF"
 ```
 
 These vectors are sourced from a reference implementation, not derived by the spec author. Both teams must match them. Convention mismatches become test failures on the golden vectors before they propagate into complex scenarios.
@@ -52,10 +53,9 @@ The `spec-completeness-reviewer` agent has been updated to flag the absence of g
 
 ## Current State
 
-- 31/46 tests pass
-- 15 failures are all convention mismatch (not implementation bugs)
-- Solver correctly handles: parsing, validation, solved cube, superflip
-- Solver produces valid solutions (internally consistent) that the test can't verify due to convention disagreement
+- 46/46 tests pass after adding Kociemba golden vectors and aligning the implementation/test move conventions
+- Solver correctly handles: parsing, validation, solved cube, superflip, one-move scrambles, hard scrambles, and solution verification
+- Original failure mode remains documented as a Foundry lesson: without golden vectors, red and green can both be internally consistent while disagreeing on facelet permutations
 
 ## Running It
 
@@ -64,6 +64,6 @@ The `spec-completeness-reviewer` agent has been updated to flag the absence of g
 cargo run -- "UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB"
 # → "Already solved"
 
-# Run tests (31 pass, 15 fail due to convention mismatch)
+# Run tests (46/46 pass)
 cargo test
 ```

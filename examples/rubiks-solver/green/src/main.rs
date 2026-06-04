@@ -71,30 +71,30 @@ const EDGE_COLORS: [[u8; 2]; 12] = [
 
 // Move definitions — standard Singmaster CW cycles
 const CORNER_CYCLES: [[usize; 4]; 6] = [
-    [0, 3, 2, 1], // U: URF->UBR->ULB->UFL
-    [4, 5, 6, 7], // D: DFR->DLF->DBL->DRB
-    [0, 4, 7, 3], // R: URF->DFR->DRB->UBR
-    [2, 1, 5, 6], // L: ULB->UFL->DLF->DBL
-    [1, 0, 4, 5], // F: UFL->URF->DFR->DLF
-    [3, 2, 6, 7], // B: UBR->ULB->DBL->DRB
+    [0, 1, 2, 3], // U: URF<-UBR<-ULB<-UFL
+    [4, 7, 6, 5], // D: DFR<-DLF<-DBL<-DRB
+    [0, 3, 7, 4], // R: URF<-DFR<-DRB<-UBR
+    [1, 5, 6, 2], // L: UFL<-DLF<-DBL<-ULB
+    [0, 4, 5, 1], // F: URF<-DFR<-DLF<-UFL
+    [2, 6, 7, 3], // B: ULB<-DBL<-DRB<-UBR
 ];
 
 const CORNER_ORIENT_DELTAS: [[u8; 4]; 6] = [
     [0, 0, 0, 0], // U
     [0, 0, 0, 0], // D
     [2, 1, 2, 1], // R
-    [2, 1, 2, 1], // L
-    [2, 1, 2, 1], // F
-    [2, 1, 2, 1], // B
+    [1, 2, 1, 2], // L
+    [1, 2, 1, 2], // F
+    [1, 2, 1, 2], // B
 ];
 
 const EDGE_CYCLES: [[usize; 4]; 6] = [
-    [0, 3, 2, 1],   // U: UR->UB->UL->UF
-    [4, 5, 6, 7],   // D: DR->DF->DL->DB
-    [0, 8, 4, 11],  // R: UR->FR->DR->BR
-    [2, 9, 6, 10],  // L: UL->FL->DL->BL
-    [1, 8, 5, 9],   // F: UF->FR->DF->FL
-    [3, 10, 7, 11], // B: UB->BL->DB->BR
+    [0, 1, 2, 3],   // U: UR<-UB<-UL<-UF
+    [4, 7, 6, 5],   // D: DR<-DF<-DL<-DB
+    [0, 11, 4, 8],  // R: UR<-FR<-DR<-BR
+    [2, 9, 6, 10],  // L: UL<-FL<-DL<-BL
+    [1, 8, 5, 9],   // F: UF<-FL<-DF<-FR
+    [3, 10, 7, 11], // B: UB<-BR<-DB<-BL
 ];
 
 const EDGE_ORIENT_DELTAS: [[u8; 4]; 6] = [
@@ -107,8 +107,8 @@ const EDGE_ORIENT_DELTAS: [[u8; 4]; 6] = [
 ];
 
 const MOVE_NAMES: [&str; 18] = [
-    "U", "U'", "U2", "D", "D'", "D2", "R", "R'", "R2", "L", "L'", "L2", "F", "F'", "F2", "B",
-    "B'", "B2",
+    "U", "U'", "U2", "D", "D'", "D2", "R", "R'", "R2", "L", "L'", "L2", "F", "F'", "F2", "B", "B'",
+    "B2",
 ];
 
 // Phase 2 move IDs (indices into the 18-move array)
@@ -166,10 +166,7 @@ fn parse(input: &str) -> Result<[u8; 54], String> {
             'L' => facelet[i] = 4,
             'B' => facelet[i] = 5,
             _ => {
-                return Err(format!(
-                    "Invalid character '{}' at position {}",
-                    ch, i
-                ));
+                return Err(format!("Invalid character '{}' at position {}", ch, i));
             }
         }
     }
@@ -189,42 +186,26 @@ fn facelets_to_cubies(facelet: &[u8; 54]) -> CubieCube {
         edge_orient: [0; 12],
     };
 
-    // Determine each corner
+    // Determine each corner using Kociemba's orientation convention: find the
+    // slot facelet that carries a U/D color, then compare the following two
+    // facelets in clockwise order against each cubie's non-U/D colors.
     for slot in 0..8 {
-        let f0 = facelet[CORNER_FACELETS[slot][0]];
-        let f1 = facelet[CORNER_FACELETS[slot][1]];
-        let f2 = facelet[CORNER_FACELETS[slot][2]];
+        let fs = [
+            facelet[CORNER_FACELETS[slot][0]],
+            facelet[CORNER_FACELETS[slot][1]],
+            facelet[CORNER_FACELETS[slot][2]],
+        ];
+
+        let ori = (0..3)
+            .find(|&idx| fs[idx] == COLOR_U || fs[idx] == COLOR_D)
+            .unwrap_or(0);
+        let col1 = fs[(ori + 1) % 3];
+        let col2 = fs[(ori + 2) % 3];
 
         for c in 0..8 {
-            let cc = CORNER_COLORS[c];
-            // Check if {f0, f1, f2} == set(cc) — same three colors in any order
-            let mut match_found = true;
-            let fs = [f0, f1, f2];
-            let mut used = [false; 3];
-            for &color in &cc {
-                let mut found = false;
-                for j in 0..3 {
-                    if !used[j] && fs[j] == color {
-                        used[j] = true;
-                        found = true;
-                        break;
-                    }
-                }
-                if !found {
-                    match_found = false;
-                    break;
-                }
-            }
-            if match_found {
+            if col1 == CORNER_COLORS[c][1] && col2 == CORNER_COLORS[c][2] {
                 cube.corner_perm[slot] = c as u8;
-                // Orientation: which facelet position has the U/D color
-                if f0 == cc[0] {
-                    cube.corner_orient[slot] = 0;
-                } else if f1 == cc[0] {
-                    cube.corner_orient[slot] = 1;
-                } else {
-                    cube.corner_orient[slot] = 2;
-                }
+                cube.corner_orient[slot] = ori as u8;
                 break;
             }
         }
@@ -296,7 +277,10 @@ fn encode_ud_slice(cube: &CubieCube) -> u16 {
         }
     }
     positions.sort();
-    c_n_k(positions[0], 1) + c_n_k(positions[1], 2) + c_n_k(positions[2], 3) + c_n_k(positions[3], 4)
+    c_n_k(positions[0], 1)
+        + c_n_k(positions[1], 2)
+        + c_n_k(positions[2], 3)
+        + c_n_k(positions[3], 4)
 }
 
 fn encode_cp(cube: &CubieCube) -> u16 {
@@ -546,19 +530,13 @@ fn validate(facelet: &[u8; 54], cube: &CubieCube) -> Result<(), String> {
     // Check 3: Corner orientation parity
     let co_sum: u8 = cube.corner_orient.iter().sum();
     if co_sum % 3 != 0 {
-        return Err(format!(
-            "Corner orientation parity error (sum={})",
-            co_sum
-        ));
+        return Err(format!("Corner orientation parity error (sum={})", co_sum));
     }
 
     // Check 4: Edge orientation parity
     let eo_sum: u8 = cube.edge_orient.iter().sum();
     if eo_sum % 2 != 0 {
-        return Err(format!(
-            "Edge orientation parity error (sum={})",
-            eo_sum
-        ));
+        return Err(format!("Edge orientation parity error (sum={})", eo_sum));
     }
 
     // Check 5: Permutation parity
@@ -659,17 +637,17 @@ fn apply_move(cube: &CubieCube, move_id: u8) -> CubieCube {
 // ============================================================================
 
 struct Tables {
-    co_move: Vec<[u16; 18]>,   // [2187][18]
-    eo_move: Vec<[u16; 18]>,   // [2048][18]
-    uds_move: Vec<[u16; 18]>,  // [495][18]
-    cp_move: Vec<[u16; 10]>,   // [40320][10]
-    ep_move: Vec<[u16; 10]>,   // [40320][10]
-    usp_move: Vec<[u8; 10]>,   // [24][10]
+    co_move: Vec<[u16; 18]>,  // [2187][18]
+    eo_move: Vec<[u16; 18]>,  // [2048][18]
+    uds_move: Vec<[u16; 18]>, // [495][18]
+    cp_move: Vec<[u16; 10]>,  // [40320][10]
+    ep_move: Vec<[u16; 10]>,  // [40320][10]
+    usp_move: Vec<[u8; 10]>,  // [24][10]
     // Pruning tables
-    co_uds_prune: Vec<u8>,  // 2187*495 entries, 4 bits each
-    eo_uds_prune: Vec<u8>,  // 2048*495 entries, 4 bits each
-    cp_usp_prune: Vec<u8>,  // 40320*24 entries, 4 bits each
-    ep_usp_prune: Vec<u8>,  // 40320*24 entries, 4 bits each
+    co_uds_prune: Vec<u8>, // 2187*495 entries, 4 bits each
+    eo_uds_prune: Vec<u8>, // 2048*495 entries, 4 bits each
+    cp_usp_prune: Vec<u8>, // 40320*24 entries, 4 bits each
+    ep_usp_prune: Vec<u8>, // 40320*24 entries, 4 bits each
 }
 
 fn generate_tables() -> Tables {
@@ -937,14 +915,8 @@ fn phase1_search_at_depth(
 }
 
 fn phase1_heuristic(co: u16, eo: u16, uds: u16, tables: &Tables) -> u8 {
-    let h1 = get_prune_entry(
-        &tables.co_uds_prune,
-        co as usize * 495 + uds as usize,
-    );
-    let h2 = get_prune_entry(
-        &tables.eo_uds_prune,
-        eo as usize * 495 + uds as usize,
-    );
+    let h1 = get_prune_entry(&tables.co_uds_prune, co as usize * 495 + uds as usize);
+    let h2 = get_prune_entry(&tables.eo_uds_prune, eo as usize * 495 + uds as usize);
     h1.max(h2)
 }
 
@@ -974,7 +946,7 @@ fn phase1_dfs(
         if face == last_face {
             continue;
         }
-        if last_face != 255 && are_opposite(face, last_face) && face > last_face {
+        if last_face != 255 && are_opposite(face, last_face) && face < last_face {
             continue;
         }
 
@@ -983,7 +955,17 @@ fn phase1_dfs(
         let new_uds = tables.uds_move[uds as usize][move_id as usize];
 
         path.push(move_id);
-        phase1_dfs(new_co, new_eo, new_uds, depth + 1, limit, path, tables, face, solutions);
+        phase1_dfs(
+            new_co,
+            new_eo,
+            new_uds,
+            depth + 1,
+            limit,
+            path,
+            tables,
+            face,
+            solutions,
+        );
         path.pop();
 
         // Only find one solution per depth limit for efficiency
@@ -1013,7 +995,16 @@ fn phase2_search(
 
     for depth_limit in h..=max_depth {
         let mut path = Vec::new();
-        if let Some(solution) = phase2_dfs(cp, ep, usp, 0, depth_limit, &mut path, tables, last_face_from_p1) {
+        if let Some(solution) = phase2_dfs(
+            cp,
+            ep,
+            usp,
+            0,
+            depth_limit,
+            &mut path,
+            tables,
+            last_face_from_p1,
+        ) {
             return Some(solution);
         }
     }
@@ -1021,14 +1012,8 @@ fn phase2_search(
 }
 
 fn phase2_heuristic(cp: u16, ep: u16, usp: u8, tables: &Tables) -> u8 {
-    let h1 = get_prune_entry(
-        &tables.cp_usp_prune,
-        cp as usize * 24 + usp as usize,
-    );
-    let h2 = get_prune_entry(
-        &tables.ep_usp_prune,
-        ep as usize * 24 + usp as usize,
-    );
+    let h1 = get_prune_entry(&tables.cp_usp_prune, cp as usize * 24 + usp as usize);
+    let h2 = get_prune_entry(&tables.ep_usp_prune, ep as usize * 24 + usp as usize);
     h1.max(h2)
 }
 
@@ -1057,7 +1042,7 @@ fn phase2_dfs(
         if face == last_face {
             continue;
         }
-        if last_face != 255 && are_opposite(face, last_face) && face > last_face {
+        if last_face != 255 && are_opposite(face, last_face) && face < last_face {
             continue;
         }
 
@@ -1066,7 +1051,16 @@ fn phase2_dfs(
         let new_usp = tables.usp_move[usp as usize][p2_idx];
 
         path.push(move_id);
-        if let Some(solution) = phase2_dfs(new_cp, new_ep, new_usp, depth + 1, limit, path, tables, face) {
+        if let Some(solution) = phase2_dfs(
+            new_cp,
+            new_ep,
+            new_usp,
+            depth + 1,
+            limit,
+            path,
+            tables,
+            face,
+        ) {
             return Some(solution);
         }
         path.pop();
