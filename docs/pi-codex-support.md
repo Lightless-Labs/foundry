@@ -1,6 +1,6 @@
 # Foundry Pi and Codex Support
 
-**Updated:** 2026-05-24
+**Updated:** 2026-06-05
 
 This document records the public-plugin packaging strategy for non-Claude harnesses.
 
@@ -65,7 +65,20 @@ For adversarial runs, never paste red/green hidden context directly into the mai
 
 `foundry_team` accepts an optional `model` field on each dispatch item and passes it to the child `pi --model ...` invocation. Use this for red/green separation experiments while keeping the same PromptEnvelope barrier.
 
-Preferred live pattern when Kimi is available:
+Preferred provider-diverse live pattern when Kimi/MiniMax are available:
+
+```bash
+tests/pi-live-dispatch-smoke.sh \
+  --example chess-engine \
+  --red-model minimax/MiniMax-M3 \
+  --green-model kimi-coding/kimi-for-coding \
+  --require-distinct-model-lanes \
+  --run-dir runs/pi-live-kimi-minimax-chess-smoke
+```
+
+The live dispatch smoke accepts `--example sudoku-solver` (default, `30/30`), `--example rubiks-solver` (`46/46`), and `--example chess-engine` (`44/44`) so provider-diverse lanes can be exercised against deeper worked examples without running a full autonomous adversarial session.
+
+Codex/Kimi pattern:
 
 ```bash
 tests/pi-live-dispatch-smoke.sh \

@@ -1,0 +1,33 @@
+{
+  "schema_version": "foundry.prompt-envelope.v1",
+  "run_id": "pi-live-dispatch-smoke",
+  "phase": "phase1",
+  "recipient": "red-team",
+  "prompt": "Foundry Pi live dispatch smoke for the red test-writing lane. This is a benign plumbing check; do not write tests or attack anything. Visible NLSpec summary: Chess engine CLI: parse FEN and start positions, generate legal moves including castling/en passant/promotions, report perft counts using known golden vectors, support basic UCI commands, and produce deterministic search results for shallow depths. Visible public product contract: Worked example: examples/chess-engine. Red tests are black-box integration tests covering perft golden vectors, FEN, UCI, edge cases, and smoke-level search behavior. Implementation details are intentionally withheld. Reply exactly: RED_OK",
+  "visible_context": [
+    {
+      "label": "full_nlspec",
+      "kind": "nlspec",
+      "sha256": "live-smoke",
+      "content": "Chess engine CLI: parse FEN and start positions, generate legal moves including castling/en passant/promotions, report perft counts using known golden vectors, support basic UCI commands, and produce deterministic search results for shallow depths."
+    },
+    {
+      "label": "spec",
+      "kind": "spec",
+      "sha256": "live-smoke",
+      "content": "Worked example: examples/chess-engine. Red tests are black-box integration tests covering perft golden vectors, FEN, UCI, edge cases, and smoke-level search behavior."
+    }
+  ],
+  "withheld_context": [
+    {
+      "label": "implementation_workspace",
+      "kind": "implementation_code",
+      "sha256": "live-smoke",
+      "samples": [
+        "struct Zobrist { piece: [[u64; 64]; 12] }",
+        "fn generate_legal_moves(board: &Board) -> Vec<Move>"
+      ]
+    }
+  ],
+  "redactions": []
+}

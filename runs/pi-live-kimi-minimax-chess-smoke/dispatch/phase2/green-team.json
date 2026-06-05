@@ -1,0 +1,62 @@
+{
+  "schema_version": "foundry.prompt-envelope.v1",
+  "run_id": "pi-live-dispatch-smoke",
+  "phase": "phase2",
+  "recipient": "green-team",
+  "prompt": "You are the GREEN TEAM in a Foundry Pi live dispatch smoke.\n\nNLSpec How section: represent the board with bitboards or an equivalent complete state; parse and emit FEN; generate only legal chess moves including check, castling, en passant, and promotion rules; implement perft as the authoritative move-generation oracle; support UCI uci/isready/position/go/quit commands; return deterministic bestmove output.\n\nTest results:\n  chess_red_tests: PASS\n  pi_foundry_team_dispatch_smoke: PASS\n\n## Task\nReply exactly: GREEN_OK",
+  "visible_context": [
+    {
+      "label": "nlspec_how",
+      "kind": "nlspec_how",
+      "sha256": "live-smoke",
+      "content": "represent the board with bitboards or an equivalent complete state; parse and emit FEN; generate only legal chess moves including check, castling, en passant, and promotion rules; implement perft as the authoritative move-generation oracle; support UCI uci/isready/position/go/quit commands; return deterministic bestmove output"
+    },
+    {
+      "label": "outcome_labels",
+      "kind": "test_outcomes",
+      "sha256": "live-smoke",
+      "content": "chess_red_tests: PASS\npi_foundry_team_dispatch_smoke: PASS"
+    }
+  ],
+  "withheld_context": [
+    {
+      "label": "red_test_code",
+      "kind": "red_test_code",
+      "sha256": "live-smoke",
+      "samples": [
+        "assert_eq!(run_perft(4, KIWIPETE_FEN), 4085603)",
+        "fn test_uci_position_startpos_moves()"
+      ]
+    },
+    {
+      "label": "nlspec_done",
+      "kind": "nlspec_done",
+      "sha256": "live-smoke",
+      "samples": [
+        "Perft Position 4 golden vector",
+        "Definition of Done item: UCI bestmove response"
+      ]
+    },
+    {
+      "label": "raw_failure",
+      "kind": "raw_test_output",
+      "sha256": "live-smoke",
+      "samples": [
+        "expected perft leaf-node count 4085603",
+        "uci session did not emit bestmove"
+      ]
+    }
+  ],
+  "redactions": [
+    {
+      "source": "raw_test_output",
+      "action": "pass_fail_labels_only",
+      "removed": [
+        "assertion_text",
+        "expected_values",
+        "stack_traces",
+        "line_numbers"
+      ]
+    }
+  ]
+}
