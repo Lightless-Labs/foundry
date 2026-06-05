@@ -122,7 +122,7 @@ cat >"$RUN_DIR/dispatch/phase1/red-team.json" <<'JSON'
   "run_id": "pi-live-dispatch-smoke",
   "phase": "phase1",
   "recipient": "red-team",
-  "prompt": "You are the RED TEAM in a Foundry Pi live dispatch smoke. You can see the full Sudoku solver NLSpec summary and public product contract. You cannot see implementation details. Reply exactly: RED_OK",
+  "prompt": "Foundry Pi live dispatch smoke for the red test-writing lane. This is a benign plumbing check; do not write tests or attack anything. Visible NLSpec summary: Sudoku solver CLI parses 81 cells, accepts 0 or dot blanks, validates rows/columns/boxes, solves by constraint propagation plus backtracking, prints a 9-line solved board, and reports invalid/unsolvable inputs with non-zero exits. Visible public product contract: examples/sudoku-solver black-box CLI behavior. Implementation details are intentionally withheld. Reply exactly: RED_OK",
   "visible_context": [
     {"label": "full_nlspec", "kind": "nlspec", "sha256": "live-smoke", "content": "Sudoku solver CLI: parse 81 cells, accept 0 or dot blanks, validate rows/columns/boxes, solve by constraint propagation plus backtracking, print a 9-line solved board, and report invalid/unsolvable inputs with non-zero exits."},
     {"label": "spec", "kind": "spec", "sha256": "live-smoke", "content": "Worked example: examples/sudoku-solver. Red tests are black-box CLI tests derived from the NLSpec Definition of Done."}
@@ -189,6 +189,7 @@ EOF
 
 pi \
   -e "$EXTENSION" \
+  --no-extensions \
   --mode json \
   -p \
   --no-session \

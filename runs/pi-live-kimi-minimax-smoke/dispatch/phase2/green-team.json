@@ -1,0 +1,19 @@
+{
+  "schema_version": "foundry.prompt-envelope.v1",
+  "run_id": "pi-live-dispatch-smoke",
+  "phase": "phase2",
+  "recipient": "green-team",
+  "prompt": "You are the GREEN TEAM in a Foundry Pi live dispatch smoke.\n\nNLSpec How section: parse an 81-cell Sudoku puzzle; strip whitespace; accept 0 or dot blanks; validate duplicate givens; initialize candidate sets; propagate naked and hidden singles; backtrack with a minimum-remaining-values choice; print one 9-digit row per line.\n\nTest results:\n  sudoku_red_tests: PASS\n  pi_foundry_team_dispatch_smoke: PASS\n\n## Task\nReply exactly: GREEN_OK",
+  "visible_context": [
+    {"label": "nlspec_how", "kind": "nlspec_how", "sha256": "live-smoke", "content": "parse an 81-cell Sudoku puzzle; strip whitespace; accept 0 or dot blanks; validate duplicate givens; initialize candidate sets; propagate naked and hidden singles; backtrack with a minimum-remaining-values choice; print one 9-digit row per line"},
+    {"label": "outcome_labels", "kind": "test_outcomes", "sha256": "live-smoke", "content": "sudoku_red_tests: PASS\npi_foundry_team_dispatch_smoke: PASS"}
+  ],
+  "withheld_context": [
+    {"label": "red_test_code", "kind": "red_test_code", "sha256": "live-smoke", "samples": ["assert_eq!(stdout_str(&output), EASY_SOLUTION)", "fn test_rejects_duplicate_in_row()"]},
+    {"label": "nlspec_done", "kind": "nlspec_done", "sha256": "live-smoke", "samples": ["6.8 Backtracking / Hard Puzzles", "Definition of Done item: rejects invalid characters"]},
+    {"label": "raw_failure", "kind": "raw_test_output", "sha256": "live-smoke", "samples": ["expected solved grid, got empty stdout", "thread 'test_accepts_dots_as_blanks' panicked"]}
+  ],
+  "redactions": [
+    {"source": "raw_test_output", "action": "pass_fail_labels_only", "removed": ["assertion_text", "expected_values", "stack_traces", "line_numbers"]}
+  ]
+}
