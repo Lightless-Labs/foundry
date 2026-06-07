@@ -3,7 +3,7 @@ title: Exercise multi-provider red/green delegation
 origin: 2026-06-03 user request after Gemini became unavailable
 priority: high
 status: completed
-updated: 2026-06-05
+updated: 2026-06-07
 ---
 
 # Exercise Multi-Provider Red/Green Delegation
@@ -24,6 +24,8 @@ Completed 2026-06-03. Live run: `runs/pi-live-multilane-smoke/` with red `openai
 
 **Addendum:** 2026-06-05 — Kimi and MiniMax are operational in Pi. Added selectable worked-example support to `tests/pi-live-dispatch-smoke.sh` (`sudoku-solver` 30/30, `rubiks-solver` 46/46, `chess-engine` 44/44). Preserved validated provider-diverse runs for Sudoku (`runs/pi-live-kimi-minimax-smoke/`) and Chess (`runs/pi-live-kimi-minimax-chess-smoke/`) with red `minimax/MiniMax-M3` and green `kimi-coding/kimi-for-coding`.
 
+**Addendum:** 2026-06-07 — Added opt-in `--phase-task artifact-sketch` support to `tests/pi-live-dispatch-smoke.sh`. The default plumbing mode still requires exact `RED_OK` / `GREEN_OK`; artifact-sketch asks red for a JSON `red_test_plan` and green for a JSON `green_implementation_plan` from How + PASS/FAIL labels only, then validates output shape and withheld-sample non-leakage. Both artifact-sketch and default plumbing live paths passed with red `minimax/MiniMax-M3` and green `kimi-coding/kimi-for-coding` using temporary artifacts.
+
 ## Plan
 
-See `docs/plans/2026-06-03-001-test-multi-provider-delegation-plan.md` and `docs/plans/2026-06-05-001-test-provider-diverse-worked-example-smoke-plan.md`.
+See `docs/plans/2026-06-03-001-test-multi-provider-delegation-plan.md`, `docs/plans/2026-06-05-001-test-provider-diverse-worked-example-smoke-plan.md`, and `docs/plans/2026-06-07-001-test-provider-diverse-phase-artifact-smoke-plan.md`.

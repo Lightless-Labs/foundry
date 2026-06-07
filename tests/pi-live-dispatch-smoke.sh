@@ -11,6 +11,7 @@
 #   tests/pi-live-dispatch-smoke.sh --keep
 #   tests/pi-live-dispatch-smoke.sh --example chess-engine --run-dir runs/manual-pi-live-chess-smoke
 #   tests/pi-live-dispatch-smoke.sh --example rubiks-solver --red-model minimax/MiniMax-M3 --green-model kimi-coding/kimi-for-coding --require-distinct-model-lanes --keep
+#   tests/pi-live-dispatch-smoke.sh --phase-task artifact-sketch --red-model minimax/MiniMax-M3 --green-model kimi-coding/kimi-for-coding --require-distinct-model-lanes --keep
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -24,10 +25,11 @@ RED_MODEL="${FOUNDRY_RED_MODEL:-}"
 GREEN_MODEL="${FOUNDRY_GREEN_MODEL:-}"
 REQUIRE_DISTINCT_MODEL_LANES=0
 EXAMPLE="sudoku-solver"
+PHASE_TASK="plumbing"
 
 usage() {
   cat <<'USAGE'
-Usage: tests/pi-live-dispatch-smoke.sh [--keep] [--run-dir DIR] [--example NAME] [--red-model MODEL] [--green-model MODEL] [--require-distinct-model-lanes]
+Usage: tests/pi-live-dispatch-smoke.sh [--keep] [--run-dir DIR] [--example NAME] [--phase-task TASK] [--red-model MODEL] [--green-model MODEL] [--require-distinct-model-lanes]
 
 Runs a slow/manual live Pi dispatch smoke using the Foundry foundry_team
 extension. By default artifacts are written to a temporary directory and cleaned
@@ -36,6 +38,11 @@ up on success. Use --keep or --run-dir to inspect the generated run artifacts.
 Use --example to choose which worked example's red tests are executed before
 live dispatch. Supported examples: sudoku-solver (default), rubiks-solver,
 chess-engine.
+
+Use --phase-task to choose the child-agent task shape. Supported tasks:
+plumbing (default, exact RED_OK/GREEN_OK) and artifact-sketch (red writes a
+lightweight test-plan artifact; green writes a lightweight implementation-plan
+artifact from How + PASS/FAIL labels only).
 
 Use --red-model/--green-model to pass explicit per-lane Pi model overrides to
 foundry_team. Use --require-distinct-model-lanes for multi-provider/model-lane
@@ -66,6 +73,14 @@ while [ "$#" -gt 0 ]; do
         exit 2
       fi
       EXAMPLE="$2"
+      shift 2
+      ;;
+    --phase-task)
+      if [ "$#" -lt 2 ]; then
+        echo "--phase-task requires a task name" >&2
+        exit 2
+      fi
+      PHASE_TASK="$2"
       shift 2
       ;;
     --red-model)
@@ -99,6 +114,15 @@ while [ "$#" -gt 0 ]; do
       ;;
   esac
 done
+
+case "$PHASE_TASK" in
+  plumbing|artifact-sketch)
+    ;;
+  *)
+    echo "Unsupported --phase-task '$PHASE_TASK'. Supported tasks: plumbing, artifact-sketch" >&2
+    exit 2
+    ;;
+esac
 
 case "$EXAMPLE" in
   sudoku-solver)
@@ -192,7 +216,7 @@ trap cleanup EXIT
 
 mkdir -p "$RUN_DIR/dispatch/phase1" "$RUN_DIR/dispatch/phase2"
 
-export EXAMPLE RED_NLSPEC_SUMMARY PUBLIC_CONTRACT GREEN_HOW OUTCOME_LABEL
+export EXAMPLE PHASE_TASK RED_NLSPEC_SUMMARY PUBLIC_CONTRACT GREEN_HOW OUTCOME_LABEL
 export WITHHELD_IMPL_SAMPLE_1 WITHHELD_IMPL_SAMPLE_2
 export WITHHELD_RED_SAMPLE_1 WITHHELD_RED_SAMPLE_2
 export WITHHELD_DONE_SAMPLE_1 WITHHELD_DONE_SAMPLE_2
@@ -207,28 +231,58 @@ from pathlib import Path
 red_path = Path(sys.argv[1])
 green_path = Path(sys.argv[2])
 example = os.environ["EXAMPLE"]
+phase_task = os.environ["PHASE_TASK"]
 red_summary = os.environ["RED_NLSPEC_SUMMARY"]
 public_contract = os.environ["PUBLIC_CONTRACT"]
 green_how = os.environ["GREEN_HOW"]
 outcome_label = os.environ["OUTCOME_LABEL"]
 
-red_prompt = (
-    "Foundry Pi live dispatch smoke for the red test-writing lane. "
-    "This is a benign plumbing check; do not write tests or attack anything. "
-    f"Visible NLSpec summary: {red_summary} "
-    f"Visible public product contract: {public_contract} "
-    "Implementation details are intentionally withheld. Reply exactly: RED_OK"
-)
+if phase_task == "plumbing":
+    red_prompt = (
+        "Foundry Pi live dispatch smoke for the red test-writing lane. "
+        "This is a benign plumbing check; do not write tests or attack anything. "
+        f"Visible NLSpec summary: {red_summary} "
+        f"Visible public product contract: {public_contract} "
+        "Implementation details are intentionally withheld. Reply exactly: RED_OK"
+    )
 
-green_prompt = (
-    "You are the GREEN TEAM in a Foundry Pi live dispatch smoke.\n\n"
-    f"NLSpec How section: {green_how}.\n\n"
-    "Test results:\n"
-    f"  {outcome_label}: PASS\n"
-    "  pi_foundry_team_dispatch_smoke: PASS\n\n"
-    "## Task\n"
-    "Reply exactly: GREEN_OK"
-)
+    green_prompt = (
+        "You are the GREEN TEAM in a Foundry Pi live dispatch smoke.\n\n"
+        f"NLSpec How section: {green_how}.\n\n"
+        "Test results:\n"
+        f"  {outcome_label}: PASS\n"
+        "  pi_foundry_team_dispatch_smoke: PASS\n\n"
+        "## Task\n"
+        "Reply exactly: GREEN_OK"
+    )
+else:
+    red_prompt = (
+        "You are the RED TEAM in a Foundry provider-diverse live phase-artifact smoke.\n\n"
+        "Allowed context:\n"
+        f"- Example: {example}\n"
+        f"- Full NLSpec summary: {red_summary}\n"
+        f"- Public product contract: {public_contract}\n\n"
+        "Implementation code, green-team reasoning, and implementation workspace details are intentionally withheld.\n\n"
+        "## Task\n"
+        "Return only one JSON object with this exact shape:\n"
+        f"{{\"artifact_type\":\"red_test_plan\",\"example\":\"{example}\",\"implementation_visible\":false,\"test_categories\":[\"...\",\"...\",\"...\"],\"oracle_strategy\":\"...\"}}\n"
+        "Do not include Markdown fences. Do not invent implementation details."
+    )
+
+    green_prompt = (
+        "You are the GREEN TEAM in a Foundry provider-diverse live phase-artifact smoke.\n\n"
+        "Allowed context:\n"
+        f"- Example: {example}\n"
+        f"- NLSpec How section: {green_how}.\n\n"
+        "Test results:\n"
+        f"  {outcome_label}: PASS\n"
+        "  pi_foundry_team_dispatch_smoke: PASS\n\n"
+        "You may not see red test code, assertions, expected values, raw failures, stack traces, or the NLSpec Done section.\n\n"
+        "## Task\n"
+        "Return only one JSON object with this exact shape:\n"
+        f"{{\"artifact_type\":\"green_implementation_plan\",\"example\":\"{example}\",\"saw_red_tests\":false,\"permitted_feedback\":\"PASS_FAIL_ONLY\",\"implementation_steps\":[\"...\",\"...\",\"...\"]}}\n"
+        "Do not include Markdown fences. Do not mention hidden tests, assertions, expected values, or raw failure details."
+    )
 
 red_envelope = {
     "schema_version": "foundry.prompt-envelope.v1",
@@ -341,7 +395,7 @@ pi \
   --tools foundry_team \
   "$PI_PROMPT" >"$RUN_DIR/pi-foundry-team.jsonl"
 
-python3 - "$RUN_DIR/pi-foundry-team.jsonl" "$RUN_DIR/behavioral-smoke.toon" "$RED_MODEL" "$GREEN_MODEL" "$REQUIRE_DISTINCT_MODEL_LANES" "$EXAMPLE" "$EXPECTED_PASSED" "$EXPECTED_TOTAL" <<'PY'
+python3 - "$RUN_DIR/pi-foundry-team.jsonl" "$RUN_DIR/behavioral-smoke.toon" "$RED_MODEL" "$GREEN_MODEL" "$REQUIRE_DISTINCT_MODEL_LANES" "$EXAMPLE" "$PHASE_TASK" "$EXPECTED_PASSED" "$EXPECTED_TOTAL" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -354,8 +408,9 @@ expected_models = {
 }
 requires_distinct_model_lanes = sys.argv[5] == "1" or bool(expected_models["red-team"] and expected_models["green-team"] and expected_models["red-team"] != expected_models["green-team"])
 example = sys.argv[6]
-expected_passed = sys.argv[7]
-expected_total = sys.argv[8]
+phase_task = sys.argv[7]
+expected_passed = sys.argv[8]
+expected_total = sys.argv[9]
 
 orchestrator_model = None
 tool_result = None
@@ -385,14 +440,12 @@ if tool_result.get("isError"):
 
 results = (tool_result.get("details") or {}).get("results") or []
 by_recipient = {result.get("recipient"): result for result in results}
-for recipient, expected_output in [("red-team", "RED_OK"), ("green-team", "GREEN_OK")]:
+for recipient in ["red-team", "green-team"]:
     result = by_recipient.get(recipient)
     if not result:
         raise SystemExit(f"missing foundry_team result for {recipient}")
     if result.get("exitCode") != 0:
         raise SystemExit(f"{recipient} exitCode={result.get('exitCode')}: {result}")
-    if result.get("output", "").strip() != expected_output:
-        raise SystemExit(f"{recipient} output mismatch: {result.get('output')!r}")
     if not result.get("actualModel"):
         raise SystemExit(f"{recipient} missing actualModel in tool result")
     expected_model = expected_models[recipient]
@@ -400,6 +453,87 @@ for recipient, expected_output in [("red-team", "RED_OK"), ("green-team", "GREEN
         raise SystemExit(f"{recipient} plannedModel mismatch: expected {expected_model!r}, got {result.get('plannedModel')!r}")
     if expected_model and result.get("actualModel") != expected_model:
         raise SystemExit(f"{recipient} actualModel mismatch: expected {expected_model!r}, got {result.get('actualModel')!r}")
+
+if phase_task == "plumbing":
+    for recipient, expected_output in [("red-team", "RED_OK"), ("green-team", "GREEN_OK")]:
+        output = by_recipient[recipient].get("output", "").strip()
+        if output != expected_output:
+            raise SystemExit(f"{recipient} output mismatch: {output!r}")
+else:
+    def parse_json_object(recipient):
+        output = by_recipient[recipient].get("output", "").strip()
+        candidates = [output]
+        if output.startswith("```"):
+            lines = output.splitlines()
+            if len(lines) >= 3 and lines[-1].strip() == "```":
+                candidates.append("\n".join(lines[1:-1]).strip())
+        first = output.find("{")
+        last = output.rfind("}")
+        if first != -1 and last > first:
+            candidates.append(output[first:last + 1])
+        last_error = None
+        for candidate in candidates:
+            try:
+                parsed = json.loads(candidate)
+            except json.JSONDecodeError as exc:
+                last_error = exc
+                continue
+            if not isinstance(parsed, dict):
+                raise SystemExit(f"{recipient} JSON artifact must be an object: {parsed!r}")
+            return parsed
+        raise SystemExit(f"{recipient} did not return a parseable JSON artifact: {last_error}: {output!r}")
+
+    def require_list(value, field, recipient):
+        if not isinstance(value, list) or len(value) < 3 or not all(isinstance(item, str) and item.strip() for item in value):
+            raise SystemExit(f"{recipient} field {field!r} must be a list of at least three non-empty strings")
+
+    red_artifact = parse_json_object("red-team")
+    if red_artifact.get("artifact_type") != "red_test_plan":
+        raise SystemExit(f"red-team artifact_type mismatch: {red_artifact!r}")
+    if red_artifact.get("example") != example:
+        raise SystemExit(f"red-team example mismatch: {red_artifact!r}")
+    if red_artifact.get("implementation_visible") is not False:
+        raise SystemExit(f"red-team must declare implementation_visible=false: {red_artifact!r}")
+    require_list(red_artifact.get("test_categories"), "test_categories", "red-team")
+    if not isinstance(red_artifact.get("oracle_strategy"), str) or not red_artifact["oracle_strategy"].strip():
+        raise SystemExit(f"red-team oracle_strategy must be a non-empty string: {red_artifact!r}")
+
+    green_artifact = parse_json_object("green-team")
+    if green_artifact.get("artifact_type") != "green_implementation_plan":
+        raise SystemExit(f"green-team artifact_type mismatch: {green_artifact!r}")
+    if green_artifact.get("example") != example:
+        raise SystemExit(f"green-team example mismatch: {green_artifact!r}")
+    if green_artifact.get("saw_red_tests") is not False:
+        raise SystemExit(f"green-team must declare saw_red_tests=false: {green_artifact!r}")
+    if green_artifact.get("permitted_feedback") != "PASS_FAIL_ONLY":
+        raise SystemExit(f"green-team permitted_feedback mismatch: {green_artifact!r}")
+    require_list(green_artifact.get("implementation_steps"), "implementation_steps", "green-team")
+
+    leaked_samples = [
+        "CandidateSet { bits: 0x3FE }",
+        "fn initialize_candidates(board: &Board)",
+        "const MOVE_R_PERM: [usize; 54]",
+        "fn solve_kociemba(cube: &Cube)",
+        "struct Zobrist { piece: [[u64; 64]; 12] }",
+        "fn generate_legal_moves(board: &Board) -> Vec<Move>",
+        "assert_eq!(stdout_str(&output), EASY_SOLUTION)",
+        "fn test_rejects_duplicate_in_row()",
+        "assert_eq!(apply_moves(SOLVED, \"R U R' U'\"), GOLDEN_RURU)",
+        "fn test_superflip_scramble_solves_and_verifies()",
+        "assert_eq!(run_perft(4, KIWIPETE_FEN), 4085603)",
+        "fn test_uci_position_startpos_moves()",
+        "expected solved grid, got empty stdout",
+        "thread 'test_accepts_dots_as_blanks' panicked",
+        "expected Kociemba golden facelet string",
+        "solution did not return cube to solved state",
+        "expected perft leaf-node count 4085603",
+        "uci session did not emit bestmove",
+    ]
+    for recipient in ["red-team", "green-team"]:
+        output = by_recipient[recipient].get("output", "")
+        for sample in leaked_samples:
+            if sample in output:
+                raise SystemExit(f"{recipient} output leaked withheld sample: {sample!r}")
 
 if not orchestrator_model:
     orchestrator_model = "unknown-inherited-model"
