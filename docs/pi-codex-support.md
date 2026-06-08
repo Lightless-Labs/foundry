@@ -78,6 +78,13 @@ tests/pi-live-dispatch-smoke.sh \
 
 The live dispatch smoke accepts `--example sudoku-solver` (default, `30/30`), `--example rubiks-solver` (`46/46`), and `--example chess-engine` (`44/44`) so provider-diverse lanes can be exercised against deeper worked examples without running a full autonomous adversarial session.
 
+For a richer smoke than exact `RED_OK` / `GREEN_OK`, use `--phase-task artifact-sketch`. It asks red to return a JSON `red_test_plan` and green to return a JSON `green_implementation_plan` from How + PASS/FAIL labels only. When `--keep` or `--run-dir` preserves the run directory, parsed artifacts are written to:
+
+```text
+phase-artifacts/red-team-test-plan.json
+phase-artifacts/green-team-implementation-plan.json
+```
+
 Codex/Kimi pattern:
 
 ```bash

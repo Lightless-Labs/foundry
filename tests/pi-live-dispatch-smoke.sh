@@ -395,22 +395,23 @@ pi \
   --tools foundry_team \
   "$PI_PROMPT" >"$RUN_DIR/pi-foundry-team.jsonl"
 
-python3 - "$RUN_DIR/pi-foundry-team.jsonl" "$RUN_DIR/behavioral-smoke.toon" "$RED_MODEL" "$GREEN_MODEL" "$REQUIRE_DISTINCT_MODEL_LANES" "$EXAMPLE" "$PHASE_TASK" "$EXPECTED_PASSED" "$EXPECTED_TOTAL" <<'PY'
+python3 - "$RUN_DIR/pi-foundry-team.jsonl" "$RUN_DIR/behavioral-smoke.toon" "$RUN_DIR/phase-artifacts" "$RED_MODEL" "$GREEN_MODEL" "$REQUIRE_DISTINCT_MODEL_LANES" "$EXAMPLE" "$PHASE_TASK" "$EXPECTED_PASSED" "$EXPECTED_TOTAL" <<'PY'
 import json
 import sys
 from pathlib import Path
 
 jsonl_path = Path(sys.argv[1])
 toon_path = Path(sys.argv[2])
+phase_artifact_dir = Path(sys.argv[3])
 expected_models = {
-    "red-team": sys.argv[3] or None,
-    "green-team": sys.argv[4] or None,
+    "red-team": sys.argv[4] or None,
+    "green-team": sys.argv[5] or None,
 }
-requires_distinct_model_lanes = sys.argv[5] == "1" or bool(expected_models["red-team"] and expected_models["green-team"] and expected_models["red-team"] != expected_models["green-team"])
-example = sys.argv[6]
-phase_task = sys.argv[7]
-expected_passed = sys.argv[8]
-expected_total = sys.argv[9]
+requires_distinct_model_lanes = sys.argv[6] == "1" or bool(expected_models["red-team"] and expected_models["green-team"] and expected_models["red-team"] != expected_models["green-team"])
+example = sys.argv[7]
+phase_task = sys.argv[8]
+expected_passed = sys.argv[9]
+expected_total = sys.argv[10]
 
 orchestrator_model = None
 tool_result = None
@@ -534,6 +535,16 @@ else:
         for sample in leaked_samples:
             if sample in output:
                 raise SystemExit(f"{recipient} output leaked withheld sample: {sample!r}")
+
+    phase_artifact_dir.mkdir(parents=True, exist_ok=True)
+    (phase_artifact_dir / "red-team-test-plan.json").write_text(
+        json.dumps(red_artifact, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    (phase_artifact_dir / "green-team-implementation-plan.json").write_text(
+        json.dumps(green_artifact, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
 
 if not orchestrator_model:
     orchestrator_model = "unknown-inherited-model"
