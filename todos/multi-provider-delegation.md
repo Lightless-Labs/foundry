@@ -3,7 +3,7 @@ title: Exercise multi-provider red/green delegation
 origin: 2026-06-03 user request after Gemini became unavailable
 priority: high
 status: completed
-updated: 2026-06-08
+updated: 2026-06-09
 ---
 
 # Exercise Multi-Provider Red/Green Delegation
@@ -28,6 +28,8 @@ Completed 2026-06-03. Live run: `runs/pi-live-multilane-smoke/` with red `openai
 
 **Addendum:** 2026-06-08 — Artifact-sketch mode now persists parsed child outputs when the run directory is kept: `phase-artifacts/red-team-test-plan.json` and `phase-artifacts/green-team-implementation-plan.json`. A live MiniMax/Kimi artifact-sketch run with an explicit temporary `--run-dir` wrote and validated both files; a separate default plumbing live run confirmed `phase-artifacts/` is not created outside artifact-sketch mode.
 
+**Addendum:** 2026-06-09 — Completed a fuller provider-diverse red/green adversarial smoke under `runs/pi-live-kimi-minimax-fuller-adversarial-smoke/`. Red used MiniMax M3 and generated executable Rust slugify integration tests; green used Kimi for Coding and generated the implementation from the NLSpec How section only. The orchestrator copied red tests into the green crate for execution; `11/11` tests passed, PromptEnvelope validation passed, and `behavioral-smoke.toon` validated with distinct actual model lanes.
+
 ## Plan
 
-See `docs/plans/2026-06-03-001-test-multi-provider-delegation-plan.md`, `docs/plans/2026-06-05-001-test-provider-diverse-worked-example-smoke-plan.md`, `docs/plans/2026-06-07-001-test-provider-diverse-phase-artifact-smoke-plan.md`, and `docs/plans/2026-06-08-001-test-phase-artifact-capture-plan.md`.
+See `docs/plans/2026-06-03-001-test-multi-provider-delegation-plan.md`, `docs/plans/2026-06-05-001-test-provider-diverse-worked-example-smoke-plan.md`, `docs/plans/2026-06-07-001-test-provider-diverse-phase-artifact-smoke-plan.md`, `docs/plans/2026-06-08-001-test-phase-artifact-capture-plan.md`, and `docs/plans/2026-06-09-001-test-provider-diverse-fuller-adversarial-phase-plan.md`.

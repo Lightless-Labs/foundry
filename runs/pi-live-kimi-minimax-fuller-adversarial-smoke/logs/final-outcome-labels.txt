@@ -1,0 +1,11 @@
+hello_world_basic_example: PASS
+integration_smoke_examples_from_spec: PASS
+collapses_repeated_separators: PASS
+trims_leading_and_trailing_separators: PASS
+preserves_ascii_digits_in_place: PASS
+lowercases_ascii_letters: PASS
+transliterates_latin1_accents: PASS
+transliterates_multi_character_expansions: PASS
+returns_empty_for_emoji_only_input: PASS
+returns_empty_for_whitespace_and_punctuation_only: PASS
+does_not_panic_on_mixed_unicode_input: PASS

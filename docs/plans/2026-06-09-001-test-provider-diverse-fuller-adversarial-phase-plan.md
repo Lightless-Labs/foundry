@@ -1,7 +1,8 @@
 ---
 title: Exercise a fuller provider-diverse adversarial phase
 created: 2026-06-09
-status: active
+status: completed
+completed: 2026-06-09
 todo: todos/multi-provider-delegation.md
 ---
 
@@ -50,12 +51,12 @@ The target is a small, from-scratch Rust feature so the run is meaningful but bo
 
 ## Acceptance
 
-- [ ] A kept run directory exists with dispatch envelopes, generated red tests, generated green implementation, logs, and `behavioral-smoke.toon`.
-- [ ] Red and green child dispatches report distinct actual model lanes.
-- [ ] Red tests execute against green implementation with the accepted final pass count.
-- [ ] Barrier validation passes for the run dispatch directory.
-- [ ] Behavioral smoke validation passes and enforces distinct model lanes.
-- [ ] `docs/HANDOFF.md` and the related todo are updated with the result and any learnings.
+- [x] A kept run directory exists with dispatch envelopes, generated red tests, generated green implementation, logs, and `behavioral-smoke.toon`.
+- [x] Red and green child dispatches report distinct actual model lanes.
+- [x] Red tests execute against green implementation with the accepted final pass count.
+- [x] Barrier validation passes for the run dispatch directory.
+- [x] Behavioral smoke validation passes and enforces distinct model lanes.
+- [x] `docs/HANDOFF.md` and the related todo are updated with the result and any learnings.
 
 ## Risk Controls
 
@@ -66,4 +67,15 @@ The target is a small, from-scratch Rust feature so the run is meaningful but bo
 
 ## Validation Log
 
-Pending.
+2026-06-09:
+
+- `foundry_team` red dispatch from `runs/pi-live-kimi-minimax-fuller-adversarial-smoke/dispatch/phase1/red-team.json` with `model=minimax/MiniMax-M3` — passed; `actual_model=minimax/MiniMax-M3`; wrote `red/tests/slugify_tests.rs`.
+- `foundry_team` green dispatch from `runs/pi-live-kimi-minimax-fuller-adversarial-smoke/dispatch/phase2/green-team.json` with `model=kimi-coding/kimi-for-coding` — passed; `actual_model=kimi-coding/kimi-for-coding`; wrote `green/Cargo.toml` and `green/src/lib.rs` from How-only context.
+- `cd runs/pi-live-kimi-minimax-fuller-adversarial-smoke/green && cargo test --quiet` after copying red integration tests into `green/tests/` — passed `11/11`.
+- `tests/validate-barrier-envelopes.sh runs/pi-live-kimi-minimax-fuller-adversarial-smoke/dispatch` — passed.
+- `tests/behavioral-smoke.sh runs/pi-live-kimi-minimax-fuller-adversarial-smoke` — passed with `requires_distinct_model_lanes: true`.
+- `tests/validate-behavioral-smoke-contract.sh` — passed 9/9.
+- `tests/validate-pi-extension.sh` — passed 45/45.
+- `tests/validate-codex-plugin.sh` — passed 44/44.
+- `tests/validate-agents.sh` — passed 224/224.
+- `green/target/` was removed from the preserved fixture; ignored-status check showed no ignored artifacts under the run directory.
