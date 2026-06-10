@@ -1,0 +1,23 @@
+{
+  "schema_version": "foundry.prompt-envelope.v1",
+  "run_id": "pi-live-kimi-minimax-fuller-adversarial-smoke",
+  "phase": "phase3",
+  "recipient": "barrier-integrity-auditor",
+  "prompt": "You are `barrier-integrity-auditor` for Foundry Phase 3.\n\nAudit the replayable PromptEnvelope artifacts for run `pi-live-kimi-minimax-fuller-adversarial-smoke`.\n\nEnvelope roots to inspect:\n- runs/pi-live-kimi-minimax-fuller-adversarial-smoke/dispatch\n\nImportant envelope paths:\n- runs/pi-live-kimi-minimax-fuller-adversarial-smoke/dispatch/phase1/red-team.json\n- runs/pi-live-kimi-minimax-fuller-adversarial-smoke/dispatch/phase2/green-team.json\n- runs/pi-live-kimi-minimax-fuller-adversarial-smoke/dispatch/phase3/green-team-reviewer.json\n- runs/pi-live-kimi-minimax-fuller-adversarial-smoke/dispatch/phase3/red-team-test-reviewer.json\n- runs/pi-live-kimi-minimax-fuller-adversarial-smoke/dispatch/phase3/rust-reviewer.json\n- runs/pi-live-kimi-minimax-fuller-adversarial-smoke/dispatch/phase3/barrier-integrity-auditor.json\n\nExpected barrier contract:\n- Red team/reviewer sees NLSpec and red tests, never implementation code or implementation workspace details.\n- Green team/reviewer sees NLSpec How, implementation-facing context, and PASS/FAIL outcome labels only; never red test code, assertions, raw failures, or NLSpec Done.\n- Rust reviewer is implementation-facing and must not receive red tests or NLSpec Done.\n- Test outcome labels must be PASS/FAIL-only.\n\n## Task\nRead the envelope files, check withheld samples against prompts, check recipient-specific context boundaries, and return only JSON with this shape:\n{\"reviewer\":\"barrier-integrity-auditor\",\"findings\":[],\"residual_risks\":[],\"testing_gaps\":[]}\nIf you find a barrier violation, add it as a P0 finding with evidence. Do not include Markdown fences.",
+  "visible_context": [
+    {
+      "label": "dispatch_root",
+      "kind": "audit_artifacts",
+      "sha256": "slugify-live-smoke",
+      "content": "runs/pi-live-kimi-minimax-fuller-adversarial-smoke/dispatch"
+    },
+    {
+      "label": "barrier_contract",
+      "kind": "barrier_contract",
+      "sha256": "slugify-live-smoke",
+      "content": "red never sees implementation; green/relevant implementation reviewers never see red tests, assertions, raw failures, or NLSpec Done; outcome labels are PASS/FAIL-only"
+    }
+  ],
+  "withheld_context": [],
+  "redactions": []
+}

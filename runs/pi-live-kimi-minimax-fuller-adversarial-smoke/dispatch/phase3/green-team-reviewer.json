@@ -1,0 +1,76 @@
+{
+  "schema_version": "foundry.prompt-envelope.v1",
+  "run_id": "pi-live-kimi-minimax-fuller-adversarial-smoke",
+  "phase": "phase3",
+  "recipient": "green-team-reviewer",
+  "prompt": "You are `green-team-reviewer` for Foundry Phase 3.\n\nYou are implementation-facing and must preserve the green-side information barrier.\n\nAllowed context:\n\n## NLSpec How section\n\nImplement a Rust library crate named `slugify_smoke` with `pub fn slugify(input: &str) -> String`.\n\nUse these implementation rules:\n\n1. Convert ASCII letters to lowercase.\n2. Keep ASCII digits unchanged.\n3. Transliterate these Latin-1 characters before tokenization:\n   - `\u00e0 \u00e1 \u00e2 \u00e3 \u00e4 \u00e5 \u0101` -> `a`\n   - `\u00e7 \u0107` -> `c`\n   - `\u00e8 \u00e9 \u00ea \u00eb \u0113` -> `e`\n   - `\u00ec \u00ed \u00ee \u00ef \u012b` -> `i`\n   - `\u00f1` -> `n`\n   - `\u00f2 \u00f3 \u00f4 \u00f5 \u00f6 \u00f8 \u014d` -> `o`\n   - `\u00f9 \u00fa \u00fb \u00fc \u016b` -> `u`\n   - `\u00fd \u00ff` -> `y`\n   - `\u00e6` -> `ae`\n   - `\u0153` -> `oe`\n   - `\u00df` -> `ss`\n4. Treat any other non-alphanumeric character as a separator.\n5. Collapse adjacent separators to a single hyphen.\n6. Trim leading and trailing separators.\n7. Return an empty string when no slug tokens remain.\n8. Do not panic for empty strings, whitespace-only strings, punctuation-only strings, emoji, or mixed Unicode input.\n\nReference examples:\n\n| Input | Output |\n|---|---|\n| `Hello, World!` | `hello-world` |\n| `  Multiple---spaces___and punctuation!!! ` | `multiple-spaces-and-punctuation` |\n| `Cr\u00e8me br\u00fbl\u00e9e d\u00e9j\u00e0 vu` | `creme-brulee-deja-vu` |\n| `\u00c6ther & Stra\u00dfe` | `aether-strasse` |\n| `version 2.0.1` | `version-2-0-1` |\n| `\ud83d\udca1\ud83d\udd25` | `` |\n\n## Green implementation: Cargo.toml\n\n```toml\n[package]\nname = \"slugify_smoke\"\nversion = \"0.1.0\"\nedition = \"2021\"\n\n```\n\n## Green implementation: src/lib.rs\n\n```rust\npub fn slugify(input: &str) -> String {\n    let mut out = String::new();\n    let mut prev_sep = true;\n\n    for ch in input.chars() {\n        let token = match ch {\n            'a'..='z' | '0'..='9' => {\n                if prev_sep && !out.is_empty() {\n                    out.push('-');\n                }\n                out.push(ch);\n                prev_sep = false;\n                continue;\n            }\n            'A'..='Z' => {\n                if prev_sep && !out.is_empty() {\n                    out.push('-');\n                }\n                out.push(ch.to_ascii_lowercase());\n                prev_sep = false;\n                continue;\n            }\n            '\u00e0' | '\u00e1' | '\u00e2' | '\u00e3' | '\u00e4' | '\u00e5' | '\u0101' |\n            '\u00c0' | '\u00c1' | '\u00c2' | '\u00c3' | '\u00c4' | '\u00c5' | '\u0100' => \"a\",\n            '\u00e7' | '\u0107' | '\u00c7' | '\u0106' => \"c\",\n            '\u00e8' | '\u00e9' | '\u00ea' | '\u00eb' | '\u0113' |\n            '\u00c8' | '\u00c9' | '\u00ca' | '\u00cb' | '\u0112' => \"e\",\n            '\u00ec' | '\u00ed' | '\u00ee' | '\u00ef' | '\u012b' |\n            '\u00cc' | '\u00cd' | '\u00ce' | '\u00cf' | '\u012a' => \"i\",\n            '\u00f1' | '\u00d1' => \"n\",\n            '\u00f2' | '\u00f3' | '\u00f4' | '\u00f5' | '\u00f6' | '\u00f8' | '\u014d' |\n            '\u00d2' | '\u00d3' | '\u00d4' | '\u00d5' | '\u00d6' | '\u00d8' | '\u014c' => \"o\",\n            '\u00f9' | '\u00fa' | '\u00fb' | '\u00fc' | '\u016b' |\n            '\u00d9' | '\u00da' | '\u00db' | '\u00dc' | '\u016a' => \"u\",\n            '\u00fd' | '\u00ff' | '\u00dd' | '\u0178' => \"y\",\n            '\u00e6' | '\u00c6' => \"ae\",\n            '\u0153' | '\u0152' => \"oe\",\n            '\u00df' => \"ss\",\n            _ => {\n                prev_sep = true;\n                continue;\n            }\n        };\n\n        if prev_sep && !out.is_empty() {\n            out.push('-');\n        }\n        out.push_str(token);\n        prev_sep = false;\n    }\n\n    out\n}\n\n```\n\nTest results:\n  hello_world_basic_example: PASS\n  integration_smoke_examples_from_spec: PASS\n  collapses_repeated_separators: PASS\n  trims_leading_and_trailing_separators: PASS\n  preserves_ascii_digits_in_place: PASS\n  lowercases_ascii_letters: PASS\n  transliterates_latin1_accents: PASS\n  transliterates_multi_character_expansions: PASS\n  returns_empty_for_emoji_only_input: PASS\n  returns_empty_for_whitespace_and_punctuation_only: PASS\n  does_not_panic_on_mixed_unicode_input: PASS\n\nYou may not see red test code, assertion text, expected values, raw failures, stack traces, or the NLSpec Done section.\n\n## Task\nReview the implementation for quality, robustness, and faithfulness to the How section. Return only JSON with this shape:\n{\"reviewer\":\"green-team-reviewer\",\"findings\":[],\"residual_risks\":[],\"testing_gaps\":[]}\nIf you find a material issue, add it to `findings` with severity, confidence, evidence, and recommendation. Do not include Markdown fences.",
+  "visible_context": [
+    {
+      "label": "nlspec_how",
+      "kind": "nlspec_how",
+      "sha256": "slugify-live-smoke",
+      "content": "Implement a Rust library crate named `slugify_smoke` with `pub fn slugify(input: &str) -> String`.\n\nUse these implementation rules:\n\n1. Convert ASCII letters to lowercase.\n2. Keep ASCII digits unchanged.\n3. Transliterate these Latin-1 characters before tokenization:\n   - `\u00e0 \u00e1 \u00e2 \u00e3 \u00e4 \u00e5 \u0101` -> `a`\n   - `\u00e7 \u0107` -> `c`\n   - `\u00e8 \u00e9 \u00ea \u00eb \u0113` -> `e`\n   - `\u00ec \u00ed \u00ee \u00ef \u012b` -> `i`\n   - `\u00f1` -> `n`\n   - `\u00f2 \u00f3 \u00f4 \u00f5 \u00f6 \u00f8 \u014d` -> `o`\n   - `\u00f9 \u00fa \u00fb \u00fc \u016b` -> `u`\n   - `\u00fd \u00ff` -> `y`\n   - `\u00e6` -> `ae`\n   - `\u0153` -> `oe`\n   - `\u00df` -> `ss`\n4. Treat any other non-alphanumeric character as a separator.\n5. Collapse adjacent separators to a single hyphen.\n6. Trim leading and trailing separators.\n7. Return an empty string when no slug tokens remain.\n8. Do not panic for empty strings, whitespace-only strings, punctuation-only strings, emoji, or mixed Unicode input.\n\nReference examples:\n\n| Input | Output |\n|---|---|\n| `Hello, World!` | `hello-world` |\n| `  Multiple---spaces___and punctuation!!! ` | `multiple-spaces-and-punctuation` |\n| `Cr\u00e8me br\u00fbl\u00e9e d\u00e9j\u00e0 vu` | `creme-brulee-deja-vu` |\n| `\u00c6ther & Stra\u00dfe` | `aether-strasse` |\n| `version 2.0.1` | `version-2-0-1` |\n| `\ud83d\udca1\ud83d\udd25` | `` |"
+    },
+    {
+      "label": "implementation_cargo",
+      "kind": "implementation_code",
+      "sha256": "slugify-live-smoke",
+      "content": "[package]\nname = \"slugify_smoke\"\nversion = \"0.1.0\"\nedition = \"2021\"\n"
+    },
+    {
+      "label": "implementation_lib",
+      "kind": "implementation_code",
+      "sha256": "slugify-live-smoke",
+      "content": "pub fn slugify(input: &str) -> String {\n    let mut out = String::new();\n    let mut prev_sep = true;\n\n    for ch in input.chars() {\n        let token = match ch {\n            'a'..='z' | '0'..='9' => {\n                if prev_sep && !out.is_empty() {\n                    out.push('-');\n                }\n                out.push(ch);\n                prev_sep = false;\n                continue;\n            }\n            'A'..='Z' => {\n                if prev_sep && !out.is_empty() {\n                    out.push('-');\n                }\n                out.push(ch.to_ascii_lowercase());\n                prev_sep = false;\n                continue;\n            }\n            '\u00e0' | '\u00e1' | '\u00e2' | '\u00e3' | '\u00e4' | '\u00e5' | '\u0101' |\n            '\u00c0' | '\u00c1' | '\u00c2' | '\u00c3' | '\u00c4' | '\u00c5' | '\u0100' => \"a\",\n            '\u00e7' | '\u0107' | '\u00c7' | '\u0106' => \"c\",\n            '\u00e8' | '\u00e9' | '\u00ea' | '\u00eb' | '\u0113' |\n            '\u00c8' | '\u00c9' | '\u00ca' | '\u00cb' | '\u0112' => \"e\",\n            '\u00ec' | '\u00ed' | '\u00ee' | '\u00ef' | '\u012b' |\n            '\u00cc' | '\u00cd' | '\u00ce' | '\u00cf' | '\u012a' => \"i\",\n            '\u00f1' | '\u00d1' => \"n\",\n            '\u00f2' | '\u00f3' | '\u00f4' | '\u00f5' | '\u00f6' | '\u00f8' | '\u014d' |\n            '\u00d2' | '\u00d3' | '\u00d4' | '\u00d5' | '\u00d6' | '\u00d8' | '\u014c' => \"o\",\n            '\u00f9' | '\u00fa' | '\u00fb' | '\u00fc' | '\u016b' |\n            '\u00d9' | '\u00da' | '\u00db' | '\u00dc' | '\u016a' => \"u\",\n            '\u00fd' | '\u00ff' | '\u00dd' | '\u0178' => \"y\",\n            '\u00e6' | '\u00c6' => \"ae\",\n            '\u0153' | '\u0152' => \"oe\",\n            '\u00df' => \"ss\",\n            _ => {\n                prev_sep = true;\n                continue;\n            }\n        };\n\n        if prev_sep && !out.is_empty() {\n            out.push('-');\n        }\n        out.push_str(token);\n        prev_sep = false;\n    }\n\n    out\n}\n"
+    },
+    {
+      "label": "outcome_labels",
+      "kind": "test_outcomes",
+      "sha256": "slugify-live-smoke",
+      "content": "hello_world_basic_example: PASS\nintegration_smoke_examples_from_spec: PASS\ncollapses_repeated_separators: PASS\ntrims_leading_and_trailing_separators: PASS\npreserves_ascii_digits_in_place: PASS\nlowercases_ascii_letters: PASS\ntransliterates_latin1_accents: PASS\ntransliterates_multi_character_expansions: PASS\nreturns_empty_for_emoji_only_input: PASS\nreturns_empty_for_whitespace_and_punctuation_only: PASS\ndoes_not_panic_on_mixed_unicode_input: PASS"
+    }
+  ],
+  "withheld_context": [
+    {
+      "label": "red_test_code",
+      "kind": "red_test_code",
+      "sha256": "slugify-live-smoke",
+      "samples": [
+        "assert_eq!(slugify(\"\u00e6\"), \"ae\");",
+        "assert_eq!(slugify(\"\u00df\"), \"ss\");",
+        "let _ = slugify(\"\u00c6ther \u4e2d\u6587 Caf\u00e9 123 Stra\u00dfe \ud83d\ude80\")"
+      ]
+    },
+    {
+      "label": "nlspec_done",
+      "kind": "nlspec_done",
+      "sha256": "slugify-live-smoke",
+      "samples": [
+        "Handles the listed Latin-1 transliterations, including multi-character",
+        "Returns an empty string for empty, whitespace-only",
+        "Does not panic on arbitrary valid UTF-8 input"
+      ]
+    },
+    {
+      "label": "raw_failure",
+      "kind": "raw_test_output",
+      "sha256": "slugify-live-smoke",
+      "samples": [
+        "left: `ther-strae` right: `aether-strasse`",
+        "expected `aether-strasse`, got `ther-strae`"
+      ]
+    }
+  ],
+  "redactions": [
+    {
+      "source": "red_tests_and_nlspec_done",
+      "action": "withheld_from_green_reviewer",
+      "removed": [
+        "test_code",
+        "assertions",
+        "definition_of_done",
+        "raw_failures"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "reviewer": "green-team-reviewer",
+  "model": "kimi-coding/kimi-for-coding",
+  "findings": [
+    {
+      "severity": "minor",
+      "confidence": 0.75,
+      "category": "code-quality",
+      "description": "Duplicated separator-insertion logic in slugify loop",
+      "evidence": "The block `if prev_sep && !out.is_empty() { out.push('-'); }` is repeated verbatim in the lowercase ASCII arm, the uppercase ASCII arm, and again after the match for transliteration arms. This asymmetry (ASCII arms use `continue`, transliteration arms fall through) makes the control flow harder to follow and means any change to separator logic must be applied in three places.",
+      "recommendation": "Restructure the loop so token production is separated from separator insertion, or extract a small closure/helper for the hyphen insertion to eliminate the duplication and make the flow uniform."
+    }
+  ],
+  "residual_risks": [],
+  "testing_gaps": []
+}

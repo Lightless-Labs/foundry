@@ -1,0 +1,7 @@
+Initial Phase 3 red-team-test-reviewer dispatch
+
+planned_model: minimax/MiniMax-M3
+actual_model: minimax/MiniMax-M3
+result: foundry_team reported success, but the child produced no reviewer output.
+
+Resolution: retried with dispatch/phase3/red-team-test-reviewer-r2.json. The r2 dispatch produced parseable reviewer JSON wrapped in Markdown fences. The fenced-output behavior is recorded as a provider/prompt-obedience anomaly.

@@ -6,9 +6,14 @@ requires_distinct_model_lanes: true
 test_results[1]{example,passed,total,expected_passed,expected_total}:
   slugify-smoke,11,11,11,11
 
-model_lanes[3]{recipient,planned_model,actual_model}:
+model_lanes[8]{recipient,planned_model,actual_model}:
   red-team,minimax/MiniMax-M3,minimax/MiniMax-M3
   green-team,kimi-coding/kimi-for-coding,kimi-coding/kimi-for-coding
+  green-team-reviewer,kimi-coding/kimi-for-coding,kimi-coding/kimi-for-coding
+  red-team-test-reviewer,minimax/MiniMax-M3,minimax/MiniMax-M3
+  red-team-test-reviewer-r2,minimax/MiniMax-M3,minimax/MiniMax-M3
+  rust-reviewer,kimi-coding/kimi-for-coding,kimi-coding/kimi-for-coding
+  barrier-integrity-auditor,minimax/MiniMax-M3,minimax/MiniMax-M3
   orchestrator,openai-codex/gpt-5.5,openai-codex/gpt-5.5
 
 divergence_restarts[0]{phase,outcome,revision_history_count}:

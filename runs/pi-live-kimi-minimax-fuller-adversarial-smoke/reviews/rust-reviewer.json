@@ -1,0 +1,26 @@
+{
+  "reviewer": "rust-reviewer",
+  "model": "kimi-coding/kimi-for-coding",
+  "findings": [
+    {
+      "severity": "minor",
+      "confidence": 0.9,
+      "evidence": "Cargo.toml does not declare a rust-version field.",
+      "recommendation": "Add `rust-version = \"1.70\"` (or the project's actual MSRV) to document the minimum supported Rust version."
+    },
+    {
+      "severity": "minor",
+      "confidence": 0.85,
+      "evidence": "`pub fn slugify(input: &str) -> String` is missing `#[must_use]`.",
+      "recommendation": "Add `#[must_use]` since the function is pure and discarding its returned `String` is almost certainly a bug."
+    },
+    {
+      "severity": "minor",
+      "confidence": 0.85,
+      "evidence": "`let mut out = String::new();` starts with zero capacity, forcing repeated reallocations while building the result.",
+      "recommendation": "Use `String::with_capacity(input.len())` because the output byte length never exceeds the input byte length for this transliteration table."
+    }
+  ],
+  "residual_risks": [],
+  "testing_gaps": []
+}
