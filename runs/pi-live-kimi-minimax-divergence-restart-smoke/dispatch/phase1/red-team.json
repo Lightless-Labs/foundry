@@ -1,0 +1,50 @@
+{
+  "schema_version": "foundry.prompt-envelope.v1",
+  "run_id": "pi-live-kimi-minimax-divergence-restart-smoke",
+  "phase": "phase1",
+  "recipient": "red-team",
+  "prompt": "You are the RED TEAM for a controlled Foundry live smoke.\n\nUse the full product spec and NLSpec below to propose black-box tests for the slugify function. Do not inspect implementation files or counterpart reasoning.\n\nProduct spec:\nSlugify Smoke Spec v1\nThe library turns short article titles into stable URL slugs suitable for docs examples. The public contract emphasizes readable ASCII output, deterministic results, and a safe fallback for empty slugs. The current text is intentionally incomplete about accented Latin input so the live smoke can exercise Foundry's divergence restart path.\n\nNLSpec:\nSlugify Smoke NLSpec v1\nWhy: produce predictable ASCII URL slugs from short content titles.\nWhat: expose slugify(input: &str) -> String.\nHow: trim surrounding whitespace; lowercase ASCII letters; keep ASCII digits; treat ASCII whitespace and ASCII punctuation as separators; collapse repeated separators into one hyphen; strip leading and trailing hyphens; return \"untitled\" when no ASCII letters or digits remain.\nDone: covers ASCII words, repeated whitespace, punctuation, leading/trailing separators, numeric tokens, already-slugged input, and empty/non-ASCII-only input fallback.\nNote: v1 does not define accented Latin transliteration.\n\nTask: Return JSON only with this shape:\n{\n  \"red_test_plan\": [{\"name\": \"string\", \"purpose\": \"string\", \"source\": \"NLSpec|gap_probe\"}],\n  \"suspected_divergence\": {\"test_id\": \"slugify_unicode_transliteration\", \"why\": \"string\"}\n}\nInclude the controlled gap probe named slugify_unicode_transliteration because accented Latin readability is important for article titles but v1 is silent about transliteration.\n",
+  "visible_context": [
+    {
+      "label": "product_spec",
+      "kind": "spec",
+      "sha256": "live-smoke",
+      "content": "Slugify Smoke Spec v1\nThe library turns short article titles into stable URL slugs suitable for docs examples. The public contract emphasizes readable ASCII output, deterministic results, and a safe fallback for empty slugs. The current text is intentionally incomplete about accented Latin input so the live smoke can exercise Foundry's divergence restart path."
+    },
+    {
+      "label": "full_nlspec",
+      "kind": "nlspec",
+      "sha256": "live-smoke",
+      "content": "Slugify Smoke NLSpec v1\nWhy: produce predictable ASCII URL slugs from short content titles.\nWhat: expose slugify(input: &str) -> String.\nHow: trim surrounding whitespace; lowercase ASCII letters; keep ASCII digits; treat ASCII whitespace and ASCII punctuation as separators; collapse repeated separators into one hyphen; strip leading and trailing hyphens; return \"untitled\" when no ASCII letters or digits remain.\nDone: covers ASCII words, repeated whitespace, punctuation, leading/trailing separators, numeric tokens, already-slugged input, and empty/non-ASCII-only input fallback.\nNote: v1 does not define accented Latin transliteration."
+    }
+  ],
+  "withheld_context": [
+    {
+      "label": "implementation_workspace",
+      "kind": "implementation_code",
+      "sha256": "live-smoke",
+      "samples": [
+        "pub fn slugify(input: &str) -> String { ascii_fold(input) }",
+        "struct SeparatorNormalizer { pending_dash: bool }"
+      ]
+    },
+    {
+      "label": "green_reasoning",
+      "kind": "counterpart_reasoning",
+      "sha256": "live-smoke",
+      "samples": [
+        "Kimi implementation attempt chose to drop non ASCII characters"
+      ]
+    }
+  ],
+  "redactions": [
+    {
+      "source": "orchestrator",
+      "action": "withhold_implementation_context",
+      "removed": [
+        "implementation_files",
+        "counterpart_reasoning"
+      ]
+    }
+  ]
+}

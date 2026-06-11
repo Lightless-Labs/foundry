@@ -1,0 +1,16 @@
+{
+  "reviewer": "divergence-evaluator",
+  "findings": [
+    {
+      "outcome": "VALUABLE",
+      "rationale": "The NLSpec scopes normalization to ASCII and has no rule for non-ASCII input such as accented Latin letters. A strict implementation that maps non-ASCII characters to separators is faithful to the written How section, while the stable failing case expects readable ASCII transliteration for real content titles. This is a missing-behavior gap, not an implementation bug.",
+      "gap_description": "NLSpec is silent on how slugify handles non-ASCII characters in the input, particularly accented Latin letters common in content titles. The spec scopes normalization to ASCII letters/digits/whitespace/punctuation and lists only ASCII-focused DoD cases, but it never specifies whether non-ASCII letters should be (a) transliterated to ASCII equivalents (e.g., 'Crème brûlée' → 'creme-brulee'), (b) dropped, (c) treated as separators, or (d) cause a fallback to 'untitled'. The Definition of Done must be extended to cover Unicode/extended-Latin input and to state the chosen transliteration (or drop) policy explicitly, so that a reader of the NLSpec alone can derive the expected output for titles like 'Crème brûlée', 'naïve approach', or 'São Paulo guide'."
+    }
+  ],
+  "residual_risks": [
+    "Other Unicode classes remain intentionally scoped to separator/fallback behavior in the revised smoke NLSpec."
+  ],
+  "testing_gaps": [
+    "Add at least one accented-Latin positive case and one non-Latin or emoji fallback case."
+  ]
+}

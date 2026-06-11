@@ -1,0 +1,61 @@
+{
+  "schema_version": "foundry.prompt-envelope.v1",
+  "run_id": "pi-live-kimi-minimax-divergence-restart-smoke",
+  "phase": "phase2",
+  "recipient": "green-team",
+  "prompt": "You are the GREEN TEAM for a controlled Foundry live smoke.\n\nImplement from the NLSpec How section only. You may see outcome labels, but not test code, assertions, raw failure output, or Done criteria.\n\nNLSpec How section: trim surrounding whitespace; lowercase ASCII letters; keep ASCII digits; treat ASCII whitespace and ASCII punctuation as separators; collapse repeated separators into one hyphen; strip leading and trailing hyphens; return \"untitled\" when no ASCII letters or digits remain\n\nTest results:\n  slugify_ascii_words: PASS\n  slugify_unicode_transliteration: FAIL\n\n## Task\nReturn JSON only with this shape:\n{\n  \"green_implementation_plan\": [\"step\", \"step\"],\n  \"likely_next_attempt\": \"string\"\n}\nUse only the How section and PASS/FAIL labels above.\n",
+  "visible_context": [
+    {
+      "label": "nlspec_how",
+      "kind": "nlspec_how",
+      "sha256": "live-smoke",
+      "content": "trim surrounding whitespace; lowercase ASCII letters; keep ASCII digits; treat ASCII whitespace and ASCII punctuation as separators; collapse repeated separators into one hyphen; strip leading and trailing hyphens; return \"untitled\" when no ASCII letters or digits remain"
+    },
+    {
+      "label": "outcome_labels",
+      "kind": "test_outcomes",
+      "sha256": "live-smoke",
+      "content": "slugify_ascii_words: PASS; slugify_unicode_transliteration: FAIL"
+    }
+  ],
+  "withheld_context": [
+    {
+      "label": "test_artifact",
+      "kind": "red_test_code",
+      "sha256": "live-smoke",
+      "samples": [
+        "fn unicode_transliteration_keeps_creme_brulee_readable()",
+        "assert_slug_case(\"Crème brûlée\", \"creme-brulee\")"
+      ]
+    },
+    {
+      "label": "nlspec_done",
+      "kind": "nlspec_done",
+      "sha256": "live-smoke",
+      "samples": [
+        "Done: accented Latin letters transliterate with diacritics removed"
+      ]
+    },
+    {
+      "label": "raw_failure",
+      "kind": "raw_test_output",
+      "sha256": "live-smoke",
+      "samples": [
+        "expected creme-brulee but got cr-me-br-l-e"
+      ]
+    }
+  ],
+  "redactions": [
+    {
+      "source": "test_runner",
+      "action": "pass_fail_labels_only",
+      "removed": [
+        "test_code",
+        "assertions",
+        "expected_values",
+        "raw_failure_output",
+        "nlspec_done"
+      ]
+    }
+  ]
+}

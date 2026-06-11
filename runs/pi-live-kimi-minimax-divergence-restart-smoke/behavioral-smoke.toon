@@ -1,0 +1,16 @@
+schema_version: foundry.behavioral-smoke.v1
+run_id: pi-live-kimi-minimax-divergence-restart-smoke
+requires_divergence_restart: true
+requires_distinct_model_lanes: true
+
+test_results[1]{example,passed,total,expected_passed,expected_total}:
+  slugify-divergence-restart-smoke,1,1,1,1
+
+model_lanes[4]{recipient,planned_model,actual_model}:
+  red-team,minimax/MiniMax-M3,minimax/MiniMax-M3
+  green-team,kimi-coding/kimi-for-coding,kimi-coding/kimi-for-coding
+  divergence-evaluator,minimax/MiniMax-M3,minimax/MiniMax-M3
+  divergence-evaluator-r2,minimax/MiniMax-M3,minimax/MiniMax-M3
+
+divergence_restarts[1]{phase,outcome,revision_history_count}:
+  PHASE_2B,VALUABLE,1

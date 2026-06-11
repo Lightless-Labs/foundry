@@ -1,0 +1,25 @@
+{
+  "route": "phase1_restart",
+  "existing_tests": [
+    "red/tests/slugify_ascii.rs",
+    "red/tests/slugify_unicode_gap_probe.rs"
+  ],
+  "new_nlspec_path": "runs/pi-live-kimi-minimax-divergence-restart-smoke/specs/revised.nlspec.md",
+  "change_summary": {
+    "sections_added": [],
+    "sections_modified": [
+      "How",
+      "Done"
+    ],
+    "requirements_delta": [
+      "Define accented Latin transliteration before separator handling.",
+      "Define non-Latin/emoji fallback behavior."
+    ]
+  },
+  "red_test_paths": [
+    "red/tests/slugify_ascii.rs",
+    "red/tests/slugify_unicode_gap_probe.rs"
+  ],
+  "test_failure_tracker": "reset_all_counters",
+  "revision_history_count": 1
+}

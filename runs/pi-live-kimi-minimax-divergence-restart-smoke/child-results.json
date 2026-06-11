@@ -1,0 +1,74 @@
+{
+  "run_id": "pi-live-kimi-minimax-divergence-restart-smoke",
+  "dispatches": [
+    {
+      "recipient": "red-team",
+      "phase": "phase1",
+      "planned_model": "minimax/MiniMax-M3",
+      "actual_model": "minimax/MiniMax-M3",
+      "exit_code": 0,
+      "artifact": "red_test_plan",
+      "summary": "MiniMax produced an NLSpec-derived test plan plus the controlled slugify_unicode_transliteration gap probe."
+    },
+    {
+      "recipient": "green-team",
+      "phase": "phase2",
+      "planned_model": "kimi-coding/kimi-for-coding",
+      "actual_model": "kimi-coding/kimi-for-coding",
+      "exit_code": 0,
+      "artifact": "green_implementation_plan",
+      "summary": "Kimi produced an implementation plan. The semantically rich PASS/FAIL label may have hinted at transliteration, so this output is recorded as a provider/barrier observation, not as independent restart evidence."
+    },
+    {
+      "recipient": "foundry:review:divergence-evaluator",
+      "phase": "phase2b",
+      "planned_model": "minimax/MiniMax-M3",
+      "actual_model": "minimax/MiniMax-M3",
+      "exit_code": 0,
+      "artifact": "divergence-evaluator-r1",
+      "output": {
+        "reviewer": "divergence-evaluator",
+        "findings": [
+          {
+            "outcome": "NOT_VALUABLE",
+            "rationale": "Initial packet included an explicit v1 note excluding accented Latin transliteration; evaluator correctly routed this as a red-team scope issue rather than a spec gap.",
+            "gap_description": null
+          }
+        ],
+        "residual_risks": [
+          "This r1 packet was intentionally preserved as a prompt-authoring anomaly; it is not the restart route evidence."
+        ],
+        "testing_gaps": []
+      }
+    },
+    {
+      "recipient": "foundry:review:divergence-evaluator",
+      "phase": "phase2b",
+      "planned_model": "minimax/MiniMax-M3",
+      "actual_model": "minimax/MiniMax-M3",
+      "exit_code": 0,
+      "artifact": "divergence-evaluator-r2",
+      "output": {
+        "reviewer": "divergence-evaluator",
+        "findings": [
+          {
+            "outcome": "VALUABLE",
+            "rationale": "The NLSpec scopes normalization to ASCII and has no rule for non-ASCII input such as accented Latin letters. A strict implementation that maps non-ASCII characters to separators is faithful to the written How section, while the stable failing case expects readable ASCII transliteration for real content titles. This is a missing-behavior gap, not an implementation bug.",
+            "gap_description": "NLSpec is silent on how slugify handles non-ASCII characters in the input, particularly accented Latin letters common in content titles. The spec scopes normalization to ASCII letters/digits/whitespace/punctuation and lists only ASCII-focused DoD cases, but it never specifies whether non-ASCII letters should be (a) transliterated to ASCII equivalents (e.g., 'Crème brûlée' → 'creme-brulee'), (b) dropped, (c) treated as separators, or (d) cause a fallback to 'untitled'. The Definition of Done must be extended to cover Unicode/extended-Latin input and to state the chosen transliteration (or drop) policy explicitly, so that a reader of the NLSpec alone can derive the expected output for titles like 'Crème brûlée', 'naïve approach', or 'São Paulo guide'."
+          }
+        ],
+        "residual_risks": [
+          "Other Unicode classes remain intentionally scoped to separator/fallback behavior in the revised smoke NLSpec."
+        ],
+        "testing_gaps": [
+          "Add at least one accented-Latin positive case and one non-Latin or emoji fallback case."
+        ]
+      }
+    }
+  ],
+  "route_evidence": {
+    "source": "divergence-evaluator-r2",
+    "findings_0_outcome": "VALUABLE",
+    "orchestrator_route": "spec_update_and_restart"
+  }
+}

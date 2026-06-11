@@ -1,0 +1,47 @@
+{
+  "schema_version": "foundry.prompt-envelope.v1",
+  "run_id": "pi-live-kimi-minimax-divergence-restart-smoke",
+  "phase": "spec_update_and_restart",
+  "recipient": "foundry:nlspec",
+  "prompt": "You are the NLSpec agent. Revise the existing NLSpec from this enriched rerun input.\n\nNLSpecRerunInput:\n  original_spec_path: runs/pi-live-kimi-minimax-divergence-restart-smoke/specs/original.nlspec.md\n  existing_nlspec_path: runs/pi-live-kimi-minimax-divergence-restart-smoke/specs/original.nlspec.md\n  evaluator_feedback: NLSpec is silent on how slugify handles non-ASCII characters in the input, particularly accented Latin letters common in content titles. The spec scopes normalization to ASCII letters/digits/whitespace/punctuation and lists only ASCII-focused DoD cases, but it never specifies whether non-ASCII letters should be (a) transliterated to ASCII equivalents (e.g., 'Crème brûlée' → 'creme-brulee'), (b) dropped, (c) treated as separators, or (d) cause a fallback to 'untitled'. The Definition of Done must be extended to cover Unicode/extended-Latin input and to state the chosen transliteration (or drop) policy explicitly, so that a reader of the NLSpec alone can derive the expected output for titles like 'Crème brûlée', 'naïve approach', or 'São Paulo guide'.\n\nUse existing_nlspec_path as your starting point. Incorporate evaluator_feedback exactly as the gap to address. Do not paraphrase evaluator_feedback. The original product spec remains authoritative for unrelated behavior. Return a complete revised NLSpec.\n",
+  "visible_context": [
+    {
+      "label": "original_spec_path",
+      "kind": "spec_path",
+      "sha256": "live-smoke",
+      "content": "runs/pi-live-kimi-minimax-divergence-restart-smoke/specs/original.nlspec.md"
+    },
+    {
+      "label": "existing_nlspec_path",
+      "kind": "nlspec_path",
+      "sha256": "live-smoke",
+      "content": "runs/pi-live-kimi-minimax-divergence-restart-smoke/specs/original.nlspec.md"
+    },
+    {
+      "label": "evaluator_feedback",
+      "kind": "gap_description",
+      "sha256": "live-smoke",
+      "content": "NLSpec is silent on how slugify handles non-ASCII characters in the input, particularly accented Latin letters common in content titles. The spec scopes normalization to ASCII letters/digits/whitespace/punctuation and lists only ASCII-focused DoD cases, but it never specifies whether non-ASCII letters should be (a) transliterated to ASCII equivalents (e.g., 'Crème brûlée' → 'creme-brulee'), (b) dropped, (c) treated as separators, or (d) cause a fallback to 'untitled'. The Definition of Done must be extended to cover Unicode/extended-Latin input and to state the chosen transliteration (or drop) policy explicitly, so that a reader of the NLSpec alone can derive the expected output for titles like 'Crème brûlée', 'naïve approach', or 'São Paulo guide'."
+    }
+  ],
+  "withheld_context": [
+    {
+      "label": "orchestrator_authored_nlspec",
+      "kind": "forbidden_action",
+      "sha256": "live-smoke",
+      "samples": [
+        "orchestrator writes revised NLSpec directly"
+      ]
+    }
+  ],
+  "redactions": [
+    {
+      "source": "divergence_judgment",
+      "action": "pass_gap_description_verbatim",
+      "removed": [
+        "paraphrase",
+        "orchestrator_summary"
+      ]
+    }
+  ]
+}
