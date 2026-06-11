@@ -18,7 +18,11 @@ Artifacts are replayable PromptEnvelope v1 JSON under `dispatch/`.
 - Divergence evaluator r2 completed on `minimax/MiniMax-M3` and returned `findings[0].outcome = VALUABLE` with a non-null `gap_description`.
 - `spec-update-and-restart.json` and `phase1-restart-package.json` record the restart with `revision_history_count: 1`.
 - `behavioral-smoke.toon` validates with `requires_divergence_restart: true` and `requires_distinct_model_lanes: true`.
+- Post-restart red dispatch completed on `minimax/MiniMax-M3` from the revised NLSpec and change summary.
+- Post-restart green dispatch completed on `kimi-coding/kimi-for-coding` from the revised How section plus opaque `T-###` PASS/FAIL labels only.
+- Green plan r1 referenced an older fuller-smoke path; r2 produced a self-contained implementation artifact under `resumed/green/src/lib.rs`.
+- `cd resumed/green && cargo test --quiet` passed `4/4` post-restart policy tests.
 
 ## Boundary Note
 
-This run proves the provider-diverse route/restart path. It does not claim a full post-restart implementation cycle: pre-restart red/green artifacts remain tied to the original NLSpec, while the revised NLSpec and restart package are the output of `spec_update_and_restart`.
+This run now proves the provider-diverse route/restart path plus a resumed post-restart convergence smoke. Pre-restart red/green artifacts remain tied to the original NLSpec; post-restart artifacts under `dispatch/post_restart/` and `resumed/` are tied to the revised NLSpec. The green post-restart prompts use opaque test IDs and explicitly withhold post-restart red output.

@@ -1,0 +1,23 @@
+{
+  "post_restart_red_plan": [
+    {
+      "opaque_id": "T-001",
+      "coverage": "ASCII basics and empty fallback remain valid after the restart.",
+      "expected_status": "keep"
+    },
+    {
+      "opaque_id": "T-002",
+      "coverage": "Accented Latin transliteration is revised to target the new v2 policy.",
+      "expected_status": "revise"
+    },
+    {
+      "opaque_id": "T-003",
+      "coverage": "Non-Latin and emoji fallback/separator handling is added for the v2 policy.",
+      "expected_status": "add"
+    }
+  ],
+  "removed_tests": [],
+  "notes": [
+    "Red used opaque IDs in the returned plan; the full human-readable mapping remains orchestrator-only."
+  ]
+}

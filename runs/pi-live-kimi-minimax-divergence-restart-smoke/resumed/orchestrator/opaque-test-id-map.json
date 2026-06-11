@@ -1,0 +1,9 @@
+{
+  "scope": "orchestrator-only; never sent to green",
+  "opaque_ids": {
+    "T-001": "ASCII basics / separator collapse",
+    "T-002": "Accented Latin transliteration: Crème brûlée -> creme-brulee",
+    "T-003": "Non-Latin or emoji-only fallback -> untitled",
+    "T-004": "Empty input fallback -> untitled"
+  }
+}

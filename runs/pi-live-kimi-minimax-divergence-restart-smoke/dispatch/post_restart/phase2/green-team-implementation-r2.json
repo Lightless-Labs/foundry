@@ -1,0 +1,72 @@
+{
+  "schema_version": "foundry.prompt-envelope.v1",
+  "run_id": "pi-live-kimi-minimax-divergence-restart-smoke",
+  "phase": "post_restart_phase2",
+  "recipient": "green-team",
+  "prompt": "You are the GREEN TEAM resuming after a Foundry spec_update_and_restart event.\n\nYou are producing a self-contained implementation artifact for audit. Use only the revised NLSpec How section and opaque outcome labels. You must not inspect or refer to red tests, human-readable test names, assertions, expected values, raw failure output, red reasoning, or NLSpec Done criteria.\n\nRevised NLSpec How section: Normalize input before separator handling by transliterating accented Latin letters to ASCII base letters where there is an obvious one-letter equivalent (for example é -> e, ü -> u, ã -> a). Trim surrounding whitespace. Lowercase ASCII letters after transliteration. Keep ASCII digits. Treat ASCII whitespace and ASCII punctuation as separators. Treat non-Latin Unicode characters and emoji as separators unless a future NLSpec states a broader transliteration policy. Collapse repeated separators into one hyphen. Strip leading and trailing hyphens. Return untitled when no ASCII letters or digits remain after normalization.\n\nTest results:\n  T-001: FAIL\n  T-002: FAIL\n  T-003: FAIL\n  T-004: PASS\n\n## Task\nReturn JSON only with this exact shape:\n{\n  \"post_restart_green_implementation\": {\n    \"path\": \"resumed/green/src/lib.rs\",\n    \"rust_code\": \"complete Rust source code defining pub fn slugify(input: &str) -> String\"\n  },\n  \"barrier_confirmation\": \"string\"\n}\nDo not mention or use any file path outside this run artifact. Do not infer or request human-readable test names.\n",
+  "visible_context": [
+    {
+      "label": "revised_nlspec_how",
+      "kind": "nlspec_how",
+      "sha256": "post-restart-smoke-r2",
+      "content": "Normalize input before separator handling by transliterating accented Latin letters to ASCII base letters where there is an obvious one-letter equivalent (for example é -> e, ü -> u, ã -> a). Trim surrounding whitespace. Lowercase ASCII letters after transliteration. Keep ASCII digits. Treat ASCII whitespace and ASCII punctuation as separators. Treat non-Latin Unicode characters and emoji as separators unless a future NLSpec states a broader transliteration policy. Collapse repeated separators into one hyphen. Strip leading and trailing hyphens. Return untitled when no ASCII letters or digits remain after normalization."
+    },
+    {
+      "label": "opaque_outcome_labels",
+      "kind": "test_outcomes",
+      "sha256": "post-restart-smoke-r2",
+      "content": "T-001: FAIL; T-002: FAIL; T-003: FAIL; T-004: PASS"
+    }
+  ],
+  "withheld_context": [
+    {
+      "label": "opaque_id_mapping",
+      "kind": "orchestrator_only_test_mapping",
+      "sha256": "post-restart-smoke-r2",
+      "samples": [
+        "accented Latin coverage maps to readable ASCII slug policy",
+        "emoji-only coverage maps to fallback policy"
+      ]
+    },
+    {
+      "label": "test_artifact",
+      "kind": "red_test_code",
+      "sha256": "post-restart-smoke-r2",
+      "samples": [
+        "assert_slug_case(\"Crème brûlée\", \"creme-brulee\")",
+        "fn non_latin_only_falls_back_to_untitled()"
+      ]
+    },
+    {
+      "label": "nlspec_done",
+      "kind": "nlspec_done",
+      "sha256": "post-restart-smoke-r2",
+      "samples": [
+        "Accented Latin input such as Crème brûlée slugifies to creme-brulee"
+      ]
+    },
+    {
+      "label": "raw_failure",
+      "kind": "raw_test_output",
+      "sha256": "post-restart-smoke-r2",
+      "samples": [
+        "expected creme-brulee but got cr-me-br-l-e"
+      ]
+    }
+  ],
+  "redactions": [
+    {
+      "source": "post_restart_test_runner",
+      "action": "opaque_pass_fail_labels_only",
+      "removed": [
+        "human_readable_test_names",
+        "test_code",
+        "assertions",
+        "expected_values",
+        "raw_failure_output",
+        "nlspec_done",
+        "post_restart_red_output"
+      ]
+    }
+  ]
+}

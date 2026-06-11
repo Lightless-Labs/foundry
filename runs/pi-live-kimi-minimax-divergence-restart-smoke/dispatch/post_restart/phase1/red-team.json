@@ -1,0 +1,56 @@
+{
+  "schema_version": "foundry.prompt-envelope.v1",
+  "run_id": "pi-live-kimi-minimax-divergence-restart-smoke",
+  "phase": "post_restart_phase1",
+  "recipient": "red-team",
+  "prompt": "You are the RED TEAM resuming after a Foundry spec_update_and_restart event.\n\nYou may see the revised NLSpec, the change summary, and existing red test paths. You must not inspect implementation files, counterpart implementation outputs or counterpart reasoning.\n\nRevised NLSpec:\n# Slugify Smoke NLSpec v2\n\n## Why\n\nProduce predictable ASCII URL slugs from short content titles, including common accented Latin titles.\n\n## What\n\nExpose `slugify(input: &str) -> String`.\n\n## How\n\n- Normalize input before separator handling by transliterating accented Latin letters to ASCII base letters where there is an obvious one-letter equivalent (for example `é` -> `e`, `ü` -> `u`, `ã` -> `a`).\n- Trim surrounding whitespace.\n- Lowercase ASCII letters after transliteration.\n- Keep ASCII digits.\n- Treat ASCII whitespace and ASCII punctuation as separators.\n- Treat non-Latin Unicode characters and emoji as separators unless a future NLSpec states a broader transliteration policy.\n- Collapse repeated separators into one hyphen.\n- Strip leading and trailing hyphens.\n- Return `untitled` when no ASCII letters or digits remain after normalization.\n\n## Done\n\n- ASCII words slugify deterministically.\n- Repeated whitespace collapses.\n- Punctuation becomes separators.\n- Leading/trailing separators are stripped.\n- Numeric tokens are preserved.\n- Already-slugged input is stable.\n- Empty input falls back to `untitled`.\n- Accented Latin input such as `Crème brûlée` slugifies to `creme-brulee`.\n- Non-Latin-only or emoji-only input falls back to `untitled`.\n\n\nChange summary:\nsections_modified: How, Done\nrequirements_delta:\n- Define accented Latin transliteration before separator handling.\n- Define non-Latin/emoji fallback behavior.\n\nExisting red test paths:\n- red/tests/slugify_ascii.rs\n- red/tests/slugify_unicode_gap_probe.rs\n\nTask: Return JSON only with this shape:\n{\n  \"post_restart_red_plan\": [{\"opaque_id\": \"T-001\", \"coverage\": \"string\", \"expected_status\": \"keep|revise|add\"}],\n  \"removed_tests\": [],\n  \"notes\": [\"string\"]\n}\nUse opaque IDs only in the JSON. Include coverage for ASCII basics, accented Latin transliteration, non-Latin or emoji fallback, and empty input fallback.\n",
+  "visible_context": [
+    {
+      "label": "revised_nlspec",
+      "kind": "nlspec",
+      "sha256": "post-restart-smoke",
+      "content": "# Slugify Smoke NLSpec v2\n\n## Why\n\nProduce predictable ASCII URL slugs from short content titles, including common accented Latin titles.\n\n## What\n\nExpose `slugify(input: &str) -> String`.\n\n## How\n\n- Normalize input before separator handling by transliterating accented Latin letters to ASCII base letters where there is an obvious one-letter equivalent (for example `é` -> `e`, `ü` -> `u`, `ã` -> `a`).\n- Trim surrounding whitespace.\n- Lowercase ASCII letters after transliteration.\n- Keep ASCII digits.\n- Treat ASCII whitespace and ASCII punctuation as separators.\n- Treat non-Latin Unicode characters and emoji as separators unless a future NLSpec states a broader transliteration policy.\n- Collapse repeated separators into one hyphen.\n- Strip leading and trailing hyphens.\n- Return `untitled` when no ASCII letters or digits remain after normalization.\n\n## Done\n\n- ASCII words slugify deterministically.\n- Repeated whitespace collapses.\n- Punctuation becomes separators.\n- Leading/trailing separators are stripped.\n- Numeric tokens are preserved.\n- Already-slugged input is stable.\n- Empty input falls back to `untitled`.\n- Accented Latin input such as `Crème brûlée` slugifies to `creme-brulee`.\n- Non-Latin-only or emoji-only input falls back to `untitled`.\n"
+    },
+    {
+      "label": "change_summary",
+      "kind": "change_summary",
+      "sha256": "post-restart-smoke",
+      "content": "sections_modified: How, Done\nrequirements_delta:\n- Define accented Latin transliteration before separator handling.\n- Define non-Latin/emoji fallback behavior."
+    },
+    {
+      "label": "red_test_paths",
+      "kind": "red_test_paths",
+      "sha256": "post-restart-smoke",
+      "content": "red/tests/slugify_ascii.rs; red/tests/slugify_unicode_gap_probe.rs"
+    }
+  ],
+  "withheld_context": [
+    {
+      "label": "implementation_workspace",
+      "kind": "implementation_code",
+      "sha256": "post-restart-smoke",
+      "samples": [
+        "pub fn slugify(input: &str) -> String { transliterate_latin(input) }",
+        "fn fold_latin1_char(ch: char) -> Option<char>"
+      ]
+    },
+    {
+      "label": "green_reasoning",
+      "kind": "counterpart_reasoning",
+      "sha256": "post-restart-smoke",
+      "samples": [
+        "Kimi post-restart plan uses an accent folding lookup table"
+      ]
+    }
+  ],
+  "redactions": [
+    {
+      "source": "phase1_restart_package",
+      "action": "withhold_green_context",
+      "removed": [
+        "implementation_workspace",
+        "green_reasoning"
+      ]
+    }
+  ]
+}

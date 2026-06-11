@@ -1,0 +1,8 @@
+{
+  "post_restart_green_plan": [
+    "Normalize before separator handling using one-letter accented Latin transliteration.",
+    "Treat ASCII whitespace/punctuation and remaining non-Latin/emoji characters as separators.",
+    "Collapse separators, trim hyphens, and return untitled when no ASCII letters or digits remain."
+  ],
+  "barrier_confirmation": "Used only revised How plus opaque PASS/FAIL labels; first plan response referenced an older path, so r2 requested a self-contained artifact."
+}

@@ -30,6 +30,16 @@ The accepted restart route is based on `divergence-evaluator-r2-output.json`:
 
 The orchestrator route is therefore `spec_update_and_restart`; see `spec-update-and-restart.json`, `phase1-restart-package.json`, and `behavioral-smoke.toon`.
 
+## Post-Restart Resume
+
+| Recipient | Phase | Planned model | Actual model | Result |
+|---|---|---|---|---|
+| red-team | post_restart_phase1 | `minimax/MiniMax-M3` | `minimax/MiniMax-M3` | Completed; returned opaque-ID test update plan |
+| green-team | post_restart_phase2 | `kimi-coding/kimi-for-coding` | `kimi-coding/kimi-for-coding` | Completed; plan referenced older fuller-smoke path, so r2 requested self-contained artifact |
+| green-team | post_restart_phase2 r2 | `kimi-coding/kimi-for-coding` | `kimi-coding/kimi-for-coding` | Completed; returned `resumed/green/src/lib.rs` implementation artifact |
+
+Post-restart convergence is recorded in `resumed/convergence-record.json`; `cd resumed/green && cargo test --quiet` passed `4/4` policy tests.
+
 ## Barrier Observation
 
-The green envelope was mechanically valid (How section plus PASS/FAIL labels only), but the label `slugify_unicode_transliteration: FAIL` was semantically rich enough for green to infer transliteration. Treat green's output as a provider/barrier observation, not as independent restart evidence. Future deeper runs should use opaque green test IDs.
+The initial green envelope was mechanically valid (How section plus PASS/FAIL labels only), but the label `slugify_unicode_transliteration: FAIL` was enough for green to infer transliteration. Treat green's pre-restart output as a provider/barrier observation, not as independent restart evidence. The post-restart green envelopes use opaque `T-###` labels, and r2 explicitly redacts `post_restart_red_output`.
