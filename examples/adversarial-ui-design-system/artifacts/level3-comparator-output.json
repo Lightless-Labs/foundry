@@ -1,0 +1,17 @@
+{
+  "comparator": "design-system-visual-comparator",
+  "case_id": "T-201",
+  "outcome": "PASS",
+  "actual_model": "openai-codex/gpt-5.5",
+  "findings": [
+    "Grid uses 2 columns at 640px with 16px gap.",
+    "Card padding, border color, title font, and body font match the design system.",
+    "Primary button colors and padding match.",
+    "Disabled button colors and padding match."
+  ],
+  "residual_risks": [
+    "Card radius and button radius were not provided in the snapshot, so they were not verified.",
+    "This was a text measurement-snapshot trial, not a real screenshot/vision run.",
+    "A single comparator pass is not reliability evidence; rerun agreement and adversarial negative controls are still needed."
+  ]
+}

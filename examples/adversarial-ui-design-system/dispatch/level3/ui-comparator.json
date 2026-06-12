@@ -1,0 +1,18 @@
+{
+  "schema_version": "foundry.prompt-envelope.v1",
+  "run_id": "adversarial-ui-design-system-spike",
+  "phase": "level3",
+  "recipient": "ui-comparator",
+  "prompt": "You are a design-system visual comparator for a Foundry adversarial UI spike. Evaluate the rendered measurement snapshot against the tiny design system and generated composition below. Return JSON only with keys: comparator, case_id, outcome, findings, residual_risks.\n\nDesign system summary:\n- Grid: below 640px one column; at 640px and above two equal columns; gap is 16px.\n- Card: 16px padding, 1px #d0d7de border, 8px radius, title uses 20px/28px 600, body uses 14px/20px 400.\n- Button: primary background #2563eb with white text; disabled background #d0d7de with body-color text; padding 8px 16px; radius 6px.\n\nGenerated composition T-201:\n- Viewport: 640x720 DPR 1.\n- Two cards in a grid.\n- Card 1 button state: primary.\n- Card 2 button state: disabled.\n\nRendered measurement snapshot:\n- grid_columns: 2\n- grid_gap_px: 16\n- card_padding_px: [16, 16, 16, 16]\n- card_border_color: #d0d7de\n- title_font: 20px/28px weight 600\n- body_font: 14px/20px weight 400\n- first_button_background: #2563eb\n- first_button_text_color: #ffffff\n- second_button_background: #d0d7de\n- second_button_text_color: #24292f\n- button_padding_px: {block: 8, inline: 16}\n\nJudge only the provided snapshot against the design system. If everything matches, outcome is PASS. Do not mention implementation code.",
+  "visible_context": [
+    {"label": "design_system_rules", "kind": "design_system", "sha256": "fixture", "content": "examples/adversarial-ui-design-system/design-system.md"},
+    {"label": "generated_composition_t201", "kind": "red_generated_ui_case", "sha256": "fixture", "content": "examples/adversarial-ui-design-system/fixtures/generative-composition.json"},
+    {"label": "rendered_measurement_snapshot", "kind": "ui_measurements", "sha256": "manual-spike", "content": "text measurement snapshot in prompt"}
+  ],
+  "withheld_context": [
+    {"label": "implementation_source", "kind": "implementation_code", "sha256": "not-collected", "samples": ["className=\"card-grid generated-layout\"", "function GeneratedCompositionFixture"]}
+  ],
+  "redactions": [
+    {"source": "implementation_source", "action": "omit", "removed": ["component_source", "css_source"]}
+  ]
+}

@@ -1,0 +1,16 @@
+schema_version: foundry.adversarial-ui.outcomes.v1
+fixture: examples/adversarial-ui-design-system
+
+# Level 1 public mock matching example. Public case names are acceptable because green can see these references.
+level1_results[2]{label,visibility,outcome}:
+  P-001,public,PASS
+  P-002,public,PASS
+
+# Level 2 held-back examples. Green receives only opaque labels, not hidden content, reference assertions, screenshots, diffs, or rationales.
+level2_green_visible_results[2]{label,outcome}:
+  T-101,FAIL
+  T-102,PASS
+
+level2_orchestrator_mapping[2]{label,hidden_case,withheld_reason}:
+  T-101,card_long_title_rtl,hidden content and visual reference would reveal red-side test data
+  T-102,empty_state_disabled_button,hidden state and comparator rationale would reveal red-side test data

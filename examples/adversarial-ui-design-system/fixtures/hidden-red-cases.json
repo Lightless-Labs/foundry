@@ -1,0 +1,43 @@
+{
+  "schema_version": "foundry.adversarial-ui.fixture.v1",
+  "visibility": "red_orchestrator_only",
+  "green_visible_mapping": {
+    "card_long_title_rtl": "T-101",
+    "empty_state_disabled_button": "T-102"
+  },
+  "cases": [
+    {
+      "id": "T-101",
+      "name": "card_long_title_rtl",
+      "level": 2,
+      "viewport": {"width": 800, "height": 600, "device_pixel_ratio": 1},
+      "hidden_content": {
+        "title": "דוח ביצועים רבעוני עם כותרת ארוכה במיוחד שנועדה לבדוק חיתוך",
+        "body": "RTL body content should preserve card padding and grid placement.",
+        "button": "פתח דוח"
+      },
+      "reference_assertions": [
+        "title wraps to at most two lines before ellipsis",
+        "card padding remains 16px on all sides",
+        "button still uses primary accent styling"
+      ]
+    },
+    {
+      "id": "T-102",
+      "name": "empty_state_disabled_button",
+      "level": 2,
+      "viewport": {"width": 375, "height": 667, "device_pixel_ratio": 1},
+      "hidden_content": {
+        "title": "No reports yet",
+        "body": "",
+        "button": "Open report",
+        "button_state": "disabled"
+      },
+      "reference_assertions": [
+        "single-column mobile grid is preserved",
+        "empty body does not collapse card below padding minimum",
+        "disabled button uses border-color background, not accent background"
+      ]
+    }
+  ]
+}

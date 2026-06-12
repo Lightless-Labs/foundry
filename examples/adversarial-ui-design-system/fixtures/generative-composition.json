@@ -1,0 +1,24 @@
+{
+  "schema_version": "foundry.adversarial-ui.fixture.v1",
+  "visibility": "red_orchestrator_comparator_only",
+  "case": {
+    "id": "T-201",
+    "level": 3,
+    "name": "generated_two_card_breakpoint_composition",
+    "viewport": {"width": 640, "height": 720, "device_pixel_ratio": 1},
+    "composition": {
+      "grid": {"cards": 2, "expected_columns": 2, "gap_token": "space-4"},
+      "cards": [
+        {"title": "Alpha release checklist", "body": "Five items remain before rollout.", "button": "Review"},
+        {"title": "Beta cohort", "body": "Twenty users are queued for access.", "button": "Invite", "button_state": "disabled"}
+      ]
+    },
+    "computed_expectations": [
+      "viewport exactly at 640px uses two equal columns",
+      "horizontal gap is 16px",
+      "each card has 16px padding",
+      "first button uses accent background with white text",
+      "second button uses disabled background with non-accent color"
+    ]
+  }
+}

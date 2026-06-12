@@ -1,0 +1,37 @@
+{
+  "schema_version": "foundry.adversarial-ui.fixture.v1",
+  "visibility": "green_visible_public_examples",
+  "cases": [
+    {
+      "id": "P-001",
+      "name": "card_with_primary_button_desktop",
+      "viewport": {"width": 800, "height": 600, "device_pixel_ratio": 1},
+      "content": {
+        "title": "Quarterly metrics",
+        "body": "Revenue, retention, and activation are ready for review.",
+        "button": "Open report"
+      },
+      "expected_tokens": ["space-4", "color-surface", "color-border", "color-accent", "type-title", "type-body", "type-button"],
+      "expected_layout": {
+        "grid_columns": 2,
+        "grid_gap_px": 16,
+        "card_padding_px": 16,
+        "button_padding_px": {"block": 8, "inline": 16}
+      }
+    },
+    {
+      "id": "P-002",
+      "name": "single_column_mobile",
+      "viewport": {"width": 375, "height": 667, "device_pixel_ratio": 1},
+      "content": {
+        "title": "Mobile dashboard",
+        "body": "One card per row below the breakpoint.",
+        "button": "Continue"
+      },
+      "expected_layout": {
+        "grid_columns": 1,
+        "grid_gap_px": 16
+      }
+    }
+  ]
+}
