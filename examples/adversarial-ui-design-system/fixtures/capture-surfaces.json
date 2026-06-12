@@ -1,0 +1,172 @@
+{
+  "schema_version": "foundry.adversarial-ui.capture-surfaces.v1",
+  "purpose": "Document modality-agnostic UI capture contracts for adversarial red/green UI testing without adding runtime capture dependencies.",
+  "green_visible_summary": {
+    "allowed": [
+      "The product supports web browser, simulator/emulator, and physical-device UI capture surfaces.",
+      "The design system and public examples are implementation guidance.",
+      "Hidden/generated cases report only opaque PASS/FAIL labels such as T-101: FAIL."
+    ],
+    "forbidden": [
+      "hidden content",
+      "reference screenshots",
+      "rendered screenshots",
+      "visual diffs",
+      "OCR text from hidden cases",
+      "semantic hidden-case names",
+      "comparator prompts",
+      "comparator rationales",
+      "device serial numbers",
+      "account names",
+      "GPS/EXIF metadata"
+    ]
+  },
+  "common_contract": {
+    "required_fields": [
+      "id",
+      "surface_class",
+      "visibility",
+      "coordinate_space",
+      "scale_or_dpr",
+      "orientation",
+      "locale",
+      "color_scheme",
+      "font_policy",
+      "artifact_refs",
+      "thresholds",
+      "privacy_scrub"
+    ],
+    "artifact_visibility": {
+      "public_reference": "green_visible_only_when_explicitly_public",
+      "hidden_reference": "red_orchestrator_comparator_only",
+      "rendered_capture": "red_orchestrator_comparator_only_for_hidden_cases",
+      "visual_diff": "red_orchestrator_comparator_only",
+      "measurement_snapshot": "red_orchestrator_comparator_only_for_hidden_cases",
+      "green_outcome": "opaque_label_plus_PASS_or_FAIL_only"
+    },
+    "coordinate_spaces": [
+      "css_px",
+      "device_px",
+      "screenshot_px",
+      "camera_image_px"
+    ]
+  },
+  "surfaces": [
+    {
+      "id": "surface-web-001",
+      "surface_class": "web_browser",
+      "visibility": "public_contract",
+      "capture_contract": {
+        "browser_engine": "chromium",
+        "browser_version_policy": "record_exact_version_when_captured",
+        "viewport_px": {"width": 800, "height": 600},
+        "zoom": 1,
+        "coordinate_space": "css_px",
+        "scale_or_dpr": 1,
+        "orientation": "landscape",
+        "locale": "en-US",
+        "color_scheme": "light",
+        "font_policy": "use fixture-provided web-safe stack or record exact loaded font hashes"
+      },
+      "artifact_refs": [
+        {"kind": "public_reference", "visibility": "green_visible_public_example", "sha256": "fixture-placeholder"},
+        {"kind": "rendered_capture", "visibility": "red_orchestrator_comparator_only_for_hidden_cases", "sha256": "capture-placeholder"},
+        {"kind": "visual_diff", "visibility": "red_orchestrator_comparator_only", "sha256": "diff-placeholder"}
+      ],
+      "thresholds": {
+        "pixel_delta_max": 0,
+        "layout_measurement_tolerance_px": 1,
+        "note": "Placeholder thresholds; calibrate with real browser runs before gating."
+      },
+      "privacy_scrub": {"required": true, "checks": ["no URL tokens", "no account names", "no local filesystem paths"]},
+      "stability_notes": [
+        "Record browser engine and exact version.",
+        "Pin viewport, zoom, DPR, color scheme, and font policy.",
+        "Avoid testing browser chrome; capture app content only."
+      ],
+      "barrier_notes": [
+        "Hidden reference images and diffs stay red/orchestrator-only.",
+        "Green receives opaque labels only for hidden web cases."
+      ]
+    },
+    {
+      "id": "surface-sim-001",
+      "surface_class": "simulator_emulator",
+      "visibility": "public_contract",
+      "capture_contract": {
+        "platform": "ios_or_android",
+        "os_version_policy": "record_exact_runtime_version_when_captured",
+        "device_profile": "record_named_simulator_or_emulator_profile",
+        "screen_size_px": "record_exact_width_height",
+        "safe_area_insets_policy": "record_insets_or_mask_system_bars",
+        "status_nav_bar_policy": "mask_or_pin_time_network_battery_navigation_state",
+        "coordinate_space": "device_px",
+        "scale_or_dpr": "record_simulator_scale_or_device_density",
+        "orientation": "portrait_or_landscape",
+        "locale": "record_locale",
+        "color_scheme": "light_or_dark",
+        "font_policy": "record OS dynamic type/text scale settings"
+      },
+      "artifact_refs": [
+        {"kind": "hidden_reference", "visibility": "red_orchestrator_comparator_only", "sha256": "reference-placeholder"},
+        {"kind": "rendered_capture", "visibility": "red_orchestrator_comparator_only_for_hidden_cases", "sha256": "capture-placeholder"},
+        {"kind": "measurement_snapshot", "visibility": "red_orchestrator_comparator_only_for_hidden_cases", "sha256": "measurement-placeholder"}
+      ],
+      "thresholds": {
+        "layout_measurement_tolerance_px": 1,
+        "safe_area_tolerance_px": 0,
+        "note": "Calibrate per simulator/emulator runtime and OS rendering stack."
+      },
+      "privacy_scrub": {"required": true, "checks": ["no simulator UUID", "no account names", "notifications masked", "status bar deterministic"]},
+      "stability_notes": [
+        "Record OS runtime, simulator/emulator profile, density/scale, orientation, and safe-area policy.",
+        "Mask or pin status/navigation bars to prevent clock/network/battery flake.",
+        "Record dynamic type/text scale because it changes layout."
+      ],
+      "barrier_notes": [
+        "Hidden simulator content, screenshots, OCR text, and measurement snapshots stay red/orchestrator-only.",
+        "Green receives only opaque PASS/FAIL labels for hidden simulator/emulator cases."
+      ]
+    },
+    {
+      "id": "surface-device-001",
+      "surface_class": "physical_device",
+      "visibility": "public_contract",
+      "capture_contract": {
+        "device_class_or_model_policy": "record device class; exact model allowed only after privacy review",
+        "os_version_policy": "record exact OS version when safe",
+        "capture_tool": "screen_recording_api_or_external_camera_rig",
+        "screen_size_px": "record exact width_height_or_camera_resolution",
+        "safe_area_insets_policy": "record insets_or_mask_system_bars",
+        "status_nav_bar_policy": "mask_or_pin_time_network_battery_navigation_state",
+        "coordinate_space": "device_px_or_camera_image_px",
+        "scale_or_dpr": "record display scale or camera calibration scale",
+        "orientation": "portrait_or_landscape",
+        "locale": "record_locale",
+        "color_scheme": "light_or_dark",
+        "font_policy": "record OS text size/display zoom settings",
+        "camera_rig_policy": "if using an external camera, record distance/angle/lens/lighting calibration as red-orchestrator-only metadata"
+      },
+      "artifact_refs": [
+        {"kind": "hidden_reference", "visibility": "red_orchestrator_comparator_only", "sha256": "reference-placeholder"},
+        {"kind": "rendered_capture", "visibility": "red_orchestrator_comparator_only_for_hidden_cases", "sha256": "capture-placeholder"},
+        {"kind": "visual_diff", "visibility": "red_orchestrator_comparator_only", "sha256": "diff-placeholder"}
+      ],
+      "thresholds": {
+        "layout_measurement_tolerance_px": 2,
+        "camera_perspective_tolerance": "must_be_calibrated_before_use",
+        "note": "Physical-device capture requires wider tolerances or geometry correction when using an external camera."
+      },
+      "privacy_scrub": {"required": true, "checks": ["no serial numbers", "no device owner/account names", "no notifications", "no GPS/EXIF metadata", "no lab identifiers"]},
+      "stability_notes": [
+        "Prefer OS screen-capture APIs when available; external camera rigs require geometry and lighting calibration.",
+        "Mask notifications, status bars, device identifiers, and any real account data.",
+        "Record brightness, color profile/night-shift settings, display zoom/text size, and camera calibration when relevant."
+      ],
+      "barrier_notes": [
+        "Physical capture metadata may reveal hidden case intent or private lab/device details; keep detailed metadata red/orchestrator-only.",
+        "Green receives only opaque PASS/FAIL labels for hidden physical-device cases."
+      ]
+    }
+  ]
+}
