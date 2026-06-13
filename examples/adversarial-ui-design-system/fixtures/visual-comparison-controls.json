@@ -1,6 +1,6 @@
 {
   "schema_version": "foundry.adversarial-ui.visual-comparison-controls.v1",
-  "purpose": "Executable synthetic-image controls for adversarial UI visual comparison without browser, emulator, or device-farm dependencies.",
+  "purpose": "Executable visual comparison controls for adversarial UI: in-memory synthetic scenes plus tiny file-backed raster artifacts, without browser, emulator, device-farm, Pillow, or live vision-model dependencies.",
   "visibility": "red_orchestrator_comparator_only",
   "green_visible_results_contract": {
     "format": "opaque_label_plus_PASS_or_FAIL_only",
@@ -14,7 +14,11 @@
       "rendered image",
       "pixel diff",
       "failure reason",
-      "comparator rationale"
+      "comparator rationale",
+      "screenshot artifact path",
+      "screenshot hash",
+      "vision prompt",
+      "vision model rationale"
     ]
   },
   "comparison_contract": {
@@ -159,5 +163,57 @@
       },
       "barrier_notes": ["Negative control: physical/camera geometry shift must fail, but pixel diff remains red/orchestrator-only."]
     }
-  ]
+  ],
+  "file_backed_controls": {
+    "purpose": "Tiny checked-in raster fixtures that exercise artifact loading, SHA-256 verification, pixel comparison, negative controls, and rerun agreement. These are screenshot-like surrogate files, not live app/browser/device captures.",
+    "source_format": "portable_pixmap_p3",
+    "format_note": "ASCII PPM P3 is intentionally used so validation remains Python-stdlib-only; it is a raster artifact surrogate rather than a PNG/browser screenshot claim.",
+    "artifact_visibility": "red_orchestrator_comparator_only",
+    "cases": [
+      {
+        "id": "T-401",
+        "surface_id": "surface-web-001",
+        "surface_class": "web_browser",
+        "capture_kind": "rendered_capture",
+        "expected_outcome": "PASS",
+        "comparator": "pixel_exact",
+        "reference_artifact": {
+          "path": "screenshots/t401-reference.ppm",
+          "sha256": "ec3ef46baa5177bba205aaff50186a426069b99e72493608a9fc82a5eef148c5",
+          "format": "portable_pixmap_p3",
+          "visibility": "red_orchestrator_comparator_only"
+        },
+        "rendered_artifact": {
+          "path": "screenshots/t401-rendered.ppm",
+          "sha256": "ec3ef46baa5177bba205aaff50186a426069b99e72493608a9fc82a5eef148c5",
+          "format": "portable_pixmap_p3",
+          "visibility": "red_orchestrator_comparator_only"
+        },
+        "privacy_scrub": ["no URL tokens", "no account names", "no local filesystem paths in green-visible output"],
+        "barrier_notes": ["Unchanged-image PASS control: T-401 intentionally uses identical reference/rendered raster bytes, and green may see only T-401: PASS."]
+      },
+      {
+        "id": "T-402",
+        "surface_id": "surface-web-001",
+        "surface_class": "web_browser",
+        "capture_kind": "rendered_capture",
+        "expected_outcome": "FAIL",
+        "comparator": "pixel_exact",
+        "reference_artifact": {
+          "path": "screenshots/t402-reference.ppm",
+          "sha256": "ec3ef46baa5177bba205aaff50186a426069b99e72493608a9fc82a5eef148c5",
+          "format": "portable_pixmap_p3",
+          "visibility": "red_orchestrator_comparator_only"
+        },
+        "rendered_artifact": {
+          "path": "screenshots/t402-rendered.ppm",
+          "sha256": "c459fb413123fec4b86c7bfd6f0e291c22a431b636fe3b49c58c649a3eb4a663",
+          "format": "portable_pixmap_p3",
+          "visibility": "red_orchestrator_comparator_only"
+        },
+        "privacy_scrub": ["no URL tokens", "no account names", "no local filesystem paths in green-visible output"],
+        "barrier_notes": ["Changed-image FAIL control: T-402 intentionally reuses the PASS reference raster but changes the rendered button color, and green may see only T-402: FAIL."]
+      }
+    ]
+  }
 }

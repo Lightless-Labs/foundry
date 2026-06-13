@@ -13,7 +13,8 @@ It tests the core idea from `docs/brainstorms/2026-04-04-adversarial-ui-design-s
 - `fixtures/hidden-red-cases.json` — red/orchestrator-only held-back Level 2 cases with opaque green labels.
 - `fixtures/generative-composition.json` — red/orchestrator/comparator-only Level 3 generated layout.
 - `fixtures/capture-surfaces.json` — modality-agnostic capture contracts for web browsers, simulators/emulators, and physical devices.
-- `fixtures/visual-comparison-controls.json` — synthetic visual comparison PASS/FAIL controls that reference every capture surface.
+- `fixtures/visual-comparison-controls.json` — synthetic plus file-backed raster visual comparison PASS/FAIL controls that reference every capture surface.
+- `fixtures/screenshots/*.ppm` — tiny screenshot-like ASCII PPM raster fixtures for file-backed comparator controls.
 - `artifacts/level1-level2-outcomes.toon` — example PASS/FAIL-only outcomes.
 - `dispatch/level3/ui-comparator.json` — PromptEnvelope for the Level 3 comparator trial.
 - `artifacts/level3-comparator-output.json` — persisted comparator output.
@@ -25,6 +26,7 @@ It tests the core idea from `docs/brainstorms/2026-04-04-adversarial-ui-design-s
 - The trial intentionally does **not** claim screenshot or vision reliability yet.
 - Capture-surface contracts now explicitly include web browser, simulator/emulator, and physical-device cases, but they are static fixtures rather than real capture runs.
 - Synthetic visual controls execute dependency-free image comparisons for all three modalities and include both positive and negative controls. They prove comparison mechanics and cross-file references, not real app/device capture reliability.
+- File-backed raster controls now load tiny checked-in ASCII PPM artifacts, verify SHA-256 hashes, compare pixels, and require rerun agreement. `T-401` intentionally uses identical reference/rendered files as the unchanged-image PASS control; `T-402` intentionally changes only the rendered file as the FAIL negative control. These fixtures are screenshot-like stdlib-readable surrogates, not live browser/device screenshots and not a vision-model reliability claim.
 
 ## Barrier Pattern
 
