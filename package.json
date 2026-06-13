@@ -14,6 +14,9 @@
     "red-green",
     "agent-orchestration"
   ],
+  "scripts": {
+    "validate": "tests/validate-public-plugin.sh"
+  },
   "peerDependencies": {
     "@earendil-works/pi-ai": "*",
     "@earendil-works/pi-coding-agent": "*",

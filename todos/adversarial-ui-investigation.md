@@ -14,6 +14,8 @@ updated: 2026-06-12
 
 **Addendum:** 2026-06-12 — added executable synthetic visual comparison controls via `docs/plans/2026-06-12-003-test-adversarial-ui-visual-comparison-controls-plan.md`. `fixtures/visual-comparison-controls.json` now includes PASS/FAIL controls for every capture surface ID, and `tests/validate-adversarial-ui-visual-controls.sh` cross-checks those IDs against `capture-surfaces.json`, verifies rerun agreement, and uses only Python stdlib image arrays (no Pillow/browser/device dependency).
 
+**Addendum:** 2026-06-13 — wired the UI validators into the broader fast validation path via `docs/plans/2026-06-13-001-test-public-plugin-validation-entrypoint-plan.md`. Added `tests/validate-public-plugin.sh` and `npm run validate`, both of which run the capture-surface and visual-control validators alongside existing fast public-plugin checks.
+
 Explore whether the three-level testing strategy (mock matching, held-back instances, generative composition) works in practice.
 
 ## Key unknowns to resolve
@@ -36,6 +38,7 @@ Pick a small design system (e.g., a card + button + grid with 3 tokens each for 
 - [x] Trial one Level 3 generative composition and record comparator reliability caveats.
 - [x] Add modality-agnostic capture contracts for browser, simulator/emulator, and physical-device screenshots.
 - [x] Add synthetic visual comparison controls with positive/negative cases and cross-file surface validation.
+- [x] Wire adversarial UI validators into the aggregate fast validation path.
 - [ ] Future hardening: run real screenshot/vision comparison with negative controls and rerun-agreement measurement.
 
 See: `docs/brainstorms/2026-04-04-adversarial-ui-design-system.md`

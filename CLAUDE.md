@@ -19,6 +19,7 @@ It provides:
 - `plugins/foundry/agents/` — reviewer, research, language, and adversarial-process agents
 - `.claude-plugin/` and `plugins/foundry/.claude-plugin/` — marketplace/plugin metadata
 - `examples/` — worked examples that demonstrate the method and preserve artifacts
+- `tests/validate-public-plugin.sh` — fast aggregate validation for public plugin checks
 - `tests/validate-agents.sh` — structural validation for agent prompt files
 - `docs/` and `todos/` — plans, learnings, handoff state, and pending work
 
@@ -42,7 +43,7 @@ This repo is primarily Markdown/YAML plugin content plus shell validation.
 - Skills are Markdown files with executable orchestration instructions.
 - Agents are Markdown files with YAML frontmatter and strict output schemas.
 - Plugin metadata is JSON under `.claude-plugin/` and `plugins/foundry/.claude-plugin/`.
-- Validation is shell-based via `tests/validate-agents.sh`.
+- Validation is shell-based via `tests/validate-public-plugin.sh` for the fast aggregate suite and targeted `tests/validate-*.sh` scripts for focused checks.
 
 ### Examples
 
@@ -55,6 +56,9 @@ Engine/state-machine changes belong in the private engine repo, not here. Public
 ## Quick Commands
 
 ```bash
+# Fast aggregate validation (excludes slow/live model lanes)
+tests/validate-public-plugin.sh
+
 # Structural validation for plugin agents
 tests/validate-agents.sh
 
