@@ -12,6 +12,8 @@ updated: 2026-06-12
 
 **Addendum:** 2026-06-12 — broadened the spike beyond browser assumptions via `docs/plans/2026-06-12-002-test-adversarial-ui-capture-modalities-plan.md`. Added `fixtures/capture-surfaces.json` covering web browsers, simulators/emulators, and physical-device captures, plus `tests/validate-adversarial-ui-capture-surfaces.sh` for modality and leak guardrails.
 
+**Addendum:** 2026-06-12 — added executable synthetic visual comparison controls via `docs/plans/2026-06-12-003-test-adversarial-ui-visual-comparison-controls-plan.md`. `fixtures/visual-comparison-controls.json` now includes PASS/FAIL controls for every capture surface ID, and `tests/validate-adversarial-ui-visual-controls.sh` cross-checks those IDs against `capture-surfaces.json`, verifies rerun agreement, and uses only Python stdlib image arrays (no Pillow/browser/device dependency).
+
 Explore whether the three-level testing strategy (mock matching, held-back instances, generative composition) works in practice.
 
 ## Key unknowns to resolve
@@ -33,6 +35,7 @@ Pick a small design system (e.g., a card + button + grid with 3 tokens each for 
 - [x] Trial Level 1 mock matching and Level 2 held-back instances with PASS/FAIL-only labels.
 - [x] Trial one Level 3 generative composition and record comparator reliability caveats.
 - [x] Add modality-agnostic capture contracts for browser, simulator/emulator, and physical-device screenshots.
+- [x] Add synthetic visual comparison controls with positive/negative cases and cross-file surface validation.
 - [ ] Future hardening: run real screenshot/vision comparison with negative controls and rerun-agreement measurement.
 
 See: `docs/brainstorms/2026-04-04-adversarial-ui-design-system.md`

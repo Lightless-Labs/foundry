@@ -1,0 +1,163 @@
+{
+  "schema_version": "foundry.adversarial-ui.visual-comparison-controls.v1",
+  "purpose": "Executable synthetic-image controls for adversarial UI visual comparison without browser, emulator, or device-farm dependencies.",
+  "visibility": "red_orchestrator_comparator_only",
+  "green_visible_results_contract": {
+    "format": "opaque_label_plus_PASS_or_FAIL_only",
+    "allowed_examples": ["T-301: PASS", "T-302: FAIL"],
+    "forbidden": [
+      "surface_id",
+      "surface_class",
+      "hidden case name",
+      "scene definition",
+      "reference image",
+      "rendered image",
+      "pixel diff",
+      "failure reason",
+      "comparator rationale"
+    ]
+  },
+  "comparison_contract": {
+    "image_size_px": {"width": 64, "height": 48},
+    "coordinate_space": "screenshot_px",
+    "channels": "RGBA",
+    "reruns_per_case": 2,
+    "thresholds": {
+      "max_changed_pixels_for_pass": 0
+    }
+  },
+  "cases": [
+    {
+      "id": "T-301",
+      "surface_id": "surface-web-001",
+      "surface_class": "web_browser",
+      "capture_kind": "rendered_capture",
+      "expected_outcome": "PASS",
+      "reference_scene": {
+        "background": "#ffffff",
+        "rectangles": [
+          {"xy": [4, 4, 60, 44], "fill": "#ffffff", "outline": "#d0d7de"},
+          {"xy": [12, 28, 36, 38], "fill": "#2563eb", "outline": "#2563eb"}
+        ]
+      },
+      "rendered_scene": {
+        "background": "#ffffff",
+        "rectangles": [
+          {"xy": [4, 4, 60, 44], "fill": "#ffffff", "outline": "#d0d7de"},
+          {"xy": [12, 28, 36, 38], "fill": "#2563eb", "outline": "#2563eb"}
+        ]
+      },
+      "barrier_notes": ["Green may see only T-301: PASS, not this scene or diff data."]
+    },
+    {
+      "id": "T-302",
+      "surface_id": "surface-web-001",
+      "surface_class": "web_browser",
+      "capture_kind": "rendered_capture",
+      "expected_outcome": "FAIL",
+      "reference_scene": {
+        "background": "#ffffff",
+        "rectangles": [
+          {"xy": [4, 4, 60, 44], "fill": "#ffffff", "outline": "#d0d7de"},
+          {"xy": [12, 28, 36, 38], "fill": "#2563eb", "outline": "#2563eb"}
+        ]
+      },
+      "rendered_scene": {
+        "background": "#ffffff",
+        "rectangles": [
+          {"xy": [4, 4, 60, 44], "fill": "#ffffff", "outline": "#d0d7de"},
+          {"xy": [12, 28, 36, 38], "fill": "#d0d7de", "outline": "#d0d7de"}
+        ]
+      },
+      "barrier_notes": ["Negative control: wrong button color must fail, but green may see only T-302: FAIL."]
+    },
+    {
+      "id": "T-303",
+      "surface_id": "surface-sim-001",
+      "surface_class": "simulator_emulator",
+      "capture_kind": "measurement_snapshot",
+      "expected_outcome": "PASS",
+      "reference_scene": {
+        "background": "#ffffff",
+        "rectangles": [
+          {"xy": [0, 0, 64, 6], "fill": "#f6f8fa", "outline": "#f6f8fa"},
+          {"xy": [8, 12, 56, 42], "fill": "#ffffff", "outline": "#d0d7de"}
+        ]
+      },
+      "rendered_scene": {
+        "background": "#ffffff",
+        "rectangles": [
+          {"xy": [0, 0, 64, 6], "fill": "#f6f8fa", "outline": "#f6f8fa"},
+          {"xy": [8, 12, 56, 42], "fill": "#ffffff", "outline": "#d0d7de"}
+        ]
+      },
+      "barrier_notes": ["Simulator/emulator status bar policy and safe area metadata stay red/orchestrator-only for hidden cases."]
+    },
+    {
+      "id": "T-304",
+      "surface_id": "surface-sim-001",
+      "surface_class": "simulator_emulator",
+      "capture_kind": "measurement_snapshot",
+      "expected_outcome": "FAIL",
+      "reference_scene": {
+        "background": "#ffffff",
+        "rectangles": [
+          {"xy": [0, 0, 64, 6], "fill": "#f6f8fa", "outline": "#f6f8fa"},
+          {"xy": [8, 12, 56, 42], "fill": "#ffffff", "outline": "#d0d7de"}
+        ]
+      },
+      "rendered_scene": {
+        "background": "#ffffff",
+        "rectangles": [
+          {"xy": [0, 0, 64, 8], "fill": "#f6f8fa", "outline": "#f6f8fa"},
+          {"xy": [8, 12, 56, 42], "fill": "#ffffff", "outline": "#d0d7de"}
+        ]
+      },
+      "barrier_notes": ["Negative control: changed system-bar/safe-area geometry must fail without exposing bar measurements to green."]
+    },
+    {
+      "id": "T-305",
+      "surface_id": "surface-device-001",
+      "surface_class": "physical_device",
+      "capture_kind": "rendered_capture",
+      "expected_outcome": "PASS",
+      "reference_scene": {
+        "background": "#111827",
+        "rectangles": [
+          {"xy": [6, 6, 58, 42], "fill": "#ffffff", "outline": "#d0d7de"},
+          {"xy": [14, 30, 38, 40], "fill": "#2563eb", "outline": "#2563eb"}
+        ]
+      },
+      "rendered_scene": {
+        "background": "#111827",
+        "rectangles": [
+          {"xy": [6, 6, 58, 42], "fill": "#ffffff", "outline": "#d0d7de"},
+          {"xy": [14, 30, 38, 40], "fill": "#2563eb", "outline": "#2563eb"}
+        ]
+      },
+      "barrier_notes": ["Physical-device case metadata must be scrubbed for serials/accounts/notifications/GPS/EXIF/lab identifiers before any publication."]
+    },
+    {
+      "id": "T-306",
+      "surface_id": "surface-device-001",
+      "surface_class": "physical_device",
+      "capture_kind": "visual_diff",
+      "expected_outcome": "FAIL",
+      "reference_scene": {
+        "background": "#111827",
+        "rectangles": [
+          {"xy": [6, 6, 58, 42], "fill": "#ffffff", "outline": "#d0d7de"},
+          {"xy": [14, 30, 38, 40], "fill": "#2563eb", "outline": "#2563eb"}
+        ]
+      },
+      "rendered_scene": {
+        "background": "#111827",
+        "rectangles": [
+          {"xy": [8, 8, 60, 44], "fill": "#ffffff", "outline": "#d0d7de"},
+          {"xy": [14, 30, 38, 40], "fill": "#2563eb", "outline": "#2563eb"}
+        ]
+      },
+      "barrier_notes": ["Negative control: physical/camera geometry shift must fail, but pixel diff remains red/orchestrator-only."]
+    }
+  ]
+}
