@@ -2,8 +2,8 @@
 title: Investigate adversarial red/green for UI via design systems
 origin: 2026-04-04 brainstorm — adversarial-ui-design-system
 priority: future
-status: completed first spike — screenshot/vision hardening remains future work
-updated: 2026-06-13
+status: completed first spike — viewport screenshot/vision hardening remains future work
+updated: 2026-06-14
 ---
 
 # Investigate Adversarial UI
@@ -17,6 +17,8 @@ updated: 2026-06-13
 **Addendum:** 2026-06-13 — wired the UI validators into the broader fast validation path via `docs/plans/2026-06-13-001-test-public-plugin-validation-entrypoint-plan.md`. Added `tests/validate-public-plugin.sh` and `npm run validate`, both of which run the capture-surface and visual-control validators alongside existing fast public-plugin checks.
 
 **Addendum:** 2026-06-13 — added file-backed raster controls via `docs/plans/2026-06-13-002-test-adversarial-ui-file-backed-raster-controls-plan.md`. `fixtures/screenshots/*.ppm` now provides tiny screenshot-like ASCII PPM artifacts, and `tests/validate-adversarial-ui-visual-controls.sh` verifies artifact existence, SHA-256, parseability, dimensions, comparison outcome, and rerun agreement. This is still a stdlib-only surrogate, not live browser/device capture or vision-model validation.
+
+**Addendum:** 2026-06-14 — added a macOS WebKit/QuickLook thumbnail smoke via `docs/plans/2026-06-14-001-test-adversarial-ui-webkit-thumbnail-smoke-plan.md`. `fixtures/webkit-thumbnail-smoke/` contains static HTML controls plus a manifest, `artifacts/webkit-thumbnail-smoke/*.png` preserves two PNG renderer reruns per reference/rendered case, `artifacts/webkit-thumbnail-smoke/outcomes.toon` contains only opaque `T-###,PASS/FAIL` labels, and `tests/validate-adversarial-ui-webkit-thumbnail-smoke.sh` validates hashes, dimensions, rerun agreement, outcome redaction, and live `qlmanage` regeneration when available. This proves a real renderer-thumbnail path, not viewport-accurate browser screenshots or vision-model reliability.
 
 Explore whether the three-level testing strategy (mock matching, held-back instances, generative composition) works in practice.
 
@@ -42,6 +44,7 @@ Pick a small design system (e.g., a card + button + grid with 3 tokens each for 
 - [x] Add synthetic visual comparison controls with positive/negative cases and cross-file surface validation.
 - [x] Wire adversarial UI validators into the aggregate fast validation path.
 - [x] Add file-backed raster controls with artifact hash validation and positive/negative cases.
-- [ ] Future hardening: run real screenshot/vision comparison with negative controls and rerun-agreement measurement.
+- [x] Add a WebKit/QuickLook renderer-thumbnail smoke with positive/negative cases and rerun agreement.
+- [ ] Future hardening: run viewport-accurate browser screenshot and/or vision comparison with negative controls and rerun-agreement measurement.
 
 See: `docs/brainstorms/2026-04-04-adversarial-ui-design-system.md`

@@ -1,0 +1,128 @@
+{
+  "schema_version": "foundry.adversarial-ui.webkit-thumbnail-smoke.v1",
+  "purpose": "Rerunnable WebKit/QuickLook thumbnail smoke for one web-browser adversarial UI modality. This is a real renderer thumbnail check, not a viewport-accurate browser screenshot gate.",
+  "visibility": "red_orchestrator_comparator_only",
+  "surface_id": "surface-web-001",
+  "surface_class": "web_browser",
+  "capture_kind": "rendered_capture",
+  "renderer": {
+    "tool": "qlmanage",
+    "command_template": "qlmanage -t -s 800 -o <output_dir> <html_file>",
+    "dimension_probe": "PNG IHDR via validator; sips -g pixelWidth -g pixelHeight was used during initial capture",
+    "thumbnail_size_px": {
+      "width": 800,
+      "height": 800
+    },
+    "framing_note": "QuickLook emits a square thumbnail with WebKit-rendered content; scaling/framing/padding are thumbnail semantics, not DOM viewport pixels.",
+    "platform_note": "macOS QuickLook/WebKit smoke; keep out of fast aggregate validation and do not generalize to Chrome/Firefox/device reliability."
+  },
+  "green_visible_results_contract": {
+    "format": "opaque_label_plus_PASS_or_FAIL_only",
+    "allowed_examples": [
+      "T-501: PASS",
+      "T-502: FAIL"
+    ],
+    "forbidden": [
+      "HTML hidden-case content",
+      "thumbnail path",
+      "thumbnail hash",
+      "renderer metadata",
+      "pixel diff",
+      "failure reason",
+      "comparator rationale"
+    ]
+  },
+  "thresholds": {
+    "rerun_hash_agreement_required": true,
+    "pass_reference_rendered_hash_equal": true,
+    "fail_reference_rendered_hash_different": true,
+    "pixel_delta_threshold": "not_calibrated_for_quicklook_thumbnail_framing"
+  },
+  "source_html": [
+    {
+      "path": "t501-reference.html",
+      "sha256": "6609008e858f16e0ddffd0c59d8b3802143efdc5e0a801b539e1a74deda92cd2",
+      "visibility": "red_orchestrator_comparator_only"
+    },
+    {
+      "path": "t501-rendered.html",
+      "sha256": "6609008e858f16e0ddffd0c59d8b3802143efdc5e0a801b539e1a74deda92cd2",
+      "visibility": "red_orchestrator_comparator_only"
+    },
+    {
+      "path": "t502-reference.html",
+      "sha256": "6609008e858f16e0ddffd0c59d8b3802143efdc5e0a801b539e1a74deda92cd2",
+      "visibility": "red_orchestrator_comparator_only"
+    },
+    {
+      "path": "t502-rendered.html",
+      "sha256": "998572ed7173b979fed581eacaf2b598b7a74527c33e754b1b2a6618bd130e20",
+      "visibility": "red_orchestrator_comparator_only"
+    }
+  ],
+  "cases": [
+    {
+      "id": "T-501",
+      "expected_outcome": "PASS",
+      "reference_html": "t501-reference.html",
+      "rendered_html": "t501-rendered.html",
+      "reference_artifacts": [
+        {
+          "path": "t501-reference-r1.png",
+          "sha256": "415335810cf05589bbfc54a3bb5a895787a775772a2f31617bbb4e7870911a7e"
+        },
+        {
+          "path": "t501-reference-r2.png",
+          "sha256": "415335810cf05589bbfc54a3bb5a895787a775772a2f31617bbb4e7870911a7e"
+        }
+      ],
+      "rendered_artifacts": [
+        {
+          "path": "t501-rendered-r1.png",
+          "sha256": "415335810cf05589bbfc54a3bb5a895787a775772a2f31617bbb4e7870911a7e"
+        },
+        {
+          "path": "t501-rendered-r2.png",
+          "sha256": "415335810cf05589bbfc54a3bb5a895787a775772a2f31617bbb4e7870911a7e"
+        }
+      ],
+      "barrier_notes": [
+        "Unchanged WebKit thumbnail PASS control; green may see only T-501: PASS."
+      ]
+    },
+    {
+      "id": "T-502",
+      "expected_outcome": "FAIL",
+      "reference_html": "t502-reference.html",
+      "rendered_html": "t502-rendered.html",
+      "reference_artifacts": [
+        {
+          "path": "t502-reference-r1.png",
+          "sha256": "415335810cf05589bbfc54a3bb5a895787a775772a2f31617bbb4e7870911a7e"
+        },
+        {
+          "path": "t502-reference-r2.png",
+          "sha256": "415335810cf05589bbfc54a3bb5a895787a775772a2f31617bbb4e7870911a7e"
+        }
+      ],
+      "rendered_artifacts": [
+        {
+          "path": "t502-rendered-r1.png",
+          "sha256": "129e0fb5c08248c676ad8ed28c31bc1b80d5679ba14cf896f5dc8412c6bf739c"
+        },
+        {
+          "path": "t502-rendered-r2.png",
+          "sha256": "129e0fb5c08248c676ad8ed28c31bc1b80d5679ba14cf896f5dc8412c6bf739c"
+        }
+      ],
+      "barrier_notes": [
+        "Changed WebKit thumbnail FAIL control: rendered HTML uses disabled-token gray instead of accent blue; green may see only T-502: FAIL."
+      ]
+    }
+  ],
+  "green_visible_outcomes": {
+    "path": "artifacts/webkit-thumbnail-smoke/outcomes.toon",
+    "sha256": "32189fb53ee9d95739fdfef5c6564a54029b8ad62ae0a0f4f1b2e893f77dde76",
+    "visibility": "green_visible_opaque_pass_fail_only"
+  }
+}

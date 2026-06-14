@@ -15,6 +15,9 @@ It tests the core idea from `docs/brainstorms/2026-04-04-adversarial-ui-design-s
 - `fixtures/capture-surfaces.json` — modality-agnostic capture contracts for web browsers, simulators/emulators, and physical devices.
 - `fixtures/visual-comparison-controls.json` — synthetic plus file-backed raster visual comparison PASS/FAIL controls that reference every capture surface.
 - `fixtures/screenshots/*.ppm` — tiny screenshot-like ASCII PPM raster fixtures for file-backed comparator controls.
+- `fixtures/webkit-thumbnail-smoke/` — static HTML controls and manifest for a macOS WebKit/QuickLook thumbnail smoke.
+- `artifacts/webkit-thumbnail-smoke/*.png` — committed QuickLook/WebKit PNG thumbnail reruns.
+- `artifacts/webkit-thumbnail-smoke/outcomes.toon` — green-visible opaque outcome labels only (`T-###,PASS/FAIL`).
 - `artifacts/level1-level2-outcomes.toon` — example PASS/FAIL-only outcomes.
 - `dispatch/level3/ui-comparator.json` — PromptEnvelope for the Level 3 comparator trial.
 - `artifacts/level3-comparator-output.json` — persisted comparator output.
@@ -27,6 +30,7 @@ It tests the core idea from `docs/brainstorms/2026-04-04-adversarial-ui-design-s
 - Capture-surface contracts now explicitly include web browser, simulator/emulator, and physical-device cases, but they are static fixtures rather than real capture runs.
 - Synthetic visual controls execute dependency-free image comparisons for all three modalities and include both positive and negative controls. They prove comparison mechanics and cross-file references, not real app/device capture reliability.
 - File-backed raster controls now load tiny checked-in ASCII PPM artifacts, verify SHA-256 hashes, compare pixels, and require rerun agreement. `T-401` intentionally uses identical reference/rendered files as the unchanged-image PASS control; `T-402` intentionally changes only the rendered file as the FAIL negative control. These fixtures are screenshot-like stdlib-readable surrogates, not live browser/device screenshots and not a vision-model reliability claim.
+- WebKit thumbnail smoke now preserves real macOS QuickLook/WebKit renderer thumbnails for web controls. `T-501` is an unchanged HTML PASS control; `T-502` changes only the button background token from `#2563eb` to `#d0d7de` and fails. QuickLook emits square 800×800 thumbnails with framing/scaling semantics, so this is renderer-thumbnail evidence, not viewport-accurate browser screenshot or vision-model reliability evidence.
 
 ## Barrier Pattern
 
@@ -52,5 +56,6 @@ python3 -m json.tool examples/adversarial-ui-design-system/fixtures/visual-compa
 python3 -m json.tool examples/adversarial-ui-design-system/dispatch/level3/ui-comparator.json >/dev/null
 tests/validate-adversarial-ui-capture-surfaces.sh
 tests/validate-adversarial-ui-visual-controls.sh
+tests/validate-adversarial-ui-webkit-thumbnail-smoke.sh
 tests/validate-barrier-envelopes.sh examples/adversarial-ui-design-system/dispatch
 ```

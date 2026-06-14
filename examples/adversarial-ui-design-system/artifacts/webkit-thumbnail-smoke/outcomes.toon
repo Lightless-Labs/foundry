@@ -1,0 +1,3 @@
+ui_smoke_outcomes[2]{label,outcome}:
+  T-501,PASS
+  T-502,FAIL
