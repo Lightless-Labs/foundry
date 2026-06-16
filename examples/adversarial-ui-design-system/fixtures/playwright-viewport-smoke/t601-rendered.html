@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=800, initial-scale=1">
+<title>Foundry UI WebKit thumbnail control</title>
+<style>
+html, body {
+  margin: 0;
+  width: 800px;
+  min-height: 600px;
+  background: #ffffff;
+  color: #24292f;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+.stage {
+  box-sizing: border-box;
+  width: 800px;
+  min-height: 600px;
+  padding: 32px;
+  background: #ffffff;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 640px;
+}
+.card {
+  box-sizing: border-box;
+  width: 312px;
+  min-height: 160px;
+  padding: 16px;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  background: #ffffff;
+}
+.title {
+  font: 600 20px/28px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin: 0 0 8px;
+}
+.body {
+  font: 400 14px/20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin: 0;
+  color: #57606a;
+}
+.button {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  background: #2563eb;
+  color: #ffffff;
+  font: 600 14px/20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+</style>
+</head>
+<body>
+<main class="stage">
+  <section class="grid">
+    <article class="card">
+      <h1 class="title">Compact action card</h1>
+      <p class="body">A compact card that follows spacing, border, radius, and button token rules.</p>
+      <span class="button">Action</span>
+    </article>
+  </section>
+</main>
+</body>
+</html>

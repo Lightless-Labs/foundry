@@ -1,0 +1,91 @@
+{
+  "schema_version": "foundry.adversarial-ui.playwright-viewport-smoke.v1",
+  "purpose": "Optional/manual Playwright viewport screenshot smoke for one web-browser adversarial UI modality. This validates real DOM viewport captures when Playwright and a browser binary are installed, but remains out of fast aggregate validation.",
+  "visibility": "red_orchestrator_comparator_only",
+  "surface_id": "surface-web-001",
+  "surface_class": "web_browser",
+  "capture_kind": "rendered_capture",
+  "runner": {
+    "tool": "playwright",
+    "default_browser": "chromium",
+    "supported_browser_env": "PLAYWRIGHT_BROWSER=chromium|webkit|firefox",
+    "viewport_px": {
+      "width": 800,
+      "height": 600
+    },
+    "device_scale_factor": 1,
+    "reruns_per_role": 2,
+    "framing_note": "Playwright page.screenshot captures the configured DOM viewport only; this is viewport evidence, not QuickLook thumbnail framing and not a native-device capture."
+  },
+  "green_visible_results_contract": {
+    "format": "opaque_label_plus_PASS_or_FAIL_only",
+    "allowed_examples": [
+      "T-601: PASS",
+      "T-602: FAIL"
+    ],
+    "forbidden": [
+      "HTML hidden-case content",
+      "screenshot artifact path",
+      "screenshot hash",
+      "browser metadata",
+      "renderer metadata",
+      "pixel diff",
+      "failure reason",
+      "comparator rationale"
+    ]
+  },
+  "thresholds": {
+    "rerun_hash_agreement_required": true,
+    "pass_reference_rendered_hash_equal": true,
+    "fail_reference_rendered_hash_different": true,
+    "expected_viewport_width_px": 800,
+    "expected_viewport_height_px": 600,
+    "pixel_delta_threshold": "not_calibrated_for_general_visual_regression; this smoke only checks controlled PASS/FAIL fixtures"
+  },
+  "source_html": [
+    {
+      "path": "t601-reference.html",
+      "sha256": "6609008e858f16e0ddffd0c59d8b3802143efdc5e0a801b539e1a74deda92cd2",
+      "visibility": "red_orchestrator_comparator_only"
+    },
+    {
+      "path": "t601-rendered.html",
+      "sha256": "6609008e858f16e0ddffd0c59d8b3802143efdc5e0a801b539e1a74deda92cd2",
+      "visibility": "red_orchestrator_comparator_only"
+    },
+    {
+      "path": "t602-reference.html",
+      "sha256": "6609008e858f16e0ddffd0c59d8b3802143efdc5e0a801b539e1a74deda92cd2",
+      "visibility": "red_orchestrator_comparator_only"
+    },
+    {
+      "path": "t602-rendered.html",
+      "sha256": "998572ed7173b979fed581eacaf2b598b7a74527c33e754b1b2a6618bd130e20",
+      "visibility": "red_orchestrator_comparator_only"
+    }
+  ],
+  "cases": [
+    {
+      "id": "T-601",
+      "expected_outcome": "PASS",
+      "reference_html": "t601-reference.html",
+      "rendered_html": "t601-rendered.html",
+      "barrier_notes": [
+        "Unchanged Playwright viewport PASS control; green may see only T-601: PASS."
+      ]
+    },
+    {
+      "id": "T-602",
+      "expected_outcome": "FAIL",
+      "reference_html": "t602-reference.html",
+      "rendered_html": "t602-rendered.html",
+      "barrier_notes": [
+        "Changed Playwright viewport FAIL control: rendered HTML uses disabled-token gray instead of accent blue; green may see only T-602: FAIL."
+      ]
+    }
+  ],
+  "green_visible_outcomes": {
+    "generated_path_policy": "validator_writes_temp_artifact_or_PLAYWRIGHT_OUTPUT_DIR/outcomes.toon",
+    "visibility": "green_visible_opaque_pass_fail_only"
+  }
+}

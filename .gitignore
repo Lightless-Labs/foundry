@@ -1,3 +1,4 @@
 **/target/
 nohup.out
 .DS_Store
+examples/adversarial-ui-design-system/artifacts/playwright-viewport-smoke/
