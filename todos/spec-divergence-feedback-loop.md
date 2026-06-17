@@ -14,6 +14,8 @@ tags:
 
 **Completed:** 2026-04-08 — merged via PR #1. The public plugin now includes the `divergence-evaluator` agent plus Phase 1b/2b/restart extensions in `foundry-adversarial`.
 
+**Addendum:** 2026-06-16 — added `examples/spec-divergence-feedback-loop/README.md` to explain the original red-team fixture and redirect current validation to `tests/validate-adversarial-modules.sh` plus generic workflow eval suites. The historical `red/tests.sh` script is now documented as a preserved legacy artifact rather than a current passing gate, because later modularization moved many grep anchors into playbooks/evals.
+
 Divergence from the NLSpec is always evaluated for value. If valuable, the nlspec agent is re-run with enriched input — never patched in place. The spec agent is the only thing that produces a NLSpec.
 
 ## The Loop

@@ -120,6 +120,7 @@ Optional/manual lanes are intentionally excluded from fast validation, including
 - `examples/sudoku-solver/` — constraint-solving baseline.
 - `examples/rubiks-solver/` — golden-vector convention repair case study.
 - `examples/chess-engine/` — perft/golden-vector convention anchoring.
+- `examples/spec-divergence-feedback-loop/` — original red-team fixture for divergence/restart workflow validation.
 - `examples/adversarial-ui-design-system/` — UI design-system spike with capture contracts, visual controls, WebKit thumbnails, and optional Playwright viewport smoke.
 
 ## Current state

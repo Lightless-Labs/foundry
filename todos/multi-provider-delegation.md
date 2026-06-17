@@ -36,6 +36,8 @@ Completed 2026-06-03. Live run: `runs/pi-live-multilane-smoke/` with red `openai
 
 **Addendum:** 2026-06-11 — Extended the divergence/restart smoke with a post-restart resumed red/green lane. Post-restart green uses opaque `T-###` PASS/FAIL labels and explicitly redacts `post_restart_red_output`. Kimi r1 referenced an older run path, so r2 requested a self-contained Rust implementation artifact under `resumed/green/`; `cargo test --quiet` passed `4/4`. Barrier, behavioral, and agent validators pass.
 
+**Addendum:** 2026-06-16 — Added README documentation for every preserved run directory, including the smoke-only multilane/Kimi/MiniMax run directories that previously had only `behavioral-smoke.toon`, JSONL trace, and cargo output artifacts. README notes call out what each run demonstrates, preserved artifacts, validation commands, and stale generic `run_id: pi-live-dispatch-smoke` values in older smoke manifests where applicable.
+
 ## Plan
 
 See `docs/plans/2026-06-03-001-test-multi-provider-delegation-plan.md`, `docs/plans/2026-06-05-001-test-provider-diverse-worked-example-smoke-plan.md`, `docs/plans/2026-06-07-001-test-provider-diverse-phase-artifact-smoke-plan.md`, `docs/plans/2026-06-08-001-test-phase-artifact-capture-plan.md`, `docs/plans/2026-06-09-001-test-provider-diverse-fuller-adversarial-phase-plan.md`, `docs/plans/2026-06-09-002-test-provider-diverse-reviewer-fanout-plan.md`, `docs/plans/2026-06-11-001-test-provider-diverse-divergence-restart-plan.md`, and `docs/plans/2026-06-11-002-test-post-restart-resume-smoke-plan.md`.

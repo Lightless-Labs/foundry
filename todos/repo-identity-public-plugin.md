@@ -10,6 +10,8 @@ completed: 2026-05-01
 
 **Completed:** 2026-05-01 — root `AGENTS.md` and `CLAUDE.md` now identify this checkout as the public plugin/skills/agents repo, with the Rust engine split called out explicitly.
 
+**Addendum:** 2026-06-16 — added the root `README.md` and then reordered it to lead with what Foundry does, key workflow opinions, install instructions, and only then repository contents.
+
 Root `AGENTS.md` and `CLAUDE.md` used to read as a Rust + Bazel product repo. But this checkout IS the public Claude plugin / skills / agents layer — the Rust engine lives in the private engine repo at `lightless-labs/lightless-labs/foundry/`.
 
 ## What to fix
