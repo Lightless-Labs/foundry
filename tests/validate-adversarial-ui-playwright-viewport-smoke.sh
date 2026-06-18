@@ -255,6 +255,20 @@ function ensureOpaqueOutcomes(outcomesPath, observedById) {
   const observedById = {};
   const summaries = [];
   try {
+    const warmupCase = (manifest.cases || [])[0];
+    if (warmupCase) {
+      const warmupHtml = relativePath(warmupCase.reference_html, fixtureDir, `${warmupCase.id || 'warmup'} reference_html`);
+      const warmupPath = path.join(outputDir, '.playwright-warmup.png');
+      const warmupPage = await browser.newPage({ viewport, deviceScaleFactor, colorScheme: 'light', locale: 'en-US' });
+      try {
+        await warmupPage.goto(pathToFileURL(warmupHtml).href, { waitUntil: 'load' });
+        await warmupPage.screenshot({ path: warmupPath, fullPage: false, animations: 'disabled', caret: 'hide', omitBackground: false });
+      } finally {
+        await warmupPage.close();
+        fs.rmSync(warmupPath, { force: true });
+      }
+    }
+
     for (const testCase of manifest.cases || []) {
       const caseDir = path.join(outputDir, testCase.id);
       fs.mkdirSync(caseDir, { recursive: true });

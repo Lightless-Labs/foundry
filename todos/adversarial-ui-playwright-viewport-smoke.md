@@ -2,8 +2,8 @@
 title: Add optional Playwright viewport screenshot smoke for adversarial UI
 origin: 2026-06-14 follow-up after WebKit/QuickLook thumbnail smoke
 priority: future
-status: implemented (skip-path validated; real viewport lane requires optional Playwright install)
-updated: 2026-06-16
+status: implemented (real Chromium viewport lane validated; default skip path remains dependency-free)
+updated: 2026-06-18
 ---
 
 # Add Optional Playwright Viewport Screenshot Smoke
@@ -58,8 +58,12 @@ It still does not validate DOM viewport screenshots. QuickLook emits square 800Ã
 
 - [x] README documents optional Playwright setup and run commands.
 - [x] Validator skips cleanly when Playwright is absent unless `REQUIRE_PLAYWRIGHT=1` is set.
-- [x] Validator runs real viewport screenshot capture when Playwright is available (implemented; not executed locally because Playwright is absent).
+- [x] Validator runs real viewport screenshot capture when Playwright is available; validated locally on 2026-06-18 with a temporary Playwright Chromium install.
 - [x] At least one PASS and one FAIL control are captured with two reruns each when the optional lane runs.
 - [x] Validator checks viewport dimensions, artifact hashes, rerun agreement, and expected PASS/FAIL outcomes.
 - [x] Green-visible outcome artifact contains only opaque labels and PASS/FAIL values.
 - [x] Fast aggregate validation remains dependency-free and passing.
+
+## Addendum: 2026-06-18 â€” Real Chromium lane validation
+
+A temporary Playwright install plus Chromium browser binary successfully exercised the optional viewport lane with `REQUIRE_PLAYWRIGHT=1 PLAYWRIGHT_BROWSER=chromium`. The first fresh-browser attempt exposed one warm-up-only hash drift on `T-601`; the validator now performs a red/orchestrator-only warm-up capture before enforcing rerun hash agreement. Post-hardening results: real Chromium viewport smoke passed, default no-Playwright invocation still skipped cleanly, and fast aggregate validation passed.

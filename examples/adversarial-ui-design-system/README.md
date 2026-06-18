@@ -32,7 +32,7 @@ It tests the core idea from `docs/brainstorms/2026-04-04-adversarial-ui-design-s
 - Synthetic visual controls execute dependency-free image comparisons for all three modalities and include both positive and negative controls. They prove comparison mechanics and cross-file references, not real app/device capture reliability.
 - File-backed raster controls now load tiny checked-in ASCII PPM artifacts, verify SHA-256 hashes, compare pixels, and require rerun agreement. `T-401` intentionally uses identical reference/rendered files as the unchanged-image PASS control; `T-402` intentionally changes only the rendered file as the FAIL negative control. These fixtures are screenshot-like stdlib-readable surrogates, not live browser/device screenshots and not a vision-model reliability claim.
 - WebKit thumbnail smoke now preserves real macOS QuickLook/WebKit renderer thumbnails for web controls. `T-501` is an unchanged HTML PASS control; `T-502` changes only the button background token from `#2563eb` to `#d0d7de` and fails. QuickLook emits square 800×800 thumbnails with framing/scaling semantics, so this is renderer-thumbnail evidence, not viewport-accurate browser screenshot or vision-model reliability evidence.
-- Playwright viewport smoke is optional/manual and dependency-free by default. When Playwright and a browser binary are installed, `T-601` captures two 800×600 viewport reruns for an unchanged PASS control and `T-602` captures two viewport reruns for the same deliberate button-token FAIL control. This closes the viewport screenshot mechanics gap without making browser automation part of normal public-plugin validation.
+- Playwright viewport smoke is optional/manual and dependency-free by default. When Playwright and a browser binary are installed, `T-601` captures two 800×600 viewport reruns for an unchanged PASS control and `T-602` captures two viewport reruns for the same deliberate button-token FAIL control after a red/orchestrator-only warm-up capture. A real Chromium lane passed locally on 2026-06-18. This closes the viewport screenshot mechanics gap without making browser automation part of normal public-plugin validation.
 
 ## Barrier Pattern
 
@@ -78,5 +78,6 @@ tests/validate-adversarial-ui-capture-surfaces.sh
 tests/validate-adversarial-ui-visual-controls.sh
 tests/validate-adversarial-ui-webkit-thumbnail-smoke.sh
 tests/validate-adversarial-ui-playwright-viewport-smoke.sh  # SKIP when Playwright is unavailable unless REQUIRE_PLAYWRIGHT=1
+REQUIRE_PLAYWRIGHT=1 PLAYWRIGHT_BROWSER=chromium tests/validate-adversarial-ui-playwright-viewport-smoke.sh  # PASS with temporary Chromium install on 2026-06-18
 tests/validate-barrier-envelopes.sh examples/adversarial-ui-design-system/dispatch
 ```
