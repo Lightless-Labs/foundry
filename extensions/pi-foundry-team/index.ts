@@ -554,7 +554,9 @@ export default function (pi: ExtensionAPI) {
 				return result;
 			});
 
-			const failures = results.filter((result) => result.exitCode !== 0 || result.stopReason === "error" || result.stopReason === "aborted");
+			const failures = results.filter(
+				(result) => result.exitCode !== 0 || Boolean(result.errorMessage) || result.stopReason === "error" || result.stopReason === "aborted",
+			);
 			const summary = results
 				.map((result) => {
 					const status = failures.includes(result) ? "failed" : "completed";
