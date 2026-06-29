@@ -120,6 +120,27 @@ function discoverFoundryAgents(): FoundryAgent[] {
 	return agents.sort((a, b) => a.name.localeCompare(b.name));
 }
 
+function agentNameSuffix(name: string): string {
+	return name.trim().split(":").filter(Boolean).pop() ?? name.trim();
+}
+
+function resolveFoundryAgent(requested: string | undefined, agents: FoundryAgent[]): FoundryAgent | undefined {
+	if (!requested) return undefined;
+	const normalized = requested.trim();
+	if (!normalized) return undefined;
+	const lower = normalized.toLowerCase();
+	const exact = agents.find((candidate) => candidate.name === normalized || candidate.name.toLowerCase() === lower);
+	if (exact) return exact;
+
+	const suffix = agentNameSuffix(normalized).toLowerCase();
+	const suffixMatches = agents.filter((candidate) => agentNameSuffix(candidate.name).toLowerCase() === suffix);
+	return suffixMatches.length === 1 ? suffixMatches[0] : undefined;
+}
+
+function availableFoundryAgentNames(agents: FoundryAgent[]): string {
+	return agents.map((agent) => agent.name).join(", ") || "none";
+}
+
 function resolvePath(cwd: string, rawPath: string): string {
 	const expanded = rawPath.startsWith("~/") ? path.join(os.homedir(), rawPath.slice(2)) : rawPath;
 	return path.isAbsolute(expanded) ? expanded : path.resolve(cwd, expanded);
@@ -326,8 +347,12 @@ async function runDispatch(
 ): Promise<DispatchResult> {
 	const envelope = readEnvelope(ctxCwd, request.envelopePath);
 	const { prompt, recipient, phase } = validateEnvelope(envelope);
-	const agent = request.agent ? agents.find((candidate) => candidate.name === request.agent) : undefined;
-	if (request.agent && !agent) throw new Error(`Unknown Foundry agent ${request.agent}`);
+	const agent = request.agent ? resolveFoundryAgent(request.agent, agents) : resolveFoundryAgent(recipient, agents);
+	if (request.agent && !agent) {
+		throw new Error(
+			`Unknown Foundry agent ${request.agent}. Use a packaged frontmatter name or omit agent to infer from envelope.recipient. Available agents: ${availableFoundryAgentNames(agents)}`,
+		);
+	}
 
 	const plannedModel = request.model ?? agent?.model;
 	const tools = request.tools ?? agent?.tools ?? ["read", "grep", "find", "ls"];
